@@ -1,0 +1,20 @@
+Bundle::Net::EPP - A bundle to install all EPP related modules.
+
+Bundled by: CentralNic Ltd (L<http://www.centralnic.com/>)
+
+To install this Bundle file locally:
+
+	perl Makefile.PL
+	make install
+
+Then, for a full list of the modules which this bundle
+installs, use:
+
+	perldoc Bundle::Net::EPP
+
+Finally, to install the EPP modules which the bundle lists:
+
+	cpan -i Bundle::Net::EPP
+
+--
+$Id: README,v 1.1 2008/01/04 10:44:01 gavin Exp $
