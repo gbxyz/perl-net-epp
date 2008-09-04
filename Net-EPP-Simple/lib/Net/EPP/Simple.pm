@@ -78,6 +78,8 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 
 =item * You can use the C<user> and C<pass> parameters to supply authentication information.
 
+=item * The C<timeout> parameter controls how long the client waits for a response from the server before returning an error.
+
 =back
 
 The constructor will establish a connection to the server and retrieve the
@@ -93,14 +95,21 @@ sub new {
 	my ($package, %params) = @_;
 	$params{dom}		= 1;
 	$params{port}		= (int($params{port}) > 0 ? $params{port} : 700);
-	$params{timeout}	= (int($params{timeout}) > 0 ? $params{timeout} : 5);
 	$params{ssl}		= ($params{no_ssl} ? undef : 1);
 
 	my $self = $package->SUPER::new(%params);
 
+	$self->{debug} 		= int($params{debug});
+	$self->{timeout}	= (int($params{timeout}) > 0 ? $params{timeout} : 5);
+
 	bless($self, $package);
 
+	$self->debug(sprintf('Attempting to connect to %s:%d', $self->{host}, $self->{port}));
 	$self->{greeting} = $self->connect;
+
+	map { $self->debug('S: '.$_) } split(/\n/, $self->{greeting}->toString(1));
+
+	$self->debug('Connected OK, preparing login frame');
 
 	my $login = Net::EPP::Frame::Command::Login->new;
 
@@ -120,13 +129,16 @@ sub new {
 		$login->svcs->appendChild($el);
 	}
 
+	$self->debug(sprintf('Attempting to login as client ID %s', $self->{user}));
 	my $response = $self->request($login);
 
-	my $code = $self->_get_response_code($response);
+	my $Code = $self->_get_response_code($response);
 	$Message = $self->_get_message($response);
 
-	if ($code != 1000) {
-		$Error = "Error logging in (response code $code)";
+	$self->debug(sprintf('%04d: %s', $Code, $Message));
+
+	if ($Code > 1999) {
+		$Error = "Error logging in (response code $Code)";
 		return undef;
 	}
 
@@ -135,7 +147,7 @@ sub new {
 
 =pod
 
-=head1 AVAILABILITY CHECKS
+=head1 Availability Checks
 
 You can do a simple C<E<lt>checkE<gt>> request for an object like so:
 
@@ -172,6 +184,7 @@ sub check_contact {
 	my ($self, $contact) = @_;
 	return $self->_check('contact', $contact);
 }
+
 sub _check {
 	my ($self, $type, $identifier) = @_;
 	my $frame;
@@ -197,7 +210,7 @@ sub _check {
 	$Code = $self->_get_response_code($response);
 	$Message = $self->_get_message($response);
 
-	if ($Code != 1000) {
+	if ($Code > 1999) {
 		$Error = sprintf("Server returned a %d code", $Code);
 		return undef;
 
@@ -218,7 +231,7 @@ sub _check {
 
 =pod
 
-=head1 RETRIEVING OBJECT INFORMATION
+=head1 Retrieving Object Information
 
 You can retrieve information about an object by using one of the following:
 
@@ -276,7 +289,7 @@ sub _info {
 	$Code = $self->_get_response_code($response);
 	$Message = $self->_get_message($response);
 
-	if ($Code != 1000) {
+	if ($Code > 1999) {
 		$Error = sprintf("Server returned a %d code", $Code);
 		return undef;
 
@@ -317,7 +330,7 @@ sub _get_common_properties_from_infData {
 
 =pod
 
-=head2 DOMAIN INFORMATION
+=head2 Domain Information
 
 The hash ref returned by C<domain_info()> will usually look something
 like this:
@@ -439,7 +452,7 @@ sub _domain_infData_to_hash {
 
 =pod
 
-=head2 HOST INFORMATION
+=head2 Host Information
 
 The hash ref returned by C<host_info()> will usually look something like
 this:
@@ -483,7 +496,7 @@ sub _host_infData_to_hash {
 
 =pod
 
-=head2 CONTACT INFORMATION
+=head2 Contact Information
 
 The hash ref returned by C<contact_info()> will usually look something
 like this:
@@ -584,7 +597,7 @@ sub _contact_infData_to_hash {
 
 =pod
 
-=head1 OBJECT TRANSFERS
+=head1 Object Transfers
 
 The EPP C<E<lt>transferE<gt>> command suppots five different operations:
 query, request, cancel, approve, and reject. C<Net::EPP::Simple> makes
@@ -717,7 +730,7 @@ sub contact_transfer_reject {
 
 =pod
 
-=head1 CREATING OBJECTS
+=head1 Creating Objects
 
 The following methods can be used to create a new object at the server:
 
@@ -743,7 +756,7 @@ C<Net::EPP::Simple> will ignore object properties that it does not recognise,
 and those properties (such as server-managed status codes) that clients are
 not permitted to set.
 
-=head2 CREATING NEW DOMAINS
+=head2 Creating New Domains
 
 When creating a new domain object, you may also specify a C<period> key, like so:
 
@@ -842,12 +855,86 @@ sub update_contact {
 
 =pod
 
-=head1 OVERRIDDEN METHODS FROM C<Net::EPP::Client>
+=head1 Deleting Objects
+
+The following methods can be used to delete an object at the server:
+
+	$epp->delete_domain($domain);
+	$epp->delete_host($host);
+	$epp->delete_contact($contact);
+
+Each of these methods has the same profile. They will return one of the following:
+
+=over
+
+=item * undef in the case of an error (check C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>).
+
+=item * 1 if the deletion request was accepted.
+
+=back
+
+You may wish to check the value of $Net::EPP::Simple::Code to determine whether the response code was 1000 (OK) or 1001 (action pending).
+
+=cut
+
+sub delete_domain {
+	my ($self, $domain) = @_;
+	return $self->_delete('domain', $domain);
+}
+
+sub delete_host {
+	my ($self, $host) = @_;
+	return $self->_delete('host', $host);
+}
+
+sub delete_contact {
+	my ($self, $contact) = @_;
+	return $self->_delete('contact', $contact);
+}
+
+sub _delete {
+	my ($self, $type, $identifier) = @_;
+	my $frame;
+	if ($type eq 'domain') {
+		$frame = Net::EPP::Frame::Command::Delete::Domain->new;
+		$frame->setDomain($identifier);
+
+	} elsif ($type eq 'contact') {
+		$frame = Net::EPP::Frame::Command::Delete::Contact->new;
+		$frame->setContact($identifier);
+
+	} elsif ($type eq 'host') {
+		$frame = Net::EPP::Frame::Command::Delete::Host->new;
+		$frame->setHost($identifier);
+
+	} else {
+		$Error = "Unknown object type '$type'";
+		return undef;
+	}
+
+	my $response = $self->request($frame);
+
+	$Code = $self->_get_response_code($response);
+	$Message = $self->_get_message($response);
+
+	if ($Code > 1999) {
+		$Error = sprintf("Server returned a %d code", $Code);
+		return undef;
+
+	} else {
+		return 1;
+
+	}
+}
+
+=pod
+
+=head1 Overridden Methods From C<Net::EPP::Client>
 
 C<Net::EPP::Simple> overrides some methods inherited from
 C<Net::EPP::Client>. These are described below:
 
-=head2 THE C<request()> METHOD
+=head2 The C<request()> Method
 
 C<Net::EPP::Simple> overrides this method so it can automatically populate
 the C<E<lt>clTRIDE<gt>> element with a unique string. It then passes the
@@ -857,13 +944,25 @@ frame back up to C<Net::EPP::Client>.
 
 sub request {
 	my ($self, $frame) = @_;
+	$self->debug(sprintf('sending a %s to the server', ref($frame)));
+	if (isa($frame, 'XML::LibXML::Document')) {
+		map { $self->debug('C: '.$_) } split(/\n/, $frame->toString(1));
+
+	} else {
+		map { $self->debug('C: '.$_) } split(/\n/, $frame);
+
+	}
 	$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (isa($frame, 'XML::LibXML::Node'));
-	return $self->SUPER::request($frame);
+	my $response = $self->SUPER::request($frame);
+	if (isa($response, 'XML::LibXML::Document')) {
+		map { $self->debug('S: '.$_) } split(/\n/, $response->toString(1));
+	}
+	return $response;
 }
 
 =pod
 
-=head2 THE C<get_frame()> METHOD
+=head2 The C<get_frame()> Method
 
 C<Net::EPP::Simple> overrides this method so it can catch timeouts and
 network errors. If such an error occurs it will return C<undef>.
@@ -873,13 +972,18 @@ network errors. If such an error occurs it will return C<undef>.
 sub get_frame {
 	my $self = shift;
 	my $frame;
+	$self->debug(sprintf('transmitting frame, waiting %d seconds before timeout', $self->{timeout}));
 	eval {
 		local $SIG{ARLM} = sub { die "alarm\n" };
+		$self->debug('setting alarm');
 		alarm($self->{timeout});
 		$frame = $self->SUPER::get_frame();
+		$self->debug('unsetting alarm');
 		alarm(0);
 	};
 	if ($@ ne '') {
+		$self->debug('unsetting alarm');
+		alarm(0);
 		$Error = "get_frame() timed out\n";
 		return undef;
 
@@ -917,6 +1021,7 @@ sub error { $Error }
 
 sub logout {
 	my $self = shift;
+	$self->debug('logging out');
 	my $response = $self->request(Net::EPP::Frame::Command::Logout->new);
 	return undef if (!$response);
 	$self->disconnect;
@@ -925,6 +1030,11 @@ sub logout {
 
 sub DESTROY {
 	$_[0]->logout;
+}
+
+sub debug {
+	my ($self, $msg) = @_;
+	printf(STDERR "%s (%d): %s\n", scalar(localtime()), $$, $msg) if ($self->{debug} == 1);
 }
 
 =pod
@@ -937,6 +1047,11 @@ This variable contains an english text message explaining the last error
 to occur. This is may be due to invalid parameters being passed to a
 method, a network error, or an error response being returned by the
 server.
+
+=head2 $Net::EPP::Simple::Message
+
+This variable contains the contains the text content of the
+C<E<lt>msgE<gt>> element in the response frame for the last transaction.
 
 =head2 $Net::EPP::Simple::Code
 
