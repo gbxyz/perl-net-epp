@@ -119,16 +119,26 @@ objects reblessed as C<Net::EPP::Frame> objects).
 sub new {
 	my ($package, %params) = @_;
 
-	croak("missing hostname")	if (!defined($params{'host'}));
-	croak("missing port")		if (!defined($params{'port'}));
+	my $self;
+	if (defined($params{'sock'})) {
+		$self = {
+			'sock'		=> $params{'sock'},
+			ssl		=> 0,
+			'dom'		=> (defined($params{'dom'}) ? 1 : 0),
+			'frames'	=> (defined($params{'frames'}) ? 1 : 0),
+		}
+	} else {
+		croak("missing hostname")	if (!defined($params{'host'}));
+		croak("missing port")		if (!defined($params{'port'}));
 
-	my $self = {
-		'host'		=> $params{'host'},
-		'port'		=> $params{'port'},
-		'ssl'		=> (defined($params{'ssl'}) ? 1 : 0),
-		'dom'		=> (defined($params{'dom'}) ? 1 : 0),
-		'frames'	=> (defined($params{'frames'}) ? 1 : 0),
-	};
+		$self = {
+			'host'		=> $params{'host'},
+			'port'		=> $params{'port'},
+			'ssl'		=> (defined($params{'ssl'}) ? 1 : 0),
+			'dom'		=> (defined($params{'dom'}) ? 1 : 0),
+			'frames'	=> (defined($params{'frames'}) ? 1 : 0),
+		};
+	}
 
 	if ($self->{'frames'} == 1) {
 		if ($EPPFRAME == 0) {
@@ -184,6 +194,21 @@ to this method as to C<get_frame()> (see below).
 sub connect {
 	my ($self, %params) = @_;
 
+	if (defined($self->{'sock'})) {
+		$self->_connect_unix(%params);
+
+	} else {
+		$self->_connect_tcp(%params);
+
+	}
+
+	return $self->get_frame;
+
+}
+
+sub _connect_tcp {
+	my ($self, %params) = @_;
+
 	my $SocketClass = ($self->{'ssl'} == 1 ? 'IO::Socket::SSL' : 'IO::Socket::INET');
 
 	$self->{'connection'} = $SocketClass->new(
@@ -194,13 +219,23 @@ sub connect {
 		%params
 	);
 
-	if (!defined($self->{'connection'}) || ($@ && $@ ne '')) {
-		croak("Connection to $self->{'host'}:$self->{'port'} failed: \"$@\"");
+	croak("Connection to $self->{'sock'} failed: \"$@\"") if (!defined($self->{'connection'}) || ($@ && $@ ne ''));
 
-	} else {
-		return $self->get_frame;
+	return 1;
+}
 
-	}
+sub _connect_unix {
+	my ($self, %params) = @_;
+
+	$self->{'connection'} = 'IO::Socket::UNIX'->new(
+		Peer		=> $self->{'sock'},
+		Type		=> SOCK_STREAM,
+		%params
+	);
+
+	croak("Connection to $self->{'host'}:$self->{'port'} failed: \"$@\"") if (!defined($self->{'connection'}) || ($@ && $@ ne ''));
+
+	return 1;
 
 }
 
