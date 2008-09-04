@@ -5,6 +5,7 @@
 # $Id: Client.pm,v 1.17 2008/01/23 12:23:16 gavin Exp $
 package Net::EPP::Client;
 use bytes;
+use Net::EPP::Protocol;
 use Carp;
 use IO::Socket;
 use IO::Socket::SSL;
@@ -294,24 +295,7 @@ the server returned a mal-formed frame, this method will C<croak()>.
 sub get_frame {
 	my $self = shift;
 
-	my $hdr;
-	$self->{'connection'}->read($hdr, 4);
-	my $length = (unpack('N', $hdr) - 4);
-	if ($length < 1) {
-		croak("Got a bad frame length from server - connection closed?");
-
-	} else {
-		my $answer = "";
-		while (length($answer) < $length) {
-			my $octet;
-			$self->{'connection'}->read($octet, ($length - length($answer)));
-			last if (length($octet) == 0); # in case the socket has closed
-			$answer .= $octet;
-		}
-
-		return $self->get_return_value($answer);
-
-	}
+	return $self->get_return_value(Net::EPP::Protocol->get_frame($self->{'connection'}));
 };
 
 sub get_return_value {
@@ -400,7 +384,7 @@ sub send_frame {
 
 	}
 
-	$self->{'connection'}->print(pack('N', length($xml) + 4).$xml);
+	Net::EPP::Protocol->send_frame($self->{'connection'}, $xml);
 
 	return 1;
 }
