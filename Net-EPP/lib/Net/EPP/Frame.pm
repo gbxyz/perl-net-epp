@@ -289,7 +289,7 @@ sub frame {
 
 =item L<Net::EPP::Frame::Command::Poll>, for EPP E<lt>pollE<gt> client commands
 
-=item L<Net::EPP::Frame::Command::Renew>, for EPP E<lt>renewW<gt> client commands
+=item L<Net::EPP::Frame::Command::Renew>, for EPP E<lt>renewE<gt> client commands
 
 =item L<Net::EPP::Frame::Command::Transfer>, for EPP E<lt>transferE<gt> client commands
 
