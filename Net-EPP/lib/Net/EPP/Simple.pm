@@ -122,7 +122,7 @@ sub new {
 		$el->appendText($object->firstChild->data);
 		$login->svcs->appendChild($el);
 	}
-	my $objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'extURI');
+	$objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'extURI');
 	while (my $object = $objects->shift) {
 		my $el = $login->createElement('objURI');
 		$el->appendText($object->firstChild->data);
@@ -482,7 +482,6 @@ optional.
 
 sub _host_infData_to_hash {
 	my ($self, $infData) = @_;
-	my $hash = {};
 
 	my $hash = $self->_get_common_properties_from_infData($infData, 'name');
 
