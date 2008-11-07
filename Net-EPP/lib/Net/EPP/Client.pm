@@ -220,7 +220,11 @@ sub _connect_tcp {
 		%params
 	);
 
-	croak("Connection to $self->{'sock'} failed: \"$@\"") if (!defined($self->{'connection'}) || ($@ && $@ ne ''));
+	if (!defined($self->{'connection'}) || ($@ && $@ ne '')) {
+		chomp($@);
+		$@ =~ s/^$SocketClass:? ?//;
+		croak("Connection to $self->{'host'}:$self->{'port'} failed: $@")
+	};
 
 	return 1;
 }
