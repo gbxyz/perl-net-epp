@@ -14,7 +14,7 @@ Prefix:		%{_prefix}
 AutoReq:	no
 BuildArch:	noarch
 BuildRequires:	perl
-Requires:	perl >= 5.8.6, perl(Gtk2), perl(Gtk2::GladeXML::Simple), perl(Locale::gettext), perl(Gnome2::VFS), perl(Gtk2::SourceView), perl(HTML::Entities), perl(Time::HiRes), gnome-icon-theme, perl(Net::EPP:Client), perl(Net::EPP::Frame) >= 0.11
+Requires:	perl >= 5.8.6, perl(Gtk2), perl(Gtk2::GladeXML::Simple), perl(Locale::gettext), perl(Gnome2::VFS), perl(Gtk2::SourceView), perl(HTML::Entities), perl(Time::HiRes), gnome-icon-theme, perl(Net::EPP::Client), perl(Net::EPP::Frame) >= 0.11
 
 %description
 Preppi is a simple graphical EPP client for Unix and Linux systems. It
