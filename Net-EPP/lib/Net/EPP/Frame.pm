@@ -13,10 +13,9 @@ use Net::EPP::Frame::Response;
 use POSIX qw(strftime);
 use XML::LibXML;
 use base qw(XML::LibXML::Document);
-use vars qw($VERSION $EPP_URN $SCHEMA_URI);
+use vars qw($EPP_URN $SCHEMA_URI);
 use strict;
 
-our $VERSION	= '0.12';
 our $EPP_URN	= 'urn:ietf:params:xml:ns:epp-1.0';
 our $SCHEMA_URI	= 'http://www.w3.org/2001/XMLSchema-instance';
 

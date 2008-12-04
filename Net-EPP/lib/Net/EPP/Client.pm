@@ -9,11 +9,9 @@ use Net::EPP::Protocol;
 use Carp;
 use IO::Socket;
 use IO::Socket::SSL;
-use vars qw($VERSION $XMLDOM $EPPFRAME);
+use vars qw($XMLDOM $EPPFRAME);
 use UNIVERSAL qw(isa);
 use strict;
-
-our $VERSION = '0.08';
 
 =pod
 

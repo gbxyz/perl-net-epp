@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     'NAME'			=> 'Net::EPP',
-    'VERSION'			=> '0.10',
+    'VERSION'			=> '0.11',
     'PREREQ_PM'			=> {
         'IO::Socket::SSL'	=> 0,
         'XML::LibXML'		=> 0,

@@ -5,10 +5,8 @@
 # $Id: ResponseCodes.pm,v 1.2 2008/01/04 10:37:33 gavin Exp $
 package Net::EPP::ResponseCodes;
 use base qw(Exporter);
-use vars qw(@EXPORT $VERSION);
+use vars qw(@EXPORT);
 use strict;
-
-our $VERSION = '0.01';
 
 =head1 NAME
 

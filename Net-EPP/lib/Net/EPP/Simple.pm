@@ -11,11 +11,10 @@ use Time::HiRes qw(time);
 use UNIVERSAL qw(isa);
 use base qw(Net::EPP::Client);
 use constant EPP_XMLNS	=> 'urn:ietf:params:xml:ns:epp-1.0';
-use vars qw($VERSION $Error $Code $Message);
+use vars qw($Error $Code $Message);
 use warnings;
 use strict;
 
-our $VERSION	= '0.05';
 our $Error	= '';
 our $Code	= 1000;
 our $Message	= '';
@@ -927,6 +926,7 @@ sub _delete {
 	} else {
 		$Error = "Unknown object type '$type'";
 		return undef;
+
 	}
 
 	my $response = $self->request($frame);

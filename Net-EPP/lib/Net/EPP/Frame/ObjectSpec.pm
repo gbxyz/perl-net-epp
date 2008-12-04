@@ -1,9 +1,7 @@
 #! $Id: ObjectSpec.pm,v 1.2 2007/12/03 11:44:51 gavin Exp $
 package Net::EPP::Frame::ObjectSpec;
-use vars qw($VERSION $SPEC);
+use vars qw($SPEC);
 use strict;
-
-our $VERSION = '0.01';
 
 our $SPEC = {
 	'domain'	=> [ 'urn:ietf:params:xml:ns:domain-1.0',	'urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd'	],
