@@ -73,19 +73,47 @@ C<E<lt>svTRIDE<gt>> element.
 
 =cut
 
-sub response { $_[0]->getNode('response') }
-sub result { $_[0]->getNode('result') }
-sub trID { $_[0]->getNode('trID') }
-sub clTRID { $_[0]->getNode('clTRID') }
-sub svTRID { $_[0]->getNode('svTRID') }
+sub response {
+	 my $self = shift;
+	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'response');
+}
+
+sub result {
+	 my $self = shift;
+	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'result');
+}
+
+sub trID {
+	 my $self = shift;
+	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'trID');
+}
+
+sub clTRID {
+	 my $self = shift;
+	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'clTRID');
+}
+
+sub svTRID {
+	 my $self = shift;
+	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'svTRID');
+}
+
+=pod
+
+	my $msg = $frame->code;
+
+This method returns the code attribute of the C<E<lt>resultE<gt>>
+element.
+
+=cut
 
 sub code {
-	my $self = shift;
-	my $result = $self->result;
-	if ($result) {
-		return $result->getAttribute('code');
-	}
-	return COMMAND_FAILED;
+	 my $self = shift;
+	 $result = $self->result;
+	 if ($result) {
+		  return $result->getAttribute('code');
+	 }
+	 return COMMAND_FAILED;
 }
 
 =pod
