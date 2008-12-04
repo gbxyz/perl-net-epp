@@ -109,7 +109,7 @@ element.
 
 sub code {
 	 my $self = shift;
-	 $result = $self->result;
+	 my $result = $self->result;
 	 if ($result) {
 		  return $result->getAttribute('code');
 	 }
