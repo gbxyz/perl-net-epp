@@ -26,11 +26,11 @@ servers.
 
 	# send a frame down the socket:
 
-	Net::EPP::Protocol->send_frame($frame);
+	Net::EPP::Protocol->send_frame($socket, $xml);
 
 	# get a frame from the socket:
 
-	Net::EPP::Protocol->get_frame($frame);
+	my $xml = Net::EPP::Protocol->get_frame($socket);
 
 =head1 DESCRIPTION
 
@@ -50,6 +50,13 @@ main consumer of this module is currently L<Net::EPP::Client>.
 
 	my $xml = Net::EPP::Protocol->get_frame($socket);
 
+This method reads a frame from the socket and returns a scalar
+containing the XML. C<$socket> must be an L<IO::Handle> or one of its
+subclasses (ie C<IO::Socket::*>).
+
+If the transmission fails for whatever reason, this method will
+C<croak()>, so be sure to enclose it in an C<eval()>.
+
 =cut
 
 sub get_frame {
@@ -59,19 +66,19 @@ sub get_frame {
 	$fh->read($hdr, 4);
 	my $length = (unpack('N', $hdr) - 4);
 	if ($length < 1) {
-		croak("Got a bad frame length from server - connection closed?");
+		croak("Got a bad frame length from peer - connection closed?");
 
 	} else {
-		my $frame = '';
+		my $xml = '';
 		my $buffer;
-		while (length($frame) < $length) {
+		while (length($xml) < $length) {
 			$buffer = '';
-			$fh->read($buffer, ($length - length($frame)));
+			$fh->read($buffer, ($length - length($xml)));
 			last if (length($buffer) == 0); # in case the socket has closed
-			$frame .= $buffer;
+			$xml .= $buffer;
 		}
 
-		return $frame;
+		return $xml;
 
 	}
 
@@ -92,12 +99,16 @@ return a true value.
 =cut
 
 sub send_frame {
-	my ($class, $fh, $frame) = @_;
+	my ($class, $fh, $xml) = @_;
 	croak("Connection closed") if (ref($fh) ne 'IO::Socket::SSL' && $fh->eof); # eof() dies for me
-	$fh->print(pack('N', length($frame) + 4).$frame);
+	$fh->print($class->prep_frame($xml));
 	return 1;
 }
 
+sub prep_frame {
+	my ($class, $xml) = @_;
+	return pack('N', length($xml) + 4).$xml;
+}
 
 =pod
 
