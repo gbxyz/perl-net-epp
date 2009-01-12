@@ -6,7 +6,7 @@
 package Net::EPP::Simple;
 use Carp;
 use Digest::SHA1 qw(sha1_hex);
-use Net::EPP::Frame 0.11;
+use Net::EPP::Frame;
 use Time::HiRes qw(time);
 use UNIVERSAL qw(isa);
 use base qw(Net::EPP::Client);
@@ -99,7 +99,7 @@ sub new {
 
 	my $self = $package->SUPER::new(%params);
 
-	$self->{debug} 		= int($params{debug});
+	$self->{debug} 		= (defined($params{debug}) ? int($params{debug}) : undef);
 	$self->{timeout}	= (defined($params{timeout}) && int($params{timeout}) > 0 ? $params{timeout} : 5);
 	$self->{connected}	= undef;
 	$self->{authenticated}	= undef;
@@ -142,7 +142,7 @@ sub new {
 		$login->svcs->appendChild($el);
 	}
 
-	$self->debug(sprintf('Attempting to login as client ID %s', $self->{user}));
+	$self->debug(sprintf("Attempting to login as client ID '%s'", $params{user}));
 	my $response = $self->request($login);
 
 	$Code = $self->_get_response_code($response);
@@ -946,6 +946,28 @@ sub _delete {
 
 =pod
 
+=head1 Miscellaneous Methods
+
+=cut
+
+sub error { $Error }
+
+sub code { $Code }
+
+sub message { $Message }
+
+=pod
+
+	my $greeting = $epp->greeting;
+
+Returns the a C<Net::EPP::Frame::Greeting> object representing the greeting returned by the server.
+
+=cut
+
+sub greeting { $_[0]->{greeting} }
+
+=pod
+
 =head1 Overridden Methods From C<Net::EPP::Client>
 
 C<Net::EPP::Simple> overrides some methods inherited from
@@ -1034,8 +1056,6 @@ sub _get_message {
 	return '';
 }
 
-sub error { $Error }
-
 sub logout {
 	my $self = shift;
 	if (defined($self->{authenticated}) && 1 == $self->{authenticated}) {
@@ -1056,7 +1076,7 @@ sub DESTROY {
 
 sub debug {
 	my ($self, $msg) = @_;
-	printf(STDERR "%s (%d): %s\n", scalar(localtime()), $$, $msg) if ($self->{debug} == 1);
+	printf(STDERR "%s (%d): %s\n", scalar(localtime()), $$, $msg) if (defined($self->{debug}) && $self->{debug} == 1);
 }
 
 =pod
