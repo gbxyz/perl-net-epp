@@ -105,6 +105,18 @@ sub send_frame {
 	return 1;
 }
 
+=pod
+
+	my $frame = Net::EPP::Protocol->prep_frame($xml);
+
+This method returns the XML frame in "wire format" with the protocol
+header prepended to it. The return value can be printed directly to an
+open socket, for example:
+
+	print STDOUT Net::EPP::Protocol->prep_frame($frame->toString);
+
+=cut
+
 sub prep_frame {
 	my ($class, $xml) = @_;
 	return pack('N', length($xml) + 4).$xml;
