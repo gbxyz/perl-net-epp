@@ -983,6 +983,9 @@ frame back up to C<Net::EPP::Client>.
 
 sub request {
 	my ($self, $frame) = @_;
+	# Make sure we start with a blank Error variable for each request
+	$Error = '';
+
 	$self->debug(sprintf('sending a %s to the server', ref($frame)));
 	if (isa($frame, 'XML::LibXML::Document')) {
 		map { $self->debug('C: '.$_) } split(/\n/, $frame->toString(1));
