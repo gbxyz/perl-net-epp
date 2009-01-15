@@ -252,11 +252,11 @@ sub _check {
 
 You can retrieve information about an object by using one of the following:
 
-	my $info = $epp->domain_info($domain);
+	my $info = $epp->domain_info($domain, $authInfo);
 
 	my $info = $epp->host_info($host);
 
-	my $info = $epp->contact_info($contact);
+	my $info = $epp->contact_info($contact, $authInfo);
 
 C<Net::EPP::Simple> will construct an C<E<lt>infoE<gt>> frame and send
 it to the server, then parse the response into a simple hash ref. The
@@ -264,11 +264,16 @@ layout of the hash ref depends on the object in question. If there is an
 error, these methods will return C<undef>, and you can then check
 C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
 
+If C<$authInfo> is supplied, it will be sent to the server as per RFC
+4931, Section 3.1.2 and RRC 4933, Section 3.1.2. If the supplied
+authInfo code is validated by the registry, additional information will
+appear in the response. If it is invalid, you should get an error.
+
 =cut
 
 sub domain_info {
-	my ($self, $domain) = @_;
-	return $self->_info('domain', $domain);
+	my ($self, $domain, $authInfo) = @_;
+	return $self->_info('domain', $domain, $authInfo);
 }
 
 sub host_info {
@@ -277,12 +282,12 @@ sub host_info {
 }
 
 sub contact_info {
-	my ($self, $contact) = @_;
-	return $self->_info('contact', $contact);
+	my ($self, $contact, $authInfo) = @_;
+	return $self->_info('contact', $contact, $authInfo);
 }
 
 sub _info {
-	my ($self, $type, $identifier) = @_;
+	my ($self, $type, $identifier, $authInfo) = @_;
 	my $frame;
 	if ($type eq 'domain') {
 		$frame = Net::EPP::Frame::Command::Info::Domain->new;
@@ -299,6 +304,16 @@ sub _info {
 	} else {
 		$Error = "Unknown object type '$type'";
 		return undef;
+
+	}
+
+	if ($authInfo ne '') {
+		$self->debug('adding authInfo element to request frame');
+		my $el = $frame->createElement((Net::EPP::Frame::ObjectSpec->spec($type))[0].':authInfo');
+		my $pw = $frame->createElement((Net::EPP::Frame::ObjectSpec->spec($type))[0].':pw');
+		$pw->appendChild($frame->createTextNode($authInfo));
+		$el->appendChild($pw);
+		$frame->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'info')->appendChild($el);
 	}
 
 	my $response = $self->request($frame);
@@ -1085,7 +1100,7 @@ sub debug {
 
 =pod
 
-=head1 PACKAGE VARIABLES
+=head1 Package Variables
 
 =head2 $Net::EPP::Simple::Error
 
