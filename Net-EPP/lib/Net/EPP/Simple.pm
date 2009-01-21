@@ -811,14 +811,39 @@ When creating a new domain object, you may also specify a C<period> key, like so
 
 	$epp->create_domain($domain);
 
-C<Net::EPP::Simple> assumes the registry uses the host object model rather
-than the host attribute model.
+The C<period> key is assumed to be in years rather than months. C<Net::EPP::Simple>
+assumes the registry uses the host object model rather than the host attribute model.
 
 =cut
 
 sub create_domain {
 	my ($self, $domain) = @_;
-	croak("Unfinished method create_domain()");
+
+	print Data::Dumper::Dumper($domain);
+
+	my $frame = Net::EPP::Frame::Command::Create::Domain->new;
+	$frame->setDomain($domain->{'name'});
+	$frame->setPeriod($domain->{'period'});
+	$frame->setRegistrant($domain->{'registrant'});
+	$frame->setContacts($domain->{'contacts'});
+	$frame->setNS(@{$domain->{'ns'}});
+
+	$frame->setAuthInfo($domain->{authInfo}) if ($domain->{authInfo} ne '');
+
+	my $response = $self->request($frame);
+
+	$Code = $self->_get_response_code($response);
+	$Message = $self->_get_message($response);
+
+	if ($Code > 1999) {
+		$Error = $response->msg;
+		return undef;
+
+	} else {
+		return 1;
+
+	}
+
 }
 
 sub create_host {
@@ -999,8 +1024,11 @@ frame back up to C<Net::EPP::Client>.
 sub request {
 	my ($self, $frame) = @_;
 	# Make sure we start with blank variables
-	$Error = '';
-	$Message = '';
+	$Code		= undef;
+	$Error		= '';
+	$Message	= '';
+
+	$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (isa($frame, 'Net::EPP::Frame::Command'));
 
 	$self->debug(sprintf('sending a %s to the server', ref($frame)));
 	if (isa($frame, 'XML::LibXML::Document')) {
@@ -1010,11 +1038,11 @@ sub request {
 		map { $self->debug('C: '.$_) } split(/\n/, $frame);
 
 	}
-	$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (isa($frame, 'XML::LibXML::Node'));
+
 	my $response = $self->SUPER::request($frame);
-	if (isa($response, 'XML::LibXML::Document')) {
-		map { $self->debug('S: '.$_) } split(/\n/, $response->toString(1));
-	}
+
+	map { $self->debug('S: '.$_) } split(/\n/, $response->toString(1)) if (isa($response, 'XML::LibXML::Document'));
+
 	return $response;
 }
 

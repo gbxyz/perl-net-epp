@@ -5,6 +5,8 @@
 # $Id: Create.pm,v 1.4 2007/12/03 11:44:52 gavin Exp $
 package Net::EPP::Frame::Command::Create;
 use base qw(Net::EPP::Frame::Command);
+use Net::EPP::Frame::Command::Create::Domain;
+use Net::EPP::Frame::Command::Create::Host;
 use Net::EPP::Frame::Command::Create::Contact;
 use strict;
 

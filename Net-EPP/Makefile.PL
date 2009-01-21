@@ -5,7 +5,7 @@ use strict;
 
 WriteMakefile(
 	'NAME'		=> 'Net::EPP',
-	'VERSION'	=> '0.12',
+	'VERSION_FROM'	=> 'lib/Net/EPP.pm',
 	'PREREQ_PM'	=> {
 		'IO::Socket::SSL'	=> 0,
 		'XML::LibXML'		=> 0,
