@@ -307,7 +307,7 @@ sub _info {
 
 	}
 
-	if ($authInfo ne '') {
+	if (defined($authInfo) && $authInfo ne '') {
 		$self->debug('adding authInfo element to request frame');
 		my $el = $frame->createElement((Net::EPP::Frame::ObjectSpec->spec($type))[0].':authInfo');
 		my $pw = $frame->createElement((Net::EPP::Frame::ObjectSpec->spec($type))[0].':pw');
