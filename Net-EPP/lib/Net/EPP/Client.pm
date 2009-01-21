@@ -65,11 +65,11 @@ BEGIN {
 	our $XMLDOM   = 0;
 	our $EPPFRAME = 0;
 	eval {
-		use XML::LibXML;
+		require XML::LibXML;
 		$XMLDOM = 1;
 	};
 	eval {
-		use Net::EPP::Frame;
+		require Net::EPP::Frame;
 		$EPPFRAME = 1;
 	};
 }
@@ -230,7 +230,7 @@ sub _connect_tcp {
 sub _connect_unix {
 	my ($self, %params) = @_;
 
-	$self->{'connection'} = 'IO::Socket::UNIX'->new(
+	$self->{'connection'} = IO::Socket::UNIX->new(
 		Peer		=> $self->{'sock'},
 		Type		=> SOCK_STREAM,
 		%params
@@ -308,12 +308,11 @@ sub get_return_value {
 
 	} else {
 		my $document;
-		eval {
-			$document = $self->{'parser'}->parse_string($xml);
-		};
+		eval { $document = $self->{'parser'}->parse_string($xml) };
 		if (!defined($document) || $@ ne '') {
 			chomp($@);
-			croak("Frame from server wasn't well formed: \"$@\"\n\nThe XML looks like this:\n\n$xml\n\n");
+			croak(sprintf("Frame from server wasn't well formed: %s\n\nThe XML looks like this:\n\n%s\n\n", $@, $xml));
+			return undef;
 
 		} else {
 			my $class = $self->{'class'};
@@ -374,21 +373,14 @@ sub send_frame {
 	}
 
 	if ($wfcheck == 1) {
-		eval {
-			$self->{'parser'}->parse_string($xml);
-		};
-
+		eval { $self->{'parser'}->parse_string($xml) };
 		if ($@ ne '') {
 			chomp($@);
-			croak("Frame wasn't well formed: \"$@\"\n\nThe XML looks like this:\n\n$xml\n\n");
-
+			croak(sprintf("Frame from server wasn't well formed: %s\n\nThe XML looks like this:\n\n%s\n\n", $@, $xml));
 		}
-
 	}
 
-	Net::EPP::Protocol->send_frame($self->{'connection'}, $xml);
-
-	return 1;
+	return Net::EPP::Protocol->send_frame($self->{'connection'}, $xml);
 }
 
 =pod
@@ -397,7 +389,7 @@ sub send_frame {
 
 	$epp->disconnect;
 
-This closes the connection. An EPP server will always close a connection after
+This closes the connection. An EPP server should always close a connection after
 a C<E<lt>logoutE<gt>> frame has been received and acknowledged; this method
 is provided to allow you to clean up on the client side, or close the
 connection out of sync with the server.
