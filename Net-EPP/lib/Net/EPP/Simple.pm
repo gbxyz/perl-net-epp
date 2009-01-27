@@ -106,6 +106,10 @@ sub new {
 
 	bless($self, $package);
 
+	return $self->_connect;
+}
+
+sub _connect {
 	$self->debug(sprintf('Attempting to connect to %s:%d', $self->{host}, $self->{port}));
 	eval {
 		$self->{greeting} = $self->connect;
@@ -989,6 +993,14 @@ sub _delete {
 =head1 Miscellaneous Methods
 
 =cut
+
+sub ping {
+	my $self = shift;
+	my $hello = Net::EPP::Frame::Hello->new;
+	my $response = $self->request($frame);
+
+	return (isa($response, 'XML::LibXML::Document') ? 1 : undef);
+}
 
 sub error { $Error }
 
