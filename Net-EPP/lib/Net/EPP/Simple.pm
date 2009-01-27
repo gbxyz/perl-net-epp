@@ -99,17 +99,22 @@ sub new {
 
 	my $self = $package->SUPER::new(%params);
 
+	$self->{user}		= $params{user};
+	$self->{pass}		= $params{pass};
 	$self->{debug} 		= (defined($params{debug}) ? int($params{debug}) : undef);
 	$self->{timeout}	= (defined($params{timeout}) && int($params{timeout}) > 0 ? $params{timeout} : 5);
+	$self->{reconnect}	= (defined($params{reconnect}) ? int($params{reconnect}) : 3);
 	$self->{connected}	= undef;
 	$self->{authenticated}	= undef;
 
 	bless($self, $package);
 
-	return $self->_connect;
+	return ($self->_connect ? $self : undef);
 }
 
 sub _connect {
+	my $self = shift;
+
 	$self->debug(sprintf('Attempting to connect to %s:%d', $self->{host}, $self->{port}));
 	eval {
 		$self->{greeting} = $self->connect;
@@ -117,8 +122,9 @@ sub _connect {
 	if ($@ ne '' || ref($self->{greeting}) ne 'Net::EPP::Frame::Response') {
 		chomp($@);
 		$@ =~ s/ at .+ line .+$//;
+		$self->debug($@);
 		$Code = 2400;
-		$Message = $@;
+		$Error = $Message = $@;
 		return undef;
 	}
 
@@ -130,8 +136,8 @@ sub _connect {
 
 	my $login = Net::EPP::Frame::Command::Login->new;
 
-	$login->clID->appendText($params{user});
-	$login->pw->appendText($params{pass});
+	$login->clID->appendText($self->{user});
+	$login->pw->appendText($self->{pass});
 
 	my $objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'objURI');
 	while (my $object = $objects->shift) {
@@ -146,7 +152,7 @@ sub _connect {
 		$login->svcs->appendChild($el);
 	}
 
-	$self->debug(sprintf("Attempting to login as client ID '%s'", $params{user}));
+	$self->debug(sprintf("Attempting to login as client ID '%s'", $self->{user}));
 	my $response = $self->request($login);
 
 	$Code = $self->_get_response_code($response);
@@ -163,7 +169,7 @@ sub _connect {
 
 	}
 
-	return $self;
+	return 1;
 }
 
 =pod
@@ -226,27 +232,32 @@ sub _check {
 		return undef;
 	}
 
-	my $response = $self->request($frame);
+	my $response = $self->_request($frame);
 
-	$Code = $self->_get_response_code($response);
-	$Message = $self->_get_message($response);
-
-	if ($Code > 1999) {
-		$Error = sprintf("Server returned a %d code", $Code);
+	if (!$response) {
 		return undef;
 
 	} else {
-		my $xmlns = (Net::EPP::Frame::ObjectSpec->spec($type))[1];
-		my $key;
-		if ($type eq 'domain' || $type eq 'host') {
-			$key = 'name';
+		$Code = $self->_get_response_code($response);
+		$Message = $self->_get_message($response);
 
-		} elsif ($type eq 'contact') {
-			$key = 'id';
+		if ($Code > 1999) {
+			$Error = sprintf("Server returned a %d code", $Code);
+			return undef;
+
+		} else {
+			my $xmlns = (Net::EPP::Frame::ObjectSpec->spec($type))[1];
+			my $key;
+			if ($type eq 'domain' || $type eq 'host') {
+				$key = 'name';
+
+			} elsif ($type eq 'contact') {
+				$key = 'id';
+
+			}
+			return $response->getNode($xmlns, $key)->getAttribute('avail');
 
 		}
-		return $response->getNode($xmlns, $key)->getAttribute('avail');
-
 	}
 }
 
@@ -320,27 +331,32 @@ sub _info {
 		$frame->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'info')->appendChild($el);
 	}
 
-	my $response = $self->request($frame);
+	my $response = $self->_request($frame);
 
-	$Code = $self->_get_response_code($response);
-	$Message = $self->_get_message($response);
-
-	if ($Code > 1999) {
-		$Error = sprintf("Server returned a %d code", $Code);
+	if (!$response) {
 		return undef;
 
 	} else {
-		my $infData = $response->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'infData');
+		$Code = $self->_get_response_code($response);
+		$Message = $self->_get_message($response);
 
-		if ($type eq 'domain') {
-			return $self->_domain_infData_to_hash($infData);
+		if ($Code > 1999) {
+			$Error = sprintf("Server returned a %d code", $Code);
+			return undef;
 
-		} elsif ($type eq 'contact') {
-			return $self->_contact_infData_to_hash($infData);
+		} else {
+			my $infData = $response->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'infData');
 
-		} elsif ($type eq 'host') {
-			return $self->_host_infData_to_hash($infData);
+			if ($type eq 'domain') {
+				return $self->_domain_infData_to_hash($infData);
 
+			} elsif ($type eq 'contact') {
+				return $self->_contact_infData_to_hash($infData);
+
+			} elsif ($type eq 'host') {
+				return $self->_host_infData_to_hash($infData);
+
+			}
 		}
 	}
 }
@@ -699,27 +715,33 @@ sub _transfer_request {
 		$frame->setPeriod(int($period)) if ($op eq 'request');
 	}
 
-	my $response = $self->request($frame);
+	my $response = $self->_request($frame);
 
-	$Code = $self->_get_response_code($response);
-	$Message = $self->_get_message($response);
 
-	if ($Code > 1999) {
-		$Error = $response->msg;
+	if (!$response) {
 		return undef;
 
-	} elsif ($op eq 'query' || $op eq 'request') {
-		my $trnData = $response->getElementsByLocalName('trnData')->shift;
-		my $hash = {};
-		foreach my $child ($trnData->childNodes) {
-			$hash->{$child->localName} = $child->textContent;
-		}
-
-		return $hash;
-
 	} else {
-		return 1;
+		$Code = $self->_get_response_code($response);
+		$Message = $self->_get_message($response);
 
+		if ($Code > 1999) {
+			$Error = $response->msg;
+			return undef;
+
+		} elsif ($op eq 'query' || $op eq 'request') {
+			my $trnData = $response->getElementsByLocalName('trnData')->shift;
+			my $hash = {};
+			foreach my $child ($trnData->childNodes) {
+				$hash->{$child->localName} = $child->textContent;
+			}
+
+			return $hash;
+
+		} else {
+			return 1;
+
+		}
 	}
 }
 
@@ -834,20 +856,25 @@ sub create_domain {
 
 	$frame->setAuthInfo($domain->{authInfo}) if ($domain->{authInfo} ne '');
 
-	my $response = $self->request($frame);
+	my $response = $self->_request($frame);
 
-	$Code = $self->_get_response_code($response);
-	$Message = $self->_get_message($response);
 
-	if ($Code > 1999) {
-		$Error = $response->msg;
+	if (!$response) {
 		return undef;
 
 	} else {
-		return 1;
+		$Code = $self->_get_response_code($response);
+		$Message = $self->_get_message($response);
 
+		if ($Code > 1999) {
+			$Error = $response->msg;
+			return undef;
+
+		} else {
+			return 1;
+
+		}
 	}
-
 }
 
 sub create_host {
@@ -882,20 +909,25 @@ sub create_contact {
 		}
 	}
 
-	my $response = $self->request($frame);
+	my $response = $self->_request($frame);
 
-	$Code = $self->_get_response_code($response);
-	$Message = $self->_get_message($response);
 
-	if ($Code > 1999) {
-		$Error = $response->msg;
+	if (!$response) {
 		return undef;
 
 	} else {
-		return 1;
+		$Code = $self->_get_response_code($response);
+		$Message = $self->_get_message($response);
 
+		if ($Code > 1999) {
+			$Error = $response->msg;
+			return undef;
+
+		} else {
+			return 1;
+
+		}
 	}
-
 }
 
 sub update_domain {
@@ -973,18 +1005,24 @@ sub _delete {
 
 	}
 
-	my $response = $self->request($frame);
+	my $response = $self->_request($frame);
 
-	$Code = $self->_get_response_code($response);
-	$Message = $self->_get_message($response);
 
-	if ($Code > 1999) {
-		$Error = sprintf("Server returned a %d code", $Code);
+	if (!$response) {
 		return undef;
 
 	} else {
-		return 1;
+		$Code = $self->_get_response_code($response);
+		$Message = $self->_get_message($response);
 
+		if ($Code > 1999) {
+			$Error = sprintf("Server returned a %d code", $Code);
+			return undef;
+
+		} else {
+			return 1;
+
+		}
 	}
 }
 
@@ -993,14 +1031,6 @@ sub _delete {
 =head1 Miscellaneous Methods
 
 =cut
-
-sub ping {
-	my $self = shift;
-	my $hello = Net::EPP::Frame::Hello->new;
-	my $response = $self->request($frame);
-
-	return (isa($response, 'XML::LibXML::Document') ? 1 : undef);
-}
 
 sub error { $Error }
 
@@ -1017,6 +1047,44 @@ Returns the a C<Net::EPP::Frame::Greeting> object representing the greeting retu
 =cut
 
 sub greeting { $_[0]->{greeting} }
+
+sub ping {
+	my $self = shift;
+	my $hello = Net::EPP::Frame::Hello->new;
+	my $response = $self->request($hello);
+
+	return (isa($response, 'XML::LibXML::Document') ? 1 : undef);
+}
+
+sub _request {
+	my ($self, $frame) = @_;
+
+	if ($self->{reconnect} > 0) {
+		if (!$self->ping) {
+			$self->debug('connection seems dead, trying to reconnect');
+			for (1..$self->{reconnect}) {
+				$self->debug("attempt #$_");
+				if ($self->_connect) {
+					$self->debug("attempt #$_ succeeded");
+					return $self->request($frame);
+
+				} else {
+					sleep($self->{timeout});
+				}
+			}
+			$self->debug('unable to reconnect!');
+			return undef;
+
+		} else {
+			return $self->request($frame);
+
+		}
+
+	} else {
+		return $self->request($frame);
+
+	}
+}
 
 =pod
 
