@@ -12,6 +12,7 @@ use IO::Socket::SSL;
 use vars qw($XMLDOM $EPPFRAME);
 use UNIVERSAL qw(isa);
 use strict;
+use warnings;
 
 =pod
 
@@ -296,9 +297,8 @@ the server returned a mal-formed frame, this method will C<croak()>.
 
 sub get_frame {
 	my $self = shift;
-
 	return $self->get_return_value(Net::EPP::Protocol->get_frame($self->{'connection'}));
-};
+}
 
 sub get_return_value {
 	my ($self, $xml) = @_;
