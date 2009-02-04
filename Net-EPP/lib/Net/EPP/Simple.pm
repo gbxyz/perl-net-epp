@@ -7,16 +7,17 @@ package Net::EPP::Simple;
 use Carp;
 use Digest::SHA1 qw(sha1_hex);
 use Net::EPP::Frame;
+use Net::EPP::ResponseCodes;
 use Time::HiRes qw(time);
 use UNIVERSAL qw(isa);
 use base qw(Net::EPP::Client);
 use constant EPP_XMLNS	=> 'urn:ietf:params:xml:ns:epp-1.0';
 use vars qw($Error $Code $Message);
-use warnings;
 use strict;
+use warnings;
 
 our $Error	= '';
-our $Code	= 1000;
+our $Code	= OK;
 our $Message	= '';
 
 =pod
@@ -123,7 +124,7 @@ sub _connect {
 		chomp($@);
 		$@ =~ s/ at .+ line .+$//;
 		$self->debug($@);
-		$Code = 2400;
+		$Code = COMMAND_FAILED;
 		$Error = $Message = $@;
 		return undef;
 	}
@@ -695,7 +696,7 @@ sub _transfer_request {
 	eval("\$frame = $class->new");
 	if ($@ || ref($frame) ne $class) {
 		$Error = "Error building request frame: $@";
-		$Code = 2400;
+		$Code = COMMAND_FAILED;
 		return undef;
 
 	} else {
@@ -1069,7 +1070,9 @@ sub _request {
 					return $self->request($frame);
 
 				} else {
+					$self->debug("attempt #$_ failed, sleeping");
 					sleep($self->{timeout});
+
 				}
 			}
 			$self->debug('unable to reconnect!');
@@ -1141,16 +1144,17 @@ sub get_frame {
 	$self->debug(sprintf('transmitting frame, waiting %d seconds before timeout', $self->{timeout}));
 	eval {
 		local $SIG{ALRM} = sub { die "alarm\n" };
-		$self->debug('setting alarm');
+		$self->debug('setting timeout alarm for receiving frame');
 		alarm($self->{timeout});
 		$frame = $self->SUPER::get_frame();
-		$self->debug('unsetting alarm');
+		$self->debug('unsetting timeout alarm after successful receive');
 		alarm(0);
 	};
 	if ($@ ne '') {
-		$self->debug('unsetting alarm');
+		$self->debug('unsetting timeout alarm after alarm was triggered');
 		alarm(0);
-		$Error = "get_frame() timed out\n";
+		$Code = COMMAND_FAILED;
+		$Error = $Message = "get_frame() timed out\n";
 		return undef;
 
 	} else {
