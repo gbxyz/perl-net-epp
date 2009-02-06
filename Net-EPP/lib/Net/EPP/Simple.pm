@@ -268,7 +268,7 @@ sub _check {
 
 You can retrieve information about an object by using one of the following:
 
-	my $info = $epp->domain_info($domain, $authInfo);
+	my $info = $epp->domain_info($domain, $authInfo, $follow);
 
 	my $info = $epp->host_info($host);
 
@@ -280,16 +280,49 @@ layout of the hash ref depends on the object in question. If there is an
 error, these methods will return C<undef>, and you can then check
 C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
 
-If C<$authInfo> is supplied, it will be sent to the server as per RFC
+If C<$authInfo> is defined, it will be sent to the server as per RFC
 4931, Section 3.1.2 and RRC 4933, Section 3.1.2. If the supplied
 authInfo code is validated by the registry, additional information will
 appear in the response. If it is invalid, you should get an error.
 
+If the C<$follow> parameter is true, then C<Net::EPP::Simple> will also
+retrieve the relevant host and contact details for a domain: instead of
+returning an object name or ID for the domain's registrant, contact
+associations, DNS servers or subordinate hosts, the values will be
+replaced with the return value from the appropriate C<host_info()> or
+C<contact_info()> command (unless there was an error, in which case the
+original object ID will be used instead).
+
 =cut
 
 sub domain_info {
-	my ($self, $domain, $authInfo) = @_;
-	return $self->_info('domain', $domain, $authInfo);
+	my ($self, $domain, $authInfo, $follow) = @_;
+	my $result = $self->_info('domain', $domain, $authInfo);
+	return $result if (ref($result) ne 'HASH' || !$follow);
+
+	if (defined($result->{'ns'}) && ref($result->{'ns'}) eq 'ARRAY') {
+		for (my $i = 0 ; $i < scalar(@{$result->{'ns'}}) ; $i++) {
+			my $info = $self->host_info($result->{'ns'}->[$i]);
+			$result->{'ns'}->[$i] = $info if (ref($info) eq 'HASH');
+		}
+	}
+
+	if (defined($result->{'hosts'}) && ref($result->{'hosts'}) eq 'ARRAY') {
+		for (my $i = 0 ; $i < scalar(@{$result->{'hosts'}}) ; $i++) {
+			my $info = $self->host_info($result->{'hosts'}->[$i]);
+			$result->{'hosts'}->[$i] = $info if (ref($info) eq 'HASH');
+		}
+	}
+
+	my $info = $self->contact_info($result->{'registrant'});
+	$result->{'registrant'} = $info if (ref($info) eq 'HASH');
+
+	foreach my $type (keys(%{$result->{'contacts'}})) {
+		my $info = $self->contact_info($result->{'contacts'}->{$type});
+		$result->{'contacts'}->{$type} = $info if (ref($info) eq 'HASH');
+	}
+
+	return $result;
 }
 
 sub host_info {
@@ -604,10 +637,12 @@ sub _contact_infData_to_hash {
 
 	foreach my $name ('voice', 'fax') {
 		my $els = $infData->getElementsByLocalName($name);
-		if ($els->size == 1) {
+		if (defined($els) && $els->size == 1) {
 			my $el = $els->shift;
-			$hash->{$name} = $el->textContent;
-			$hash->{$name} .= 'x'.$el->getAttribute('x') if ($el->getAttribute('x') ne '');
+			if (defined($el)) {
+				$hash->{$name} = $el->textContent;
+				$hash->{$name} .= 'x'.$el->getAttribute('x') if (defined($el->getAttribute('x')) && $el->getAttribute('x') ne '');
+			}
 		}
 	}
 
@@ -911,7 +946,6 @@ sub create_contact {
 	}
 
 	my $response = $self->_request($frame);
-
 
 	if (!$response) {
 		return undef;
