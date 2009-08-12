@@ -181,7 +181,7 @@ sub new {
 	$epp->setAttributeNS($SCHEMA_URI, 'schemaLocation', "$EPP_URN epp-1.0.xsd");
 	$self->addChild($epp);
 
-	my $el = $self->createElement(lc($type));
+	my $el = $self->createElement($type);
 	$epp->addChild($el);
 
 	$self->_addExtraElements;
