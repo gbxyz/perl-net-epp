@@ -30,15 +30,28 @@ C<E<lt>commandE<gt>> frame.
 
 =cut
 
+sub new {
+	my $package = shift;
+	my $self = $package->SUPER::new('response');
+	return bless($self, $package);
+}
+
 sub _addExtraElements {
 	my $self = shift;
-	$self->response->addChild($self->createElement('result'));
-	$self->response->addChild($self->createElement('resData'));
+
+	my $result = $self->createElement('result');
+	$result->appendChild($self->createElement('msg'));
+	$self->response->addChild($result);
+
 	$self->result->setAttribute('code' => COMMAND_FAILED);
+
+	$self->response->addChild($self->createElement('resData'));
+
 	my $trID = $self->createElement('trID');
 	$trID->addChild($self->createElement('clTRID'));
 	$trID->addChild($self->createElement('svTRID'));
 	$self->response->addChild($trID);
+
 	return 1;
 }
 
@@ -55,6 +68,11 @@ C<E<lt>commandE<gt>> element.
 
 This method returns the L<XML::LibXML::Element> object corresponding to the
 C<E<lt>resultE<gt>> element.
+
+	my $node = $frame->msg;
+
+This method returns the L<XML::LibXML::Element> object corresponding to the
+C<E<lt>msgE<gt>> element.
 
 	my $node = $frame->trID;
 
@@ -73,30 +91,12 @@ C<E<lt>svTRIDE<gt>> element.
 
 =cut
 
-sub response {
-	 my $self = shift;
-	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'response');
-}
-
-sub result {
-	 my $self = shift;
-	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'result');
-}
-
-sub trID {
-	 my $self = shift;
-	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'trID');
-}
-
-sub clTRID {
-	 my $self = shift;
-	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'clTRID');
-}
-
-sub svTRID {
-	 my $self = shift;
-	 return $self->getNode($Net::EPP::Frame::EPP_URN, 'svTRID');
-}
+sub response {$_[0]->getNode('response') }
+sub result {$_[0]->getNode('result') }
+sub msg {$_[0]->getNode('msg') }
+sub trID {$_[0]->getNode('trID') }
+sub clTRID {$_[0]->getNode('clTRID') }
+sub svTRID {$_[0]->getNode('svTRID') }
 
 =pod
 
