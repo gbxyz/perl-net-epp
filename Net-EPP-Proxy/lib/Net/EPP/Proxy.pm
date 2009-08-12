@@ -4,15 +4,14 @@
 # 
 # $Id: Proxy.pm,v 1.13 2007/12/03 11:44:19 gavin Exp $
 package Net::EPP::Proxy;
-use bytes;
 use Carp;
-use Data::Dumper;
 use Digest::SHA1 qw(sha1_hex);
-use Net::EPP::Client;
-use Net::EPP::Frame;
+use Net::EPP::Simple;
+use Net::EPP::Protocol;
 use POSIX qw(strftime);
 use Time::HiRes qw(time);
 use XML::LibXML;
+use bytes;
 use base qw(Net::Server::Multiplex);
 use constant EPP_XMLNS	=> 'urn:ietf:params:xml:ns:epp-1.0';
 use vars qw($VERSION);
@@ -38,6 +37,7 @@ sub init {
 	$self->{epp}->{clid}		= $params{clid};
 	$self->{epp}->{pw}		= $params{pw};
 	$self->{epp}->{svcs}		= $params{svcs};
+	$self->{epp}->{debug}		= $params{debug};
 
 	# connect to the server:
 	my ($code, $msg) = $self->epp_connect;
@@ -56,49 +56,31 @@ sub epp_connect {
 	my $self = shift;
 
 	# build our EPP client:
-	$self->{epp}->{client} = Net::EPP::Client->new(
+	$self->{epp}->{client} = Net::EPP::Simple->new(
 		host	=> $self->{epp}->{host},
 		port	=> $self->{epp}->{port},
+		user	=> $self->{epp}->{user},
+		pass	=> $self->{epp}->{pass},
 		ssl	=> $self->{epp}->{ssl},
 		timeout	=> $self->{epp}->{timeout},
+		debug	=> $self->{epp}->{debug},
 		dom	=> 1,
 	);
 
-	# connect to the remote server and cache the greeting:
-	eval { $self->{epp}->{greeting} = bless($self->{epp}->{client}->connect, 'Net::EPP::Frame::Greeting') };
-	if ($@) {
-		carp("Error connecting: $@");
-		return (2500, "Error connecting: $@");
+	if (!$self->{epp}->{client}) {
+		carp("Error connecting: $Net::EPP::Simple::Error");
+		return ($Net::EPP::Simple::Code, "Error connecting: $Net::EPP::Simple::Error");
 	}
 
-	# build the login frame:
-	my $login = Net::EPP::Frame::Command::Login->new;
+	$self->{epp}->{greeting} = $self->{epp}->{client}->{greeting};
 
-	# add credentials:
-	$login->clID->appendText($self->{epp}->{clid});
-	$login->pw->appendText($self->{epp}->{pw});
-
-	# add client transaction ID:
-	$login->clTRID->appendText(sha1_hex(ref($self).time().$$));
-
-	# add object URIs:
-	my $objects = $self->{epp}->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'objURI');
-	while (my $object = $objects->shift) {
-		my $el = $login->createElement('objURI');
-		$el->appendText($object->firstChild->data);
-		$login->svcs->appendChild($el);
-	}
-
-	# submit the login request:
-	my $answer = $self->{epp}->{client}->request($login);
-
-	return ($self->get_result_code($answer), $self->get_result_message($answer));
+	return ($Net::EPP::Simple::Code, $Net::EPP::Simple::Message);
 }
 
 # new connection, send the greeting:
 sub mux_connection {
 	my ($self, $mux, $peer) = @_;
-	print pack('N', length($self->{net_server}->{epp}->{greeting}->toString) + 4).$self->{net_server}->{epp}->{greeting}->toString;
+	print Net::EPP::Protocol->prep_frame($self->{net_server}->{epp}->{greeting}->toString);
 }
 
 # a request frame was received, transmit to remote server and return response to client:
@@ -142,12 +124,10 @@ sub mux_input {
 	}
 
 	# send answer to client:
-	print pack('N', length($answer->toString) + 4).$answer->toString;
+	print Net::EPP::Protocol->prep_frame($answer->toString);
 
 	# clean up:
-	if ($err ne '' && $fatal == 1) {
-		$self->server_close;
-	}
+	$self->server_close if ($err ne '' && $fatal == 1);
 
 	# clear the buffer:
 	${$input} = '';
