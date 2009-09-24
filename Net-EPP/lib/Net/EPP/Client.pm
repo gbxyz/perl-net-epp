@@ -355,7 +355,7 @@ sub send_frame {
 		$xml		= $frame->toString;
 		$wfcheck	= 0;
 
-	} elsif (-e $frame) {
+	} elsif ($frame !~ /</ && -e $frame) {
 		if (!open(FRAME, $frame)) {
 			croak("Couldn't open file '$frame' for reading: $!");
 
