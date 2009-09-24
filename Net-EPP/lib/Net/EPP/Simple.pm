@@ -1175,7 +1175,7 @@ network errors. If such an error occurs it will return C<undef>.
 sub get_frame {
 	my $self = shift;
 	my $frame;
-	$self->debug(sprintf('transmitting frame, waiting %d seconds before timeout', $self->{timeout}));
+	$self->debug(sprintf('reading frame, waiting %d seconds before timeout', $self->{timeout}));
 	eval {
 		local $SIG{ALRM} = sub { die "alarm\n" };
 		$self->debug('setting timeout alarm for receiving frame');
