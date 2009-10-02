@@ -93,7 +93,6 @@ C<E<lt>svTRIDE<gt>> element.
 
 sub response {$_[0]->getNode('response') }
 sub result {$_[0]->getNode('result') }
-sub msg {$_[0]->getNode('msg') }
 sub trID {$_[0]->getNode('trID') }
 sub clTRID {$_[0]->getNode('clTRID') }
 sub svTRID {$_[0]->getNode('svTRID') }
