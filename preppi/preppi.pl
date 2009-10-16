@@ -642,6 +642,9 @@ sub connect {
 	$login->clID->appendText($self->{connect_username_entry}->get_text);
 	$login->pw->appendText($self->{connect_password_entry}->get_text);
 
+	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
+	$login->lang->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'lang')->shift->firstChild->data);
+
 	$login->clTRID->appendText(sha1_hex(ref($self).time().$$));
 
 	# add object URIs:
