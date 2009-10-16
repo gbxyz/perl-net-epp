@@ -139,6 +139,8 @@ sub _connect {
 
 	$login->clID->appendText($self->{user});
 	$login->pw->appendText($self->{pass});
+	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
+	$login->lang->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'lang')->shift->firstChild->data);
 
 	my $objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'objURI');
 	while (my $object = $objects->shift) {
@@ -1230,6 +1232,7 @@ sub logout {
 	}
 	$self->debug('disconnecting from server');
 	$self->disconnect;
+	$self->{connected} = 0;
 	return 1;
 }
 

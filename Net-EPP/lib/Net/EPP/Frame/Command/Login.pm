@@ -29,6 +29,10 @@ sub _addCommandElements {
 	$self->getNode('login')->addChild($self->createElement('clID'));
 	$self->getNode('login')->addChild($self->createElement('pw'));
 	$self->getNode('login')->addChild($self->createElement('options'));
+
+	$self->getNode('options')->addChild($self->createElement('version'));
+	$self->getNode('options')->addChild($self->createElement('lang'));
+
 	$self->getNode('login')->addChild($self->createElement('svcs'));
 }
 
@@ -56,12 +60,24 @@ C<E<lt>svcsE<gt>> element.
 This method returns the L<XML::LibXML::Element> object corresponding to the
 C<E<lt>optionsE<gt>> element.
 
+	my $node = $frame->version;
+
+This method returns the L<XML::LibXML::Element> object corresponding to the
+C<E<lt>versionE<gt>> element.
+
+	my $node = $frame->lang;
+
+This method returns the L<XML::LibXML::Element> object corresponding to the
+C<E<lt>langE<gt>> element.
+
 =cut
 
 sub clID { $_[0]->getNode('clID') }
 sub pw { $_[0]->getNode('pw') }
 sub svcs { $_[0]->getNode('svcs') }
 sub options { $_[0]->getNode('options') }
+sub version { $_[0]->getNode('version') }
+sub lang { $_[0]->getNode('lang') }
 
 =pod
 
