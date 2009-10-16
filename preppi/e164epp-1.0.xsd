@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+   <?xml version="1.0" encoding="UTF-8"?>
    <schema targetNamespace="urn:ietf:params:xml:ns:e164epp-1.0"
            xmlns:e164="urn:ietf:params:xml:ns:e164epp-1.0"
            xmlns="http://www.w3.org/2001/XMLSchema"

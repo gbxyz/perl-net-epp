@@ -2,8 +2,6 @@
 # Copyright (c) 2007 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
-#
-# $Id: preppi.pl,v 1.24 2008/05/21 11:40:22 gavin Exp $
 package Preppi;
 use Carp;
 use Digest::SHA1 qw(sha1_hex);
@@ -37,7 +35,7 @@ our $NAME	= __PACKAGE__;
 our $VERSION	= '0.06';
 chomp(our $OPENER = `which gnome-open 2> /dev/null`);
 our $GLADE	= (-e '@PREFIX@' ? sprintf('%s/share/%s', '@PREFIX@', lc($NAME)) : $ENV{PWD}) . sprintf('/%s.glade', lc($NAME));
-our $XSD	= (-e '@PREFIX@' ? sprintf('%s/share/%s', '@PREFIX@', lc($NAME)) : $ENV{PWD}) . sprintf('/epp-1.0.xsd', lc($NAME));
+our $XSD	= (-e '@PREFIX@' ? sprintf('%s/share/%s', '@PREFIX@', lc($NAME)) : $ENV{PWD}) . sprintf('/epp.xsd', lc($NAME));
 our %CERT_KEYS	= (
 	'C'		=> gettext('Country'),
 	'L'		=> gettext('Location'),
@@ -51,6 +49,8 @@ our %CERT_KEYS	= (
 sub new {
 	my $package = shift;
 	my $self = bless($package->SUPER::new($GLADE), $package);
+
+	$self->{parser} = XML::LibXML->new;
 
 	Gnome2::VFS->init;
 
@@ -68,7 +68,6 @@ sub new {
 	$self->{input_view}	= Gtk2::SourceView::View->new_with_buffer($self->{input_sb});
 	$self->{input_scrwin}->add($self->{input_view});
 
-	$self->{parser} = XML::LibXML->new;
 	$self->{input_view}->get_buffer->signal_connect('changed', sub { $self->validate_input_buffer });
 
 	$self->{output_sb}	= Gtk2::SourceView::Buffer->new_with_language($self->{lang});
@@ -76,6 +75,8 @@ sub new {
 	$self->{output_view}	= Gtk2::SourceView::View->new_with_buffer($self->{output_sb});
 	$self->{output_view}->set_editable(false);
 	$self->{output_scrwin}->add($self->{output_view});
+
+	$self->{output_view}->get_buffer->signal_connect('changed', sub { $self->validate_output_buffer });
 
 	$self->{greeting_sb}	= Gtk2::SourceView::Buffer->new_with_language($self->{lang});
 	$self->{greeting_sb}->set_highlight(true);
@@ -197,6 +198,7 @@ sub new {
 		gettext('Command')	=> 'text',
 		gettext('Duration')	=> 'text',
 		gettext('Code')		=> 'int',
+		gettext('Message')	=> 'text',
 	);
 
 	$self->{parser} = XML::LibXML->new;
@@ -205,7 +207,7 @@ sub new {
 
 	$self->{busy} = false;
 
-	#eval { $self->{schema} = XML::LibXML::Schema->new(location => $XSD) };
+	eval { $self->{schema} = XML::LibXML::Schema->new(location => $XSD) };
 
 	Glib::Timeout->add(5000, sub {
 		$self->keep_alive;
@@ -300,8 +302,12 @@ sub build_template_list {
 	$hi->setHost('ns0.example.com');
 	$hi->clTRID->appendText('ABC-12345');
 
+	my $req = Net::EPP::Frame::Command::Poll::Req->new;
+	$req->clTRID->appendText('ABC-12345');
+
 	my $ack = Net::EPP::Frame::Command::Poll::Ack->new;
 	$ack->setMsgID(12345);
+	$ack->clTRID->appendText('ABC-12345');
 
 	@{$self->{template_list}->{data}} = (
 		{
@@ -311,7 +317,7 @@ sub build_template_list {
 				{
 					value => [ '<b>'.gettext('Poll').'</b>', Net::EPP::Frame::Hello->new->toString(1), 0],
 					children => [
-						{ value => [ gettext('Req'), 	Net::EPP::Frame::Command::Poll::Req->new->toString(1), 0] },
+						{ value => [ gettext('Req'), 	$req->toString(1), 0] },
 						{ value => [ gettext('Ack'), 	$ack->toString(1), 0] },
 					],
 				},
@@ -684,6 +690,8 @@ sub connect {
 		$self->{gconf}->set_string($self->{gconf_base}.'/last_cert', $self->{connect_ssl_cert_filechooser}->get_filename);
 
 		$self->{main_window}->show_all;
+		$self->{input_status_icon}->hide;
+		$self->{output_status_icon}->hide;
 		$self->{transaction_error_box}->hide;
 		$self->update_ui;
 
@@ -813,15 +821,16 @@ sub send_request {
 	$self->{main_window}->set_sensitive(true);
 	$self->update_ui;
 
-	my ($err, $xml, $code);
+	my ($err, $xml, $code, $message);
 	if ($@) {
 		alarm(0);
 		$err = "$@";
 
 	} else {
 		eval {
-			$xml = $answer->toString(true);
-			$code = $self->get_result_code($answer);
+			$xml		= $answer->toString(true);
+			$code		= $self->get_result_code($answer);
+			$message	= $self->get_result_message($answer);
 		};
 		$err = "$@";
 
@@ -835,6 +844,7 @@ sub send_request {
 			$self->get_command_from_input($input),
 			sprintf('%0.2fs', $t1),
 			$code,
+			$message,
 		]);
 		$self->append_log($xml, FROM_SERVER);
 		$self->{output_view}->get_buffer->set_text($xml);
@@ -998,6 +1008,52 @@ sub validate_input_buffer {
 
 	$self->{input_status_label}->set_markup($markup);
 	$self->{input_status_icon}->set_from_stock($icon, 'menu');
+	$self->{input_status_icon}->show;
+
+	return true;
+}
+
+sub validate_output_buffer {
+	my $self = shift;
+	my $output = $self->{output_view}->get_buffer->get_text(
+		$self->{output_view}->get_buffer->get_start_iter,
+		$self->{output_view}->get_buffer->get_end_iter,
+		false,
+	);
+
+	my ($icon, $markup, $doc);
+	eval { $doc = $self->{parser}->parse_string($output) };
+	if ($@) {
+		$icon = 'gtk-dialog-error';
+		$markup = gettext('output is not well formed');
+
+	} else {
+		if ($self->{schema}) {
+			eval { $self->{schema}->validate($doc) };
+		}
+
+		if ($@) {
+			$icon = 'gtk-dialog-error';
+			chomp($@);
+			$markup = encode_entities_numeric(sprintf(gettext('Schema validation error: %s'), $@));
+			
+		} else {
+			$icon = 'gtk-apply';
+			if ($self->{schema}) {
+				$markup = gettext('output is valid');
+
+			} else {
+				$markup = gettext('output is well-formed');
+
+			}
+
+		}
+
+	}
+
+	$self->{output_status_label}->set_markup($markup);
+	$self->{output_status_icon}->set_from_stock($icon, 'menu');
+	$self->{output_status_icon}->show;
 
 	return true;
 }
