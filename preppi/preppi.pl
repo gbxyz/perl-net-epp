@@ -6,7 +6,6 @@ package Preppi;
 use Carp;
 use Digest::SHA1 qw(sha1_hex);
 use Gnome2::GConf;
-use Gnome2::VFS;
 use File::Basename qw(basename);
 use Gtk2 -init;
 use Gtk2::SourceView;
@@ -51,8 +50,6 @@ sub new {
 	my $self = bless($package->SUPER::new($GLADE), $package);
 
 	$self->{parser} = XML::LibXML->new;
-
-	Gnome2::VFS->init;
 
 	$self->{gconf} = Gnome2::GConf::Client->get_default;
 	$self->{gconf_base} = sprintf('/apps/%s', lc($NAME));
@@ -424,16 +421,16 @@ sub open_file {
 		'gtk-ok' => 'ok',
 	);
 	$dialog->set_current_folder($self->{last_open_dir}) if ($self->{last_open_dir});
-	$dialog->set_local_only(false);
+	$dialog->set_local_only(true);
 	$dialog->set_icon_name('stock_open');
 	$dialog->set_modal(true);
 	$dialog->signal_connect('response', sub {
 		$self->{last_open_dir} = $dialog->get_current_folder;
 		if ($_[1] eq 'ok') {
-			$self->read_file($dialog->get_uri);
+			$self->read_file($dialog->get_filename);
 
 		} elsif ($_[1] eq 'apply') {
-			$self->add_template($dialog->get_uri);
+			$self->add_template($dialog->get_filename);
 
 		}
 		$dialog->destroy;
@@ -444,28 +441,27 @@ sub open_file {
 }
 
 sub add_template {
-	my ($self, $uri) = @_;
+	my ($self, $file) = @_;
 
 	my $key = "$self->{gconf_base}/template_list";
 	my @list = split(/,/, $self->{gconf}->get_string($key));
-	$self->{gconf}->set_string($key, join(',', @list, $uri));
+	$self->{gconf}->set_string($key, join(',', @list, $file));
 
-	push(@{$self->{template_list}->{data}}, { value => [ basename(uri_unescape($uri)), $uri, 1 ] });
+	push(@{$self->{template_list}->{data}}, { value => [ basename($file), $file, 1 ] });
 
 	return true;
 }
 
 sub read_file {
-	my ($self, $uri) = @_;
+	my ($self, $file) = @_;
 
-	my ($result, $size, $content) = Gnome2::VFS->read_entire_file($uri);
-
-	if ($result ne 'ok') {
-		$self->error(sprintf(gettext("Error reading '%s': %s"), $uri, $result));
+	if (!open(FILE, $file)) {
+		$self->error(sprintf(gettext("Error reading '%s': %s"), $file, $!));
 
 	} else {
-		$self->{input_view}->get_buffer->set_text($content);
-
+		local $/;
+		undef $/;
+		$self->{input_view}->get_buffer->set_text(<FILE>);
 	}
 
 	return true;
@@ -506,12 +502,12 @@ sub select_save_target {
 		'gtk-ok' => 'ok'
 	);
 	$dialog->set_current_folder($self->{last_save_dir}) if ($self->{last_save_dir});
-	$dialog->set_local_only(false);
+	$dialog->set_local_only(true);
 	$dialog->set_icon_name('stock_save');
 	$dialog->set_modal(true);
 	$dialog->set_do_overwrite_confirmation(true);
 	$dialog->signal_connect('response', sub {
-		$file = $dialog->get_uri;
+		$file = $dialog->get_filename;
 		$self->{last_save_dir} = $dialog->get_current_folder;
 		$dialog->destroy;
 	});
@@ -520,16 +516,14 @@ sub select_save_target {
 }
 
 sub save_to_file {
-	my ($self, $data, $uri) = @_;
-	printf("Write %s of data to %s\n", Gnome2::VFS->format_file_size_for_display(length($data)), $uri);
-	my ($result, $handle) = Gnome2::VFS->create($uri, 'write', false, 0600);
-	if ($result ne 'ok') {
-		$self->error(sprintf(gettext("Error writing to '%s': %s"), $uri, $result));
+	my ($self, $data, $file) = @_;
+
+	if (!open(FILE, '>'.$file)) {
+		$self->error(sprintf(gettext("Error writing to '%s': %s"), $file, $!));
 
 	} else {
-		$handle->write($data, length($data));
-		$handle->close;
-
+		print FILE $data;
+		close(FILE);
 	}
 
 	return true;
