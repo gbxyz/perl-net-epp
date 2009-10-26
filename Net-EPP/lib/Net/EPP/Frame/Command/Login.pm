@@ -50,6 +50,11 @@ C<E<lt>clIDE<gt>> element.
 This method returns the L<XML::LibXML::Element> object corresponding to the
 C<E<lt>pwE<gt>> element.
 
+	my $node = $frame->newPW;
+
+This method returns the L<XML::LibXML::Element> object corresponding to the
+C<E<lt>newPWE<gt>> element.
+
 	my $node = $frame->svcs;
 
 This method returns the L<XML::LibXML::Element> object corresponding to the
@@ -74,6 +79,7 @@ C<E<lt>langE<gt>> element.
 
 sub clID { $_[0]->getNode('clID') }
 sub pw { $_[0]->getNode('pw') }
+sub newPW { $_[0]->getNode('newPW') }
 sub svcs { $_[0]->getNode('svcs') }
 sub options { $_[0]->getNode('options') }
 sub version { $_[0]->getNode('version') }
