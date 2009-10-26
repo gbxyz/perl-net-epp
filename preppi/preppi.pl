@@ -657,8 +657,9 @@ sub connect {
 
 	# add new password info
 	if ($self->{newPW1}->get_text ne '') {
-		my $newPW = $login->getNode('login')->addChild($login->createElement('newPW'));
-		$newPW->appendText($self->{newPW1}->get_text);		
+		my $newPW = $login->createElement('newPW');
+		$newPW->appendText($self->{newPW1}->get_text);
+		$login->getNode('login')->insertAfter($newPW, $login->pw);
 	}
 
 	$self->{connecting_dialog}->hide;
