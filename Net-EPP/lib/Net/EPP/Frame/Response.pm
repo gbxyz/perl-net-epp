@@ -74,6 +74,11 @@ C<E<lt>resultE<gt>> element.
 This method returns the L<XML::LibXML::Element> object corresponding to the
 C<E<lt>msgE<gt>> element.
 
+	my $node = $frame->resData;
+
+This method returns the L<XML::LibXML::Element> object corresponding to the
+C<E<lt>resDataE<gt>> element.
+
 	my $node = $frame->trID;
 
 This method returns the L<XML::LibXML::Element> object corresponding to the
@@ -93,6 +98,7 @@ C<E<lt>svTRIDE<gt>> element.
 
 sub response {$_[0]->getNode('response') }
 sub result {$_[0]->getNode('result') }
+sub resData {$_[0]->getNode('resData') }
 sub trID {$_[0]->getNode('trID') }
 sub clTRID {$_[0]->getNode('clTRID') }
 sub svTRID {$_[0]->getNode('svTRID') }
