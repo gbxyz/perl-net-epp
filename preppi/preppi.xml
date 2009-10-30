@@ -3,19 +3,19 @@
 <interface>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">65535</property>
-    <property name="lower">1</property>
-    <property name="page_increment">10</property>
-    <property name="step_increment">1</property>
-    <property name="page_size">10</property>
-    <property name="value">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment2">
-    <property name="upper">65535</property>
     <property name="lower">0</property>
     <property name="page_increment">10</property>
     <property name="step_increment">1</property>
     <property name="page_size">10</property>
     <property name="value">700</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="upper">65535</property>
+    <property name="lower">1</property>
+    <property name="page_increment">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_size">10</property>
+    <property name="value">10</property>
   </object>
   <object class="GtkUIManager" id="uimanager1">
     <child>
@@ -347,7 +347,8 @@
                               <object class="GtkLabel" id="input_status_label">
                                 <property name="visible">True</property>
                                 <property name="xalign">1</property>
-                                <property name="use_markup">True</property>
+                                <property name="selectable">True</property>
+                                <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -414,6 +415,8 @@
                               <object class="GtkLabel" id="output_status_label">
                                 <property name="visible">True</property>
                                 <property name="xalign">1</property>
+                                <property name="selectable">True</property>
+                                <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -740,30 +743,191 @@
                         <property name="column_spacing">12</property>
                         <property name="row_spacing">12</property>
                         <child>
-                          <object class="GtkLabel" id="label1">
+                          <object class="GtkTable" id="table3">
                             <property name="visible">True</property>
-                            <property name="xalign">1</property>
-                            <property name="label" translatable="yes">_Server Name:</property>
-                            <property name="use_underline">True</property>
-                            <property name="mnemonic_widget">connect_server_entry</property>
+                            <property name="n_rows">3</property>
+                            <property name="n_columns">4</property>
+                            <property name="column_spacing">6</property>
+                            <property name="row_spacing">6</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <object class="GtkEntry" id="connect_ssl_cert_passphrase">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="visibility">False</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="y_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="connect_ssl_cert_passphrase_label">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">P_assphrase:</property>
+                                <property name="use_underline">True</property>
+                                <property name="mnemonic_widget">connect_ssl_cert_passphrase</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="x_options"/>
+                                <property name="y_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFileChooserButton" id="connect_ssl_cert_filechooser">
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="y_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="connect_ssl_cert_label">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">C_ertificate:</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"/>
+                                <property name="y_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label26">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">    </property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"/>
+                                <property name="y_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="connect_ssl_use_cert_checkbutton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">_Use a certificate</property>
+                                <property name="use_underline">True</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">4</property>
+                                <property name="y_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label25">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">    </property>
+                              </object>
+                              <packing>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"/>
+                                <property name="y_options"/>
+                              </packing>
+                            </child>
                           </object>
                           <packing>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                            <property name="x_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="connect_ssl_checkbutton">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="label" translatable="yes">_Connect using SSL</property>
+                            <property name="use_underline">True</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="connect_server_entry">
+                            <property name="can_focus">True</property>
+                            <property name="has_focus">True</property>
+                            <property name="can_default">True</property>
+                            <property name="has_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label17">
+                            <property name="visible">True</property>
+                            <property name="xalign">1</property>
+                            <property name="label" translatable="yes">_Timeout:</property>
+                            <property name="use_underline">True</property>
+                            <property name="justify">GTK_JUSTIFY_RIGHT</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"/>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="label2">
+                          <object class="GtkAlignment" id="alignment1">
                             <property name="visible">True</property>
-                            <property name="xalign">1</property>
-                            <property name="label" translatable="yes">Server P_ort:</property>
-                            <property name="use_underline">True</property>
-                            <property name="justify">GTK_JUSTIFY_RIGHT</property>
+                            <property name="xalign">0</property>
+                            <property name="xscale">0</property>
+                            <child>
+                              <object class="GtkSpinButton" id="connect_port_spinbutton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="adjustment">adjustment1</property>
+                                <property name="climb_rate">1</property>
+                                <property name="numeric">True</property>
+                                <property name="update_policy">GTK_UPDATE_IF_VALID</property>
+                              </object>
+                            </child>
                           </object>
                           <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
-                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"/>
                           </packing>
                         </child>
@@ -780,7 +944,7 @@
                                   <object class="GtkSpinButton" id="connect_timeout_spinbutton">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">adjustment1</property>
+                                    <property name="adjustment">adjustment2</property>
                                     <property name="climb_rate">1</property>
                                     <property name="numeric">True</property>
                                     <property name="update_policy">GTK_UPDATE_IF_VALID</property>
@@ -814,192 +978,31 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkAlignment" id="alignment1">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="xscale">0</property>
-                            <child>
-                              <object class="GtkSpinButton" id="connect_port_spinbutton">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="adjustment">adjustment2</property>
-                                <property name="climb_rate">1</property>
-                                <property name="numeric">True</property>
-                                <property name="update_policy">GTK_UPDATE_IF_VALID</property>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label17">
+                          <object class="GtkLabel" id="label2">
                             <property name="visible">True</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">_Timeout:</property>
+                            <property name="label" translatable="yes">Server P_ort:</property>
                             <property name="use_underline">True</property>
                             <property name="justify">GTK_JUSTIFY_RIGHT</property>
                           </object>
                           <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"/>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="connect_server_entry">
-                            <property name="can_focus">True</property>
-                            <property name="has_focus">True</property>
-                            <property name="can_default">True</property>
-                            <property name="has_default">True</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="connect_ssl_checkbutton">
+                          <object class="GtkLabel" id="label1">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="label" translatable="yes">_Connect using SSL</property>
+                            <property name="xalign">1</property>
+                            <property name="label" translatable="yes">_Server Name:</property>
                             <property name="use_underline">True</property>
-                            <property name="active">True</property>
-                            <property name="draw_indicator">True</property>
+                            <property name="mnemonic_widget">connect_server_entry</property>
                           </object>
                           <packing>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkTable" id="table3">
-                            <property name="visible">True</property>
-                            <property name="n_rows">3</property>
-                            <property name="n_columns">4</property>
-                            <property name="column_spacing">6</property>
-                            <property name="row_spacing">6</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label25">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">    </property>
-                              </object>
-                              <packing>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options"/>
-                                <property name="y_options"/>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton" id="connect_ssl_use_cert_checkbutton">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">_Use a certificate</property>
-                                <property name="use_underline">True</property>
-                                <property name="draw_indicator">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">4</property>
-                                <property name="y_options"/>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label26">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">    </property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options"/>
-                                <property name="y_options"/>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="connect_ssl_cert_label">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">C_ertificate:</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options"/>
-                                <property name="y_options"/>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkFileChooserButton" id="connect_ssl_cert_filechooser">
-                                <property name="visible">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">3</property>
-                                <property name="right_attach">4</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="y_options"/>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="connect_ssl_cert_passphrase_label">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">P_assphrase:</property>
-                                <property name="use_underline">True</property>
-                                <property name="mnemonic_widget">connect_ssl_cert_passphrase</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="x_options"/>
-                                <property name="y_options"/>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="connect_ssl_cert_passphrase">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="visibility">False</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">3</property>
-                                <property name="right_attach">4</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="y_options"/>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
-                            <property name="x_options"/>
                           </packing>
                         </child>
                       </object>
@@ -1046,127 +1049,13 @@
                         <property name="column_spacing">12</property>
                         <property name="row_spacing">12</property>
                         <child>
-                          <object class="GtkExpander" id="expander1">
+                          <object class="GtkHSeparator" id="hseparator1">
                             <property name="visible">True</property>
-                            <child>
-                              <object class="GtkTable" id="table4">
-                                <property name="visible">True</property>
-                                <property name="n_rows">2</property>
-                                <property name="n_columns">3</property>
-                                <property name="column_spacing">6</property>
-                                <property name="row_spacing">6</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <object class="GtkEntry" id="newPW1">
-                                    <property name="visible">True</property>
-                                    <property name="visibility">False</property>
-                                    <signal handler="compare_new_passwords" name="changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkEntry" id="newPW2">
-                                    <property name="visible">True</property>
-                                    <property name="visibility">False</property>
-                                    <signal handler="compare_new_passwords" name="changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label12">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">_New Password:</property>
-                                    <property name="use_underline">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label16">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Confirm:</property>
-                                    <property name="use_underline">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label23">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">    </property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child type="label">
-                              <object class="GtkLabel" id="label14">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">&lt;b&gt;New Password&lt;/b&gt;</property>
-                                <property name="use_markup">True</property>
-                              </object>
-                            </child>
                           </object>
                           <packing>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label3">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">_Username:</property>
-                            <property name="use_underline">True</property>
-                            <property name="mnemonic_widget">connect_username_entry</property>
-                          </object>
-                          <packing>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label4">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">_Password:</property>
-                            <property name="use_underline">True</property>
-                            <property name="mnemonic_widget">connect_password_entry</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                            <property name="x_options"/>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="connect_username_entry">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="y_options"/>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                           </packing>
                         </child>
                         <child>
@@ -1186,13 +1075,127 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHSeparator" id="hseparator1">
+                          <object class="GtkEntry" id="connect_username_entry">
                             <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label4">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">_Password:</property>
+                            <property name="use_underline">True</property>
+                            <property name="mnemonic_widget">connect_password_entry</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label3">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">_Username:</property>
+                            <property name="use_underline">True</property>
+                            <property name="mnemonic_widget">connect_username_entry</property>
+                          </object>
+                          <packing>
+                            <property name="x_options"/>
+                            <property name="y_options"/>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkExpander" id="expander1">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkTable" id="table4">
+                                <property name="visible">True</property>
+                                <property name="n_rows">2</property>
+                                <property name="n_columns">3</property>
+                                <property name="column_spacing">6</property>
+                                <property name="row_spacing">6</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label23">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">    </property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label16">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Confirm:</property>
+                                    <property name="use_underline">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label12">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">_New Password:</property>
+                                    <property name="use_underline">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="newPW2">
+                                    <property name="visible">True</property>
+                                    <property name="visibility">False</property>
+                                    <signal handler="compare_new_passwords" name="changed"/>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="newPW1">
+                                    <property name="visible">True</property>
+                                    <property name="visibility">False</property>
+                                    <signal handler="compare_new_passwords" name="changed"/>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel" id="label14">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">&lt;b&gt;New Password&lt;/b&gt;</property>
+                                <property name="use_markup">True</property>
+                              </object>
+                            </child>
                           </object>
                           <packing>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
                           </packing>
                         </child>
                       </object>
@@ -1249,8 +1252,8 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">connect_ssl_checkbutton</action-widget>
       <action-widget response="0">connect_ssl_use_cert_checkbutton</action-widget>
+      <action-widget response="0">connect_ssl_checkbutton</action-widget>
       <action-widget response="-6">button1</action-widget>
       <action-widget response="-5">connect_button</action-widget>
     </action-widgets>
