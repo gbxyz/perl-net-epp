@@ -107,14 +107,22 @@ sub new {
 	$self->{reconnect}	= (defined($params{reconnect}) ? int($params{reconnect}) : 3);
 	$self->{connected}	= undef;
 	$self->{authenticated}	= undef;
+	$self->{connect}	= (exists($params{connect}) ? $params{connect} : 1);
+	$self->{login}		= (exists($params{login}) ? $params{login} : 1);
 
 	bless($self, $package);
 
-	return ($self->_connect ? $self : undef);
+	if ($self->{connect}) {
+		return ($self->_connect($self->{login}) ? $self : undef);
+
+	} else {
+		return $self;
+
+	}
 }
 
 sub _connect {
-	my $self = shift;
+	my ($self, $login) = @_;
 
 	$self->debug(sprintf('Attempting to connect to %s:%d', $self->{host}, $self->{port}));
 	eval {
@@ -133,8 +141,21 @@ sub _connect {
 
 	map { $self->debug('S: '.$_) } split(/\n/, $self->{greeting}->toString(1));
 
-	$self->debug('Connected OK, preparing login frame');
+	$self->debug('Connected OK');
 
+	if ($login) {
+		return $self->_login;
+
+	} else {
+		return 1;
+
+	}
+}
+
+sub _login {
+	my $self = shift;
+
+	$self->debug('preparing login frame');
 	my $login = Net::EPP::Frame::Command::Login->new;
 
 	$login->clID->appendText($self->{user});
