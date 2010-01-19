@@ -126,19 +126,77 @@ sub setContacts {
 	return 1;
 }
 
+# 
+# Type of elements of @ns depends on NS model used by EPP server.
+#   hostObj model:
+#       each element is a name of NS host object
+#   hostAttr model:
+#       each element is a hashref:
+#       {
+#           name => 'ns1.example.com,
+#           addrs => [
+#               { version => 'v4', addr => '192.168.0.10', },
+#               { version => 'v4', addr => '192.168.0.20', },
+#               ...
+#           ];
+#        }
+#
 sub setNS {
 	my ($self, @ns) = @_;
 
-	my $ns = $self->createElement('domain:ns');
 
+        if ( ref $ns[0] eq 'HASH' ) {
+            $self->addHostAttrNS(@ns);
+        }
+        else {
+            $self->addHostObjNS(@ns);
+        }
+
+	return 1;
+}
+
+sub addHostAttrNS {
+        my ($self, @ns) = @_;
+
+        my $ns = $self->createElement('domain:ns');
+
+        # Adding attributes
+        foreach my $host (@ns) {
+                my $hostAttr = $self->createElement('domain:hostAttr');
+
+                # Adding NS name
+                my $hostName = $self->createElement('domain:hostName');
+                $hostName->appendText( $host->{name} );
+                $hostAttr->appendChild($hostName);
+
+                # Adding IP addresses
+                if ( exists $host->{addrs} && ref $host->{addrs} eq 'ARRAY' ) {
+                        foreach my $addr ( @{ $host->{addrs} } ) {
+                                my $hostAddr = $self->createElement('domain:hostAddr');
+                                $hostAddr->appendText( $addr->{addr} );
+                                $hostAddr->setAttribute( ip => $addr->{version} );
+                                $hostAttr->appendChild($hostAddr);
+                        }
+                }
+
+                # Adding host info to frame
+                $ns->appendChild($hostAttr);
+        }
+	$self->getNode('create')->getChildNodes->shift->appendChild($ns);
+        return 1;
+}
+
+sub addHostObjNS {
+        my ($self, @ns) = @_;
+
+	my $ns = $self->createElement('domain:ns');
 	foreach my $host (@ns) {
-		my $el = $self->createElement('domain:hostObj');
+                my $el = $self->createElement('domain:hostObj');
 		$el->appendText($host);
 		$ns->appendChild($el);
 	}
 	$self->getNode('create')->getChildNodes->shift->appendChild($ns);
-
-	return 1;
+        return 1;
 }
 
 sub setAuthInfo {
