@@ -95,6 +95,34 @@ C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
 sub new {
 	my ($package, %params) = @_;
 	$params{dom}		= 1;
+
+	eval 'use Config::Simple';
+	if (!$@) {
+		# we have Config::Simple, so let's try to parse the RC file:
+		my $rcfile = $ENV{'HOME'}.'/.net-epp-simple-rc';
+		if (-e $rcfile) {
+			my $config = Config::Simple->new($rcfile);
+
+			# if no host was defined in the constructor, use the default (if specified):
+			if (!defined($params{'host'}) && $config->param('default.default')) {
+				$params{'host'} = $config->param('default.default');
+			}
+
+			# if no debug level was defined in the constructor, use the default (if specified):
+			if (!defined($params{'debug'}) && $config->param('default.debug')) {
+				$params{'debug'} = $config->param('default.debug');
+			}
+
+			# grep through the file's values for settings for the selected host:
+			my %vars = $config->vars;
+			foreach my $key (grep { /^$params{'host'}\./ } keys(%vars)) {
+				my $value = $vars{$key};
+				$key =~ s/^$params{'host'}\.//;
+				$params{$key} = $value;
+			}
+		}
+	}
+
 	$params{port}		= (defined($params{port}) && int($params{port}) > 0 ? $params{port} : 700);
 	$params{ssl}		= ($params{no_ssl} ? undef : 1);
 
