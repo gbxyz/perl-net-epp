@@ -118,7 +118,7 @@ sub new {
 			foreach my $key (grep { /^$params{'host'}\./ } keys(%vars)) {
 				my $value = $vars{$key};
 				$key =~ s/^$params{'host'}\.//;
-				$params{$key} = $value;
+				$params{$key} = $value unless (defined($params{$key}));
 			}
 		}
 	}
