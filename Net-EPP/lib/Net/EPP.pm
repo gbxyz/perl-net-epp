@@ -1,4 +1,4 @@
-# Copyright (c) 2009 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2010 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
@@ -12,6 +12,6 @@ use Net::EPP::ResponseCodes;
 use Net::EPP::Simple;
 use strict;
 
-our $VERSION = '0.13';
+our $VERSION = '0.15';
 
 1;
