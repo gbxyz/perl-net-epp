@@ -99,7 +99,7 @@ sub setEmail {
 sub setAuthInfo {
 	my ($self, $authInfo) = @_;
 	my $el = $self->addEl('authInfo');
-	my $pw = $self->createElement('pw');
+	my $pw = $self->createElement('contact:pw');
 	$pw->appendText($authInfo);
 	$el->appendChild($pw);
 	return $el;
