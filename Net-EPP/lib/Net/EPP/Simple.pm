@@ -198,10 +198,15 @@ sub _login {
 		$login->svcs->appendChild($el);
 	}
 	$objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'extURI');
+	my $svcext;
+	if ($objects->size) {
+		$svcext = $login->createElement('svcExtension');
+		$login->svcs->appendChild($svcext);
+	}
 	while (my $object = $objects->shift) {
-		my $el = $login->createElement('objURI');
+		my $el = $login->createElement('extURI');
 		$el->appendText($object->firstChild->data);
-		$login->svcs->appendChild($el);
+		$svcext->appendChild($el);
 	}
 
 	$self->debug(sprintf("Attempting to login as client ID '%s'", $self->{user}));
