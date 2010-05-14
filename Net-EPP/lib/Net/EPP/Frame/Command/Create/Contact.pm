@@ -133,7 +133,7 @@ sub addPostalInfo {
 	}
 
 	$el->appendChild($nel);
-	$el->appendChild($oel);
+	$el->appendChild($oel) if $org;
 	$el->appendChild($ael);
 
 	return $el;
