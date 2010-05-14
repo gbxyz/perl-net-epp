@@ -944,7 +944,7 @@ sub create_domain {
 	$frame->setPeriod($domain->{'period'});
 	$frame->setRegistrant($domain->{'registrant'});
 	$frame->setContacts($domain->{'contacts'});
-	$frame->setNS(@{$domain->{'ns'}});
+	$frame->setNS(@{$domain->{'ns'}}) if @{$domain->{'ns'};
 
 	$frame->setAuthInfo($domain->{authInfo}) if ($domain->{authInfo} ne '');
 
