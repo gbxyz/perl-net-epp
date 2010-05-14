@@ -86,7 +86,8 @@ sub setDomain {
 	my $name = $self->createElement('domain:name');
 	$name->appendText($domain);
 
-	$self->getNode('update')->getChildNodes->shift->appendChild($name);
+	my $n = $self->getNode('update')->getChildNodes->shift;
+	$n->insertBefore( $name, $n->firstChild );
 
 	return 1;
 }
