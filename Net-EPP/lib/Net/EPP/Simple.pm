@@ -974,10 +974,6 @@ sub create_contact {
 	my $frame = Net::EPP::Frame::Command::Create::Contact->new;
 
 	$frame->setContact($contact->{id});
-	$frame->setEmail($contact->{email});
-	$frame->setVoice($contact->{voice}) if ($contact->{voice} ne '');
-	$frame->setFax($contact->{fax}) if ($contact->{fax} ne '');
-	$frame->setAuthInfo($contact->{authInfo}) if ($contact->{authInfo} ne '');
 
 	if (ref($contact->{postalInfo}) eq 'HASH') {
 		foreach my $type (keys(%{$contact->{postalInfo}})) {
@@ -989,6 +985,11 @@ sub create_contact {
 			);
 		}
 	}
+
+	$frame->setVoice($contact->{voice}) if ($contact->{voice} ne '');
+	$frame->setFax($contact->{fax}) if ($contact->{fax} ne '');
+	$frame->setEmail($contact->{email});
+	$frame->setAuthInfo($contact->{authInfo}) if ($contact->{authInfo} ne '');
 
 	if (ref($contact->{status}) eq 'ARRAY') {
 		foreach my $status (grep { /^client/ } @{$contact->{status}}) {
