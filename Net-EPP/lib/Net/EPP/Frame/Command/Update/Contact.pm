@@ -21,7 +21,7 @@ for contact objects.
 	use strict;
 
 	my $info = Net::EPP::Frame::Command::Update::Contact->new;
-	$info->setID('REG-12345');
+	$info->setContact('REG-12345');
 
 	print $info->toString(1);
 
@@ -86,7 +86,8 @@ sub setContact {
 	my $el = $self->createElement('contact:id');
 	$el->appendText($id);
 
-	$self->getNode('update')->getChildNodes->shift->appendChild($el);
+	my $n = $self->getNode('update')->getChildNodes->shift;
+	$n->insertBefore( $el, $n->firstChild );
 
 	return 1;
 }
