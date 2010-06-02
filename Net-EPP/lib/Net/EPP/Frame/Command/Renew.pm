@@ -4,6 +4,7 @@
 # 
 # $Id: Renew.pm,v 1.3 2007/12/03 11:44:52 gavin Exp $
 package Net::EPP::Frame::Command::Renew;
+use Net::EPP::Frame::Command::Renew::Domain;
 use base qw(Net::EPP::Frame::Command);
 use strict;
 
