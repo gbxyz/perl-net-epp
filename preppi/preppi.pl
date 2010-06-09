@@ -228,6 +228,12 @@ sub build_template_list {
 	$id->setDomain('example.com');
 	$id->clTRID->appendText('ABC-12345');
 
+        my $rd = Net::EPP::Frame::Command::Renew::Domain->new;
+        $rd->setDomain('example.com');
+        $rd->setPeriod('1');
+        $rd->setCurExpDate('2010-01-01');
+        $rd->clTRID->appendText('ABC-12345');
+
 	my $td_query = Net::EPP::Frame::Command::Transfer::Domain->new;
 	$td_query->setOp('query');
 	$td_query->setDomain('example.com');
@@ -325,6 +331,7 @@ sub build_template_list {
 			children => [
 				{ value => [ gettext('Check'), 	$cd->toString(true),	0] },
 				{ value => [ gettext('Info'), 	$id->toString(true),	0] },
+				{ value => [ gettext('Renew'),  $rd->toString(true),    0] },
 				{
 					value => [ '<b>'.gettext('Transfer').'</b>' ],
 					children => [
