@@ -20,7 +20,7 @@ for domain objects.
 	use Net::EPP::Frame::Command::Create::Domain;
 	use strict;
 
-	my $check = Net::EPP::Frame::Command::Create::Domain->new;
+	my $create = Net::EPP::Frame::Command::Create::Domain->new;
 	$create->setDomain('example.uk.com);
 
 	print $create->toString(1);

@@ -20,7 +20,7 @@ for contact objects.
 	use Net::EPP::Frame::Command::Create::Contact;
 	use strict;
 
-	my $check = Net::EPP::Frame::Command::Create::Contact->new;
+	my $create = Net::EPP::Frame::Command::Create::Contact->new;
 	$create->setContact('contact-id);
 
 	print $create->toString(1);
