@@ -185,7 +185,7 @@ certificate information). See the relevant manpage for examples.
 This method will C<croak()> if connection fails, so be sure to use C<eval()> if
 you want to catch the error.
 
-The return value for C<connect()> will be the EPP C<E<lt>greetingE<gt>> frame
+The return value for C<connect()> will be the EPP E<lt>greetingE<gt> frame
 returned by the server. Please note that the same caveat about blocking applies
 to this method as to C<get_frame()> (see below).
 
@@ -237,7 +237,7 @@ sub _connect_unix {
 		%params
 	);
 
-	croak("Connection to $self->{'host'}:$self->{'port'} failed: \"$@\"") if (!defined($self->{'connection'}) || ($@ && $@ ne ''));
+	croak("Connection to $self->{'host'}:$self->{'port'} failed: $@") if (!defined($self->{'connection'}) || ($@ && $@ ne ''));
 
 	return 1;
 
@@ -390,7 +390,7 @@ sub send_frame {
 	$epp->disconnect;
 
 This closes the connection. An EPP server should always close a connection after
-a C<E<lt>logoutE<gt>> frame has been received and acknowledged; this method
+a E<lt>logoutE<gt> frame has been received and acknowledged; this method
 is provided to allow you to clean up on the client side, or close the
 connection out of sync with the server.
 

@@ -84,11 +84,55 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 =back
 
 The constructor will establish a connection to the server and retrieve the
-greeting (which is available via C<$epp-E<gt>{greeting}>) and then send a
-C<E<lt>loginE<gt>> request.
+greeting (which is available via $epp-E<gt>{greeting}) and then send a
+E<lt>loginE<gt> request.
 
 If the login fails, the constructor will return C<undef> and set
 C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
+
+=head2 Client and Server SSL options
+
+RFC 5730 requires that all EPP instances must be protected using "mutual,
+strong client-server authentication". In practice, this means that both
+client and server must present an SSL certificate, and that they must
+both verify the certificate of their peer.
+
+=head3 Server Certificate Verification
+
+C<Net::EPP::Simple> will verify the certificate presented by a server if
+the C<verify>, and either C<ca_file> or C<ca_path> are passed to the
+constructor:
+
+	my $epp = Net::EPP::Simple->new(
+		host	=> 'epp.nic.tld',
+		user	=> 'my-id',
+		pass	=> 'my-password',
+		verify	=> 1,
+		ca_file	=> '/etc/pki/tls/certs/ca-bundle.crt',
+		ca_path	=> '/etc/pki/tls/certs',
+	);
+
+C<Net::EPP::Simple> will fail to connect to the server if the
+certificate is not valid.
+
+=head3 Client Certificates
+
+If you are connecting to an EPP server which requires a client
+certificate, you can configure C<Net::EPP::Simple> to use one as
+follows:
+
+	my $epp = Net::EPP::Simple->new(
+		host		=> 'epp.nic.tld',
+		user		=> 'my-id',
+		pass		=> 'my-password',
+		key		=> '/path/to/my.key',
+		cert		=> '/path/to/my.crt',
+		passphrase => 'foobar123',
+	);
+
+C<key> is the filename of the private key, C<cert> is the filename of
+the certificate. If the private key is encrypted, the C<passphrase>
+parameter will be used to decrypt it.
 
 =cut
 
@@ -137,6 +181,12 @@ sub new {
 	$self->{authenticated}	= undef;
 	$self->{connect}	= (exists($params{connect}) ? $params{connect} : 1);
 	$self->{login}		= (exists($params{login}) ? $params{login} : 1);
+	$self->{key}		= $params{key};
+	$self->{cert}		= $params{cert};
+	$self->{key_passphrase}	= $params{key_passphrase};
+	$self->{verify}		= $params{verify};
+	$self->{ca_file}	= $params{ca_file};
+	$self->{ca_path}	= $params{ca_path};
 
 	bless($self, $package);
 
@@ -152,9 +202,25 @@ sub new {
 sub _connect {
 	my ($self, $login) = @_;
 
+	my %params;
+
+	if (defined($self->{key}) && defined($self->{cert}) && defined($self->{ssl})) {
+		$self->debug('configuring client certificate parameters');
+		$params{SSL_key_file}	= $self->{key};
+		$params{SSL_cert_file}	= $self->{cert};
+		$params{SSL_passwd_cb}	= sub { $self->{key_passphrase} };
+	}
+
+	if (defined($self->{ssl}) && defined($self->{verify})) {
+		$self->debug('configuring server verification');
+		$params{SSL_verify_mode}	= 0x01;
+		$params{SSL_ca_file}		= $self->{ca_file};
+		$params{SSL_ca_path}		= $self->{ca_path};
+	}
+
 	$self->debug(sprintf('Attempting to connect to %s:%d', $self->{host}, $self->{port}));
 	eval {
-		$self->{greeting} = $self->connect;
+		$self->{greeting} = $self->connect(%params);
 	};
 	if ($@ ne '' || ref($self->{greeting}) ne 'Net::EPP::Frame::Response') {
 		chomp($@);
