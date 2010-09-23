@@ -184,10 +184,17 @@ sub new {
 	$self->{connect_username_entry}->set_text($val);
 	$self->{connect_password_entry}->grab_focus if ($val);
 
+	# Option to randomise <clTRID> element (default: TRUE)
 	$self->{randomise_cltrid_item}->signal_connect('toggled', sub {
 		$self->{gconf}->set_bool($self->{gconf_base}.'/randomise_cltrid', $self->{randomise_cltrid_item}->get_active);
 	});
 	$self->{randomise_cltrid_item}->set_active($self->{gconf}->get_bool($self->{gconf_base}.'/randomise_cltrid'));
+
+	# Option to keep connection to EPP server alive (default: TRUE)
+	$self->{keep_connection_alive_item}->signal_connect('toggled', sub {
+		$self->{gconf}->set_bool($self->{gconf_base}.'/keep_connection_alive', $self->{keep_connection_alive_item}->get_active);
+	});
+	$self->{keep_connection_alive_item}->set_active($self->{gconf}->get_bool($self->{gconf_base}.'/keep_connection_alive'));
 
 	$self->{transaction_summary} = Gtk2::Ex::Simple::List->new_from_treeview(
 		$self->{transaction_summary},
@@ -206,10 +213,8 @@ sub new {
 
 	eval { $self->{schema} = XML::LibXML::Schema->new(location => $XSD) };
 
-	Glib::Timeout->add(5000, sub {
-		$self->keep_alive;
-		return true;
-	}) if ($self->{gconf}->get_bool($self->{gconf_base}.'/keep_connection_alive'));
+	# Ping EPP server to keep connection alive
+	Glib::Timeout->add(5000, sub { $self->keep_alive; return true; });
 
 	return true;
 }
@@ -1068,18 +1073,21 @@ sub keep_alive {
 	return true unless ($self->{connected});
 	return true if ($self->{busy});
 
-	eval {
-		local $SIG{ALRM} = sub { croak("ALRM\n") };
-		alarm($self->{connect_timeout_spinbutton}->get_value);
-		$self->{epp}->request(Net::EPP::Frame::Hello->new);
-		alarm(0);
-	};
-	if ($@) {
-		alarm(0);
-		$self->disconnect;
-		$self->error(gettext('Disconnected from server.'));
+	# Check if user has activated keep_alive
+	if ($self->{gconf}->get_bool($self->{gconf_base}.'/keep_connection_alive'))
+	{
+		eval {
+			local $SIG{ALRM} = sub { croak("ALRM\n") };
+			alarm($self->{connect_timeout_spinbutton}->get_value);
+			$self->{epp}->request(Net::EPP::Frame::Hello->new);
+			alarm(0);
+		};
+		if ($@) {
+			alarm(0);
+			$self->disconnect;
+			$self->error(gettext('Disconnected from server.'));
+		}
 	}
-
 	return true;
 }
 

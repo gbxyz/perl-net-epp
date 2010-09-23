@@ -135,6 +135,13 @@
                             <property name="use_underline">True</property>
                           </widget>
                         </child>
+                        <child>
+                          <widget class="GtkCheckMenuItem" id="keep_connection_alive_item">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">_Keep connection alive</property>
+                            <property name="use_underline">True</property>
+                          </widget>
+                        </child>
                       </widget>
                     </child>
                   </widget>
