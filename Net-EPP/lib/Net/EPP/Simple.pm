@@ -115,6 +115,17 @@ constructor:
 C<Net::EPP::Simple> will fail to connect to the server if the
 certificate is not valid.
 
+=head3 SSL Cipher Selection
+
+You can restrict the ciphers that you will use to connect to the server
+by passing a C<ciphers> parameter to the constructor. This is a colon-
+separated list of cipher names and aliases. See L<http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS>
+for further details. As an example, the following cipher list is
+suggested for clients who wish to ensure high-security connections to
+servers:
+
+	HIGH:!ADH:!MEDIUM:!LOW:!SSLv2:!EXP
+
 =head3 Client Certificates
 
 If you are connecting to an EPP server which requires a client
@@ -127,7 +138,7 @@ follows:
 		pass		=> 'my-password',
 		key		=> '/path/to/my.key',
 		cert		=> '/path/to/my.crt',
-		passphrase => 'foobar123',
+		passphrase	=> 'foobar123',
 	);
 
 C<key> is the filename of the private key, C<cert> is the filename of
@@ -187,6 +198,7 @@ sub new {
 	$self->{verify}		= $params{verify};
 	$self->{ca_file}	= $params{ca_file};
 	$self->{ca_path}	= $params{ca_path};
+	$self->{ciphers}	= $params{ciphers};
 
 	bless($self, $package);
 
@@ -203,6 +215,8 @@ sub _connect {
 	my ($self, $login) = @_;
 
 	my %params;
+
+	$params{SSL_cipher_list} = $self->{ciphers} if (defined($self->{ssl}) && defined($self->{ciphers}));
 
 	if (defined($self->{key}) && defined($self->{cert}) && defined($self->{ssl})) {
 		$self->debug('configuring client certificate parameters');
