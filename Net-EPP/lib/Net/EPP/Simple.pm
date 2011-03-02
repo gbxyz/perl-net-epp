@@ -22,11 +22,11 @@ our $Message	= '';
 
 =pod
 
-=head1 NAME
+=head1 Name
 
 Net::EPP::Simple - a simple EPP client interface for the most common jobs
 
-=head1 SYNOPSIS
+=head1 Synopsis
 
 	#!/usr/bin/perl
 	use Net::EPP::Simple;
@@ -49,7 +49,7 @@ Net::EPP::Simple - a simple EPP client interface for the most common jobs
 
 	}
 
-=head1 DESCRIPTION
+=head1 Description
 
 EPP is the Extensible Provisioning Protocol. EPP (defined in RFC 4930) is an
 application layer client-server protocol for the provisioning and management of
@@ -66,7 +66,7 @@ response frames behind a simple, Perlish interface.
 It is based on the C<Net::EPP::Client> module and uses C<Net::EPP::Frame>
 to build request frames.
 
-=head1 CONSTRUCTOR
+=head1 Constructor
 
 The constructor for C<Net::EPP::Simple> has the same general form as the
 one for C<Net::EPP::Client>, but with the following exceptions:
@@ -80,6 +80,10 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 =item * You can use the C<user> and C<pass> parameters to supply authentication information.
 
 =item * The C<timeout> parameter controls how long the client waits for a response from the server before returning an error.
+
+=item * if C<debug> is set, C<Net::EPP::Simple> will output verbose debugging information on C<STDERR>, including all frames sent to and received from the server.
+
+=item * C<reconnect> can be used to disable automatic reconnection (it is enabled by default). Before sending a frame to the server, C<Net::EPP::Simple> will send a C<E<lt>helloE<gt>> to check that the connection is up, if not, it will try to reconnect, aborting after the I<n>th time, where I<n> is the value of C<reconnect> (the default is 3).
 
 =back
 
@@ -144,6 +148,47 @@ follows:
 C<key> is the filename of the private key, C<cert> is the filename of
 the certificate. If the private key is encrypted, the C<passphrase>
 parameter will be used to decrypt it.
+
+=head2 Configuration File
+
+C<Net::EPP::Simple> supports the use of a simple configuration file. To 
+use this feature, you need to install the L<Config::Simple> module.
+
+When starting up, C<Net::EPP::Simple> will look for 
+C<$HOME/.net-epp-simple-rc>. This file is an ini-style configuration 
+file.
+
+=head3 Default Options
+
+You can specify default options for all EPP servers using the C<[default]>
+section:
+
+	[default]
+	default=epp.nic.tld
+	debug=1
+
+=head3 Server Specific Options
+
+You can specify options for for specific EPP servers by giving each EPP server
+its own section:
+
+	[epp.nic.tld]
+	user=abc123
+	pass=foo2bar
+	port=777
+	ssl=0
+
+This means that when you write a script that uses C<Net::EPP::Simple>, you can
+do the following:
+
+	# config file has a default server:
+	my $epp = Net::EPP::Simple->new;
+
+	# config file has connection options for this EPP server:
+	my $epp = Net::EPP:Simple->new('host' => 'epp.nic.tld');
+
+Any parameters provided to the constructor will override those in the config
+file.
 
 =cut
 
@@ -417,7 +462,7 @@ error, these methods will return C<undef>, and you can then check
 C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
 
 If C<$authInfo> is defined, it will be sent to the server as per RFC
-4931, Section 3.1.2 and RRC 4933, Section 3.1.2. If the supplied
+5731, Section 3.1.2 and RFC 5733, Section 3.1.2. If the supplied
 authInfo code is validated by the registry, additional information will
 appear in the response. If it is invalid, you should get an error.
 
@@ -1408,13 +1453,13 @@ parameters being passed to a method, or a network error) then this will
 be set to 2400 (C<COMMAND_FAILED>). See L<Net::EPP::ResponseCodes> for
 more information about thes codes.
 
-=head1 AUTHOR
+=head1 Author
 
 CentralNic Ltd (L<http://www.centralnic.com/>).
 
-=head1 COPYRIGHT
+=head1 Copyright
 
-This module is (c) 2007 CentralNic Ltd. This module is free software; you can
+This module is (c) 2011 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
@@ -1427,9 +1472,9 @@ redistribute it and/or modify it under the same terms as Perl itself.
 
 =item * L<Net::EPP::Proxy>
 
-=item * RFCs 4930 and RFC 4934, available from L<http://www.ietf.org/>.
+=item * RFCs 5730 and RFC 4934, available from L<http://www.ietf.org/>.
 
-=item * The CentralNic EPP site at L<http://www.centralnic.com/resellers/epp>.
+=item * The CentralNic EPP site at L<http://www.centralnic.com/registrars/epp>.
 
 =back
 
