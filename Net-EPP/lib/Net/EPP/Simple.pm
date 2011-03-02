@@ -85,6 +85,8 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 
 =item * C<reconnect> can be used to disable automatic reconnection (it is enabled by default). Before sending a frame to the server, C<Net::EPP::Simple> will send a C<E<lt>helloE<gt>> to check that the connection is up, if not, it will try to reconnect, aborting after the I<n>th time, where I<n> is the value of C<reconnect> (the default is 3).
 
+=item * C<login> can be used to disable automatic logins. If you set it to C<0>, you can manually log in using the C<$epp->_login()> method.
+
 =back
 
 The constructor will establish a connection to the server and retrieve the
