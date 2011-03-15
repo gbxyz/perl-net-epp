@@ -21,7 +21,7 @@ for contact objects.
 	use strict;
 
 	my $delete = Net::EPP::Frame::Command::Delete::Contact->new;
-	$delete->setHost('example.tld');
+	$delete->setContact('contact-id');
 
 	print $delete->toString(1);
 
@@ -38,7 +38,7 @@ This results in an XML document like this:
 	          xmlns:contact="urn:ietf:params:xml:ns:contact-1.0"
 	          xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0
 	          contact-1.0.xsd">
-	            <contact:name>ns0.example.tldE<lt>/contact:name>
+	            <contact:name>contact-idE<lt>/contact:name>
 	        </contact:delete>
 	      </delete>
 	      <clTRID>0cf1b8f7e14547d26f03b7641660c641d9e79f45</clTRIDE<gt>

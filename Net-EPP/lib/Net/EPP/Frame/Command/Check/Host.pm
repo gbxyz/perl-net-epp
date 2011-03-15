@@ -73,7 +73,7 @@ sub new {
 
 =head1 METHODS
 
-	$frame->addDomain($domain_name);
+	$frame->addHost($host_name);
 
 This adds a hostname to the list of hosts to be checked.
 

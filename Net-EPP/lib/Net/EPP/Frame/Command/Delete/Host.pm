@@ -13,7 +13,7 @@ use strict;
 =head1 NAME
 
 Net::EPP::Frame::Command::Delete::Host - an instance of L<Net::EPP::Frame::Command::Delete>
-for contact objects.
+for host objects.
 
 =head1 SYNOPSIS
 
@@ -69,7 +69,7 @@ sub new {
 
 =head1 METHODS
 
-	$frame->setHost($domain_name);
+	$frame->setHost($host_name);
 
 This specifies the host object to be deleted.
 
