@@ -63,6 +63,14 @@ guarantee their long-term stability and maintenance.
 
 CentralNic Ltd (L<http://www.centralnic.com/>).
 
+=head1 SEE ALSO
+
+=over
+
+=item * Google Code Project page: L<http://code.google.com/p/perl-net-epp>
+
+=back
+
 =head1 COPYRIGHT
 
 This module is (c) 2010 CentralNic Ltd. This module is free software; you can
