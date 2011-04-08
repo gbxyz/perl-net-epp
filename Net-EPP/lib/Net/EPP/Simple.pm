@@ -9,7 +9,6 @@ use Digest::SHA1 qw(sha1_hex);
 use Net::EPP::Frame;
 use Net::EPP::ResponseCodes;
 use Time::HiRes qw(time);
-use UNIVERSAL qw(isa);
 use base qw(Net::EPP::Client);
 use constant EPP_XMLNS	=> 'urn:ietf:params:xml:ns:epp-1.0';
 use vars qw($Error $Code $Message);
@@ -1272,7 +1271,7 @@ sub ping {
 	my $hello = Net::EPP::Frame::Hello->new;
 	my $response = $self->request($hello);
 
-	return (isa($response, 'XML::LibXML::Document') ? 1 : undef);
+	return (UNIVERSAL::isa($response, 'XML::LibXML::Document') ? 1 : undef);
 }
 
 sub _request {
@@ -1329,10 +1328,10 @@ sub request {
 	$Error		= '';
 	$Message	= '';
 
-	$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (isa($frame, 'Net::EPP::Frame::Command'));
+	$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (UNIVERSAL::isa($frame, 'Net::EPP::Frame::Command'));
 
 	$self->debug(sprintf('sending a %s to the server', ref($frame)));
-	if (isa($frame, 'XML::LibXML::Document')) {
+	if (UNIVERSAL::isa($frame, 'XML::LibXML::Document')) {
 		map { $self->debug('C: '.$_) } split(/\n/, $frame->toString(1));
 
 	} else {
@@ -1342,7 +1341,7 @@ sub request {
 
 	my $response = $self->SUPER::request($frame);
 
-	map { $self->debug('S: '.$_) } split(/\n/, $response->toString(1)) if (isa($response, 'XML::LibXML::Document'));
+	map { $self->debug('S: '.$_) } split(/\n/, $response->toString(1)) if (UNIVERSAL::isa($response, 'XML::LibXML::Document'));
 
 	return $response;
 }

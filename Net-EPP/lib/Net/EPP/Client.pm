@@ -10,7 +10,6 @@ use Carp;
 use IO::Socket;
 use IO::Socket::SSL;
 use vars qw($XMLDOM $EPPFRAME);
-use UNIVERSAL qw(isa);
 use strict;
 use warnings;
 
