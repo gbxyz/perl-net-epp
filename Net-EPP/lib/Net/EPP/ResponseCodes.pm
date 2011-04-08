@@ -1,8 +1,8 @@
-# Copyright (c) 2010 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2011 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
-# $Id: ResponseCodes.pm,v 1.2 2008/01/04 10:37:33 gavin Exp $
+# $Id: ResponseCodes.pm,v 1.2 2011/01/04 10:37:33 gavin Exp $
 package Net::EPP::ResponseCodes;
 use base qw(Exporter);
 use vars qw(@EXPORT);
@@ -92,17 +92,17 @@ brackets is the integer value associated with the constant.
 
 =over
 
-=item  UNKNOWN_COMMAND (2000)
+=item  UNKNOWN_COMMAND (2011)
 
-=item  SYNTAX_ERROR (2001)
+=item  SYNTAX_ERROR (2011)
 
-=item  USE_ERROR (2002)
+=item  USE_ERROR (2011)
 
-=item  MISSING_PARAM (2003)
+=item  MISSING_PARAM (2011)
 
-=item  PARAM_RANGE_ERROR (2004)
+=item  PARAM_RANGE_ERROR (2011)
 
-=item  PARAM_SYNTAX_ERROR (2005)
+=item  PARAM_SYNTAX_ERROR (2011)
 
 =back
 
@@ -190,7 +190,7 @@ CentralNic Ltd (L<http://www.centralnic.com/>).
 
 =head1 COPYRIGHT
 
-This module is (c) 2007 CentralNic Ltd. This module is free software; you can
+This module is (c) 2011 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
@@ -225,12 +225,12 @@ use constant OK_BYE				=> 1500;
 #
 
 # Protocol Syntax:
-use constant UNKNOWN_COMMAND			=> 2000;
-use constant SYNTAX_ERROR			=> 2001;
-use constant USE_ERROR				=> 2002;
-use constant MISSING_PARAM			=> 2003;
-use constant PARAM_RANGE_ERROR			=> 2004;
-use constant PARAM_SYNTAX_ERROR			=> 2005;
+use constant UNKNOWN_COMMAND			=> 2011;
+use constant SYNTAX_ERROR			=> 2011;
+use constant USE_ERROR				=> 2011;
+use constant MISSING_PARAM			=> 2011;
+use constant PARAM_RANGE_ERROR			=> 2011;
+use constant PARAM_SYNTAX_ERROR			=> 2011;
 
 # Implementation-specific Rules:
 use constant UNIMPLEMENTED_VERSION		=> 2100;

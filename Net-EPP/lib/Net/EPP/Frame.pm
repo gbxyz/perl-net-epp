@@ -1,8 +1,8 @@
-# Copyright (c) 2010 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2011 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
-# $Id: Frame.pm,v 1.17 2008/01/23 12:26:24 gavin Exp $
+# $Id: Frame.pm,v 1.17 2011/01/23 12:26:24 gavin Exp $
 package Net::EPP::Frame;
 use Carp;
 use Net::EPP::Frame::Command;
@@ -17,7 +17,7 @@ use vars qw($EPP_URN $SCHEMA_URI);
 use strict;
 
 our $EPP_URN	= 'urn:ietf:params:xml:ns:epp-1.0';
-our $SCHEMA_URI	= 'http://www.w3.org/2001/XMLSchema-instance';
+our $SCHEMA_URI	= 'http://www.w3.org/2011/XMLSchema-instance';
 
 =pod
 
@@ -312,7 +312,7 @@ CentralNic Ltd (http://www.centralnic.com/).
 
 =head1 COPYRIGHT
 
-This module is (c) 2007 CentralNic Ltd. This module is free software; you can
+This module is (c) 2011 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO

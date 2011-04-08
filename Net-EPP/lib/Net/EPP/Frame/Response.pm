@@ -1,8 +1,8 @@
-# Copyright (c) 2010 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2011 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
-# $Id: Response.pm,v 1.9 2008/07/04 09:48:51 gavin Exp $
+# $Id: Response.pm,v 1.9 2011/07/04 09:48:51 gavin Exp $
 package Net::EPP::Frame::Response;
 use Net::EPP::ResponseCodes;
 use base qw(Net::EPP::Frame);
@@ -144,7 +144,7 @@ CentralNic Ltd (http://www.centralnic.com/).
 
 =head1 COPYRIGHT
 
-This module is (c) 2007 CentralNic Ltd. This module is free software; you can
+This module is (c) 2011 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO

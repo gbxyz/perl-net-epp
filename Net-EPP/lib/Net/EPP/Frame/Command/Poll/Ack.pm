@@ -1,8 +1,8 @@
-# Copyright (c) 2010 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2011 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
-# $Id: Ack.pm,v 1.2 2007/12/03 11:44:52 gavin Exp $
+# $Id: Ack.pm,v 1.2 2011/12/03 11:44:52 gavin Exp $
 package Net::EPP::Frame::Command::Poll::Ack;
 use base qw(Net::EPP::Frame::Command::Poll);
 use strict;
@@ -56,7 +56,7 @@ CentralNic Ltd (http://www.centralnic.com/).
 
 =head1 COPYRIGHT
 
-This module is (c) 2007 CentralNic Ltd. This module is free software; you can
+This module is (c) 2011 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO

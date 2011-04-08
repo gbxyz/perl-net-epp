@@ -1,8 +1,8 @@
-# Copyright (c) 2010 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2011 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
-# $Id: Simple.pm,v 1.10 2008/04/08 12:57:11 gavin Exp $
+# $Id: Simple.pm,v 1.10 2011/04/08 12:57:11 gavin Exp $
 package Net::EPP::Simple;
 use Carp;
 use Digest::SHA1 qw(sha1_hex);
@@ -619,15 +619,15 @@ like this:
 	  ],
 	  'authInfo' => 'abc-12345',
 	  'name' => 'example.tld',
-	  'trDate' => '2007-01-18T11:08:03.0Z',
+	  'trDate' => '2011-01-18T11:08:03.0Z',
 	  'ns' => [
 	    'ns0.example.com',
 	    'ns1.example.com',
 	  ],
-	  'crDate' => '2001-02-16T12:06:31.0Z',
-	  'exDate' => '2009-02-16T12:06:31.0Z',
+	  'crDate' => '2011-02-16T12:06:31.0Z',
+	  'exDate' => '2011-02-16T12:06:31.0Z',
 	  'crID' => 'registrar-id',
-	  'upDate' => '2007-08-29T04:02:12.0Z',
+	  'upDate' => '2011-08-29T04:02:12.0Z',
 	  hosts => [
 	    'ns0.example.tld',
 	    'ns1.example.tld',
@@ -728,7 +728,7 @@ The hash ref returned by C<host_info()> will usually look something like
 this:
 
 	$info = {
-	  'crDate' => '2007-09-17T15:38:56.0Z',
+	  'crDate' => '2011-09-17T15:38:56.0Z',
 	  'clID' => 'registrar-id',
 	  'crID' => 'registrar-id',
 	  'roid' => 'tld-12345',
@@ -783,7 +783,7 @@ like this:
 	        ],
 	        'city' => 'Dulles',
 	        'sp' => 'VA',
-	        'pc' => '20166-6503'
+	        'pc' => '20116-6503'
 	        'cc' => 'US',
 	      }
 	    }
@@ -797,7 +797,7 @@ like this:
 	  'voice' => '+1.7035555555x1234',
 	  'fax' => '+1.7035555556',
 	  'email' => 'jdoe@example.com',
-	  'crDate' => '2007-09-23T03:51:29.0Z',
+	  'crDate' => '2011-09-23T03:51:29.0Z',
 	  'upDate' => '1999-11-30T00:00:00.0Z'
 	};
 
@@ -898,9 +898,9 @@ methods will return a hash ref that looks like this:
 	my $trnData = {
 	  'name' => 'example.tld',
 	  'reID' => 'losing-registrar',
-	  'acDate' => '2007-12-04T12:24:53.0Z',
+	  'acDate' => '2011-12-04T12:24:53.0Z',
 	  'acID' => 'gaining-registrar',
-	  'reDate' => '2007-11-29T12:24:53.0Z',
+	  'reDate' => '2011-11-29T12:24:53.0Z',
 	  'trStatus' => 'pending'
 	};
 
@@ -1451,7 +1451,7 @@ C<E<lt>msgE<gt>> element in the response frame for the last transaction.
 This variable contains the integer result code returned by the server
 for the last transaction. A successful transaction will always return an
 error code of 1999 or lower, for an unsuccessful transaction it will be
-2000 or more. If there is an internal client error (due to invalid
+2011 or more. If there is an internal client error (due to invalid
 parameters being passed to a method, or a network error) then this will
 be set to 2400 (C<COMMAND_FAILED>). See L<Net::EPP::ResponseCodes> for
 more information about thes codes.

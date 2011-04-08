@@ -1,4 +1,4 @@
-# Copyright (c) 2010 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2011 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
@@ -12,7 +12,7 @@ use Net::EPP::ResponseCodes;
 use Net::EPP::Simple;
 use strict;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 1;
 
@@ -61,7 +61,11 @@ guarantee their long-term stability and maintenance.
 
 =head1 AUTHOR
 
-CentralNic Ltd (L<http://www.centralnic.com/>).
+CentralNic Ltd (L<https://www.centralnic.com/>).
+
+=head1 REPORTING BUGS
+
+Please email any bug reports to L<epp@centralnic.com>.
 
 =head1 SEE ALSO
 
@@ -73,7 +77,7 @@ CentralNic Ltd (L<http://www.centralnic.com/>).
 
 =head1 COPYRIGHT
 
-This module is (c) 2010 CentralNic Ltd. This module is free software; you can
+This module is (c) 2011 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
