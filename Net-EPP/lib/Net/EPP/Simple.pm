@@ -378,6 +378,8 @@ following:
 
 =item * C<1> if the object is available.
 
+=back
+
 =cut
 
 sub check_domain {

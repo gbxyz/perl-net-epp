@@ -70,9 +70,9 @@ codes.
 C<Net::EPP::ResponseCodes> exports the following constants. The number in
 brackets is the integer value associated with the constant.
 
-=over
-
 =head2 Successful command completion responses (1nnn)
+
+=over
 
 =item  OK (1000)
 
@@ -84,9 +84,13 @@ brackets is the integer value associated with the constant.
 
 =item  OK_BYE (1500)
 
+=back
+
 =head2 Command error responses (2nnn)
 
 =head3 Protocol Syntax
+
+=over
 
 =item  UNKNOWN_COMMAND (2000)
 
@@ -100,7 +104,11 @@ brackets is the integer value associated with the constant.
 
 =item  PARAM_SYNTAX_ERROR (2005)
 
+=back
+
 =head3 Implementation-specific Rules
+
+=over
 
 =item  UNIMPLEMENTED_VERSION (2100)
 
@@ -116,7 +124,11 @@ brackets is the integer value associated with the constant.
 
 =item  NOT_TRANSFERRABLE (2106)
 
+=back
+
 =head3 Security (22nn)
+
+=over
 
 =item  AUTHENTICATION_ERROR (2200)
 
@@ -126,7 +138,11 @@ brackets is the integer value associated with the constant.
 
 =item  INVALID_AUTH_INFO (2202)
 
+=back
+
 =head3 Data Management (23nn)
+
+=over
 
 =item  OBJECT_PENDING_TRANSFER (2300)
 
@@ -146,11 +162,19 @@ brackets is the integer value associated with the constant.
 
 =item  DATA_MGMT_POLICY_VIOLATION (2308)
 
+=back
+
 =head3 Server System (24nn)
+
+=over
 
 =item  COMMAND_FAILED (2400)
 
+=back
+
 =head3 Connection Management (25nn)
+
+=over
 
 =item  COMMAND_FAILED_BYE (2500)
 
