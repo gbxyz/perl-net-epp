@@ -5,7 +5,7 @@
 # $Id: Simple.pm,v 1.10 2011/04/08 12:57:11 gavin Exp $
 package Net::EPP::Simple;
 use Carp;
-use Digest::SHA1 qw(sha1_hex);
+use Digest::SHA qw(sha1_hex);
 use Net::EPP::Frame;
 use Net::EPP::ResponseCodes;
 use Time::HiRes qw(time);
@@ -1280,6 +1280,7 @@ sub _request {
 	my ($self, $frame) = @_;
 
 	if ($self->{reconnect} > 0) {
+		$self->debug("reconnect is $self->{reconnect}, pinging");
 		if (!$self->ping) {
 			$self->debug('connection seems dead, trying to reconnect');
 			for (1..$self->{reconnect}) {
@@ -1298,6 +1299,7 @@ sub _request {
 			return undef;
 
 		} else {
+			$self->debug("Connection is up, sending frame");
 			return $self->request($frame);
 
 		}
