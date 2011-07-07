@@ -14,7 +14,7 @@ use Gtk2::Ex::Simple::Tree;
 use HTML::Entities qw(encode_entities_numeric);
 use Locale::gettext;
 use Net::EPP::Client;
-use Net::EPP::Frame '0.11';
+use Net::EPP::Frame;
 use POSIX qw(setlocale);
 use Time::HiRes qw(time);
 use URI::Escape;
@@ -631,7 +631,7 @@ sub connect {
 		return true;
 	}
 
-	$self->parse_peer_certificate;
+	$self->parse_peer_certificate if ($self->{connect_ssl_checkbutton}->get_active);
 
 	eval {
 		$self->{greeting_view}->get_buffer->set_text($self->{greeting}->toString(1));
