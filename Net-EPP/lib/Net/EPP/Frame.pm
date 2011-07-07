@@ -17,7 +17,7 @@ use vars qw($EPP_URN $SCHEMA_URI);
 use strict;
 
 our $EPP_URN	= 'urn:ietf:params:xml:ns:epp-1.0';
-our $SCHEMA_URI	= 'http://www.w3.org/2011/XMLSchema-instance';
+our $SCHEMA_URI	= 'http://www.w3.org/2001/XMLSchema-instance';
 
 =pod
 
