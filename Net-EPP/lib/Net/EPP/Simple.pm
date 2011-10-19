@@ -240,7 +240,7 @@ sub new {
 	$self->{login}		= (exists($params{login}) ? $params{login} : 1);
 	$self->{key}		= $params{key};
 	$self->{cert}		= $params{cert};
-	$self->{key_passphrase}	= $params{key_passphrase};
+	$self->{passphrase}	= $params{passphrase};
 	$self->{verify}		= $params{verify};
 	$self->{ca_file}	= $params{ca_file};
 	$self->{ca_path}	= $params{ca_path};
@@ -268,7 +268,7 @@ sub _connect {
 		$self->debug('configuring client certificate parameters');
 		$params{SSL_key_file}	= $self->{key};
 		$params{SSL_cert_file}	= $self->{cert};
-		$params{SSL_passwd_cb}	= sub { $self->{key_passphrase} };
+		$params{SSL_passwd_cb}	= sub { $self->{passphrase} };
 	}
 
 	if (defined($self->{ssl}) && defined($self->{verify})) {
