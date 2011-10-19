@@ -61,7 +61,29 @@ guarantee their long-term stability and maintenance.
 
 =head1 AUTHOR
 
-CentralNic Ltd (L<https://www.centralnic.com/>).
+CentralNic Ltd (http://www.centralnic.com/), with the assistance of other contributors around the world, including (but not limited to):
+
+=over
+
+=item Rick Jansen
+
+=item Mike Kefeder
+
+=item Sage Weil
+
+=item Eberhard Lisse
+
+=item Yulya Shtyryakova
+
+=item Ilya Chesnokov
+
+=item Simon Cozens
+
+=item Patrick Mevzek
+
+=item Alexander Biehl
+
+=back   
 
 =head1 REPORTING BUGS
 
