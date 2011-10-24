@@ -33,14 +33,14 @@ This results in an XML document like this:
 	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0
 	  epp-1.0.xsd">
 	    <command>
-	      <info>
+	      <update>
 	        <domain:update
 	          xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
 	          xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0
 	          domain-1.0.xsd">
 	            <domain:name>example-1.tldE<lt>/domain:name>
 	        </domain:update>
-	      </info>
+	      </update>
 	      <clTRID>0cf1b8f7e14547d26f03b7641660c641d9e79f45</clTRIDE<gt>
 	    </command>
 	</epp>
@@ -99,6 +99,7 @@ sub setDomain {
 Add a status of $type with the optional extra $info.
 
 =cut
+
 sub addStatus {
 	my ($self, $type, $info) = @_;
 	my $status = $self->createElement('domain:status');
@@ -108,6 +109,7 @@ sub addStatus {
 		$status->appendText($info);
 	}
 	$self->getElementsByLocalName('domain:add')->shift->appendChild($status);
+	return 1;
 }
 
 =pod
@@ -117,18 +119,234 @@ sub addStatus {
 Remove a status of $type.
 
 =cut
+
 sub remStatus {
 	my ($self, $type) = @_;
 	my $status = $self->createElement('domain:status');
 	$status->setAttribute('s', $type);
 	$self->getElementsByLocalName('domain:rem')->shift->appendChild($status);
+	return 1;
 }
 
 =pod
 
+	$frame->addContact($type, $contact);
+	
+Add a contact of $type.
+
+=cut
+
+sub addContact {
+	my ($self, $type, $contact_id) = @_;
+	
+	my $contact = $self->createElement('domain:contact');
+	$contact->setAttribute('type', $type);
+	$contact->appendText($contact_id);
+
+	$self->getElementsByLocalName('domain:add')->shift->appendChild($contact);
+	return 1;
+}
+
+=pod
+	
+	$frame->remContact($type, $contact);
+	
+Remove a contact of $type.
+
+=cut
+
+sub remContact {
+	my ($self, $type, $contact_id) = @_;
+	
+	my $contact = $self->createElement('domain:contact');
+	$contact->setAttribute('type', $type);
+	$contact->appendText($contact_id);
+
+	$self->getElementsByLocalName('domain:rem')->shift->appendChild($contact);
+	return 1;
+}
+
+=pod
+
+	$frame->chgAuthinfo($auth);
+
+Change the authinfo.
+
+=cut
+
+sub chgAuthInfo {
+	my ($self,$authInfo) = @_;
+
+	my $el = $self->createElement('domain:authInfo');
+	my $pw = $self->createElement('domain:pw');
+	$pw->appendText($authInfo);
+	$el->appendChild($pw);
+
+	$self->getElementsByLocalName('domain:chg')->shift->appendChild($el);
+	return 1;
+}
+
+=pod
+
+	$frame->chgRegistrant($registrant);
+
+Change the authinfo.
+
+=cut
+
+sub chgRegistrant {
+	my ($self,$contact) = @_;
+
+	my $registrant = $self->createElement('domain:registrant');
+	$registrant->appendText($contact);
+
+	$self->getElementsByLocalName('domain:chg')->shift->appendChild($registrant);
+	return 1;
+}
+
+=pod
+
+	$frame->addNS('ns0.example.com'); # host object mode
+
+	$frame->addNS({'name' => 'ns0.example.com', 'addrs' => [ { 'addr' => '127.0.0.1', 'type' => 4 } ] }); # host attribute mode
+
+=cut 
+
+sub addNS {
+	my ($self, @ns) = @_;
+
+	if ( ref $ns[0] eq 'HASH' ) {
+		$self->addHostAttrNS(@ns);
+	}
+	else {
+		$self->addHostObjNS(@ns);
+	}
+	return 1;
+}
+
+
+sub addHostAttrNS {
+	my ($self, @ns) = @_;
+
+	my $ns = $self->createElement('domain:ns');
+
+	# Adding attributes
+	foreach my $host (@ns) {
+		my $hostAttr = $self->createElement('domain:hostAttr');
+
+		# Adding NS name
+		my $hostName = $self->createElement('domain:hostName');
+		$hostName->appendText($host->{name});
+		$hostAttr->appendChild($hostName);
+
+		# Adding IP addresses
+		if ( exists $host->{addrs} && ref $host->{addrs} eq 'ARRAY' ) {
+			foreach my $addr ( @{ $host->{addrs} } ) {
+				my $hostAddr = $self->createElement('domain:hostAddr');
+				$hostAddr->appendText($addr->{addr});
+				$hostAddr->setAttribute(ip => $addr->{version});
+				$hostAttr->appendChild($hostAddr);
+			}
+		}
+
+		# Adding host info to frame
+		$ns->appendChild($hostAttr);
+	}
+	
+	$self->getElementsByLocalName('domain:add')->shift->appendChild($ns);
+	return 1;
+}
+
+
+sub addHostObjNS {
+	my ($self, @ns) = @_;
+
+	my $ns = $self->createElement('domain:ns');
+	foreach my $host (@ns) {
+		my $el = $self->createElement('domain:hostObj');
+		$el->appendText($host);
+		$ns->appendChild($el);
+	}
+	
+	$self->getElementsByLocalName('domain:add')->shift->appendChild($ns);
+	return 1;
+}
+
+=pod
+
+	$frame->remNS('ns0.example.com'); # host object mode
+
+	$frame->remNS({'name' => 'ns0.example.com', 'addrs' => [ { 'addr' => '127.0.0.1', 'type' => 4 } ] }); # host attribute mode
+
+=cut 
+
+sub remNS {
+	my ($self, @ns) = @_;
+
+	if ( ref $ns[0] eq 'HASH' ) {
+		$self->remHostAttrNS(@ns);
+	}
+	else {
+		$self->remHostObjNS(@ns);
+	}
+	return 1;
+}
+
+
+sub remHostAttrNS {
+	my ($self, @ns) = @_;
+
+	my $ns = $self->createElement('domain:ns');
+
+	# Adding attributes
+	foreach my $host (@ns) {
+		my $hostAttr = $self->createElement('domain:hostAttr');
+
+		# Adding NS name
+		my $hostName = $self->createElement('domain:hostName');
+		$hostName->appendText($host->{name});
+		$hostAttr->appendChild($hostName);
+
+		# Adding IP addresses
+		if ( exists $host->{addrs} && ref $host->{addrs} eq 'ARRAY' ) {
+			foreach my $addr ( @{ $host->{addrs} } ) {
+				my $hostAddr = $self->createElement('domain:hostAddr');
+				$hostAddr->appendText($addr->{addr});
+				$hostAddr->setAttribute(ip => $addr->{version});
+				$hostAttr->appendChild($hostAddr);
+			}
+		}
+
+		# Adding host info to frame
+		$ns->appendChild($hostAttr);
+	}
+	
+	$self->getElementsByLocalName('domain:rem')->shift->appendChild($ns);
+	return 1;
+}
+
+
+sub remHostObjNS {
+	my ($self, @ns) = @_;
+
+	my $ns = $self->createElement('domain:ns');
+	foreach my $host (@ns) {
+		my $el = $self->createElement('domain:hostObj');
+		$el->appendText($host);
+		$ns->appendChild($el);
+	}
+	
+	$self->getElementsByLocalName('domain:rem')->shift->appendChild($ns);
+	return 1;
+}
+
+
+
+=pot
+
 =head1 AUTHOR
 
-CentralNic Ltd (http://www.centralnic.com/).
+CentralNic Ltd (http://www.centralnic.com/), with contributions from United Domains AG (http://www.united-domains.de/).
 
 =head1 COPYRIGHT
 
