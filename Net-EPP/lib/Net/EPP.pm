@@ -81,7 +81,7 @@ CentralNic Ltd (http://www.centralnic.com/), with the assistance of other contri
 
 =item Patrick Mevzek
 
-=item Alexander Biehl and Christian Maile, United Domains AG
+=item Alexander Biehl and Christian Maile, united-domains AG
 
 =back   
 
