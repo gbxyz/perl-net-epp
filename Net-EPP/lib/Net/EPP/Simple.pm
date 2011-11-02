@@ -338,21 +338,27 @@ sub _login {
 	$self->debug(sprintf("Attempting to login as client ID '%s'", $self->{user}));
 	my $response = $self->request($login);
 
-	$Code = $self->_get_response_code($response);
-	$Message = $self->_get_message($response);
-
-	$self->debug(sprintf('%04d: %s', $Code, $Message));
-
-	if ($Code > 1999) {
-		$Error = "Error logging in (response code $Code)";
+	if (!$response) {
+		$Code = COMMAND_FAILED;
+		$Message = $Error = "Didn't get a valid frame in response to login request";
 		return undef;
 
 	} else {
-		$self->{authenticated} = 1;
+		$Code = $self->_get_response_code($response);
+		$Message = $self->_get_message($response);
 
+		$self->debug(sprintf('%04d: %s', $Code, $Message));
+
+		if ($Code > 1999) {
+			$Error = "Error logging in (response code $Code)";
+			return undef;
+
+		} else {
+			$self->{authenticated} = 1;
+			return 1;
+
+		}
 	}
-
-	return 1;
 }
 
 =pod
