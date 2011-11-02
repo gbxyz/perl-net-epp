@@ -339,8 +339,6 @@ sub _login {
 	my $response = $self->request($login);
 
 	if (!$response) {
-		$Code = COMMAND_FAILED;
-		$Message = $Error = "Didn't get a valid frame in response to login request";
 		return undef;
 
 	} else {
@@ -1370,7 +1368,7 @@ sub get_frame {
 	my $frame;
 	$self->debug(sprintf('reading frame, waiting %d seconds before timeout', $self->{timeout}));
 	eval {
-		local $SIG{ALRM} = sub { die "alarm\n" };
+		local $SIG{ALRM} = sub { die 'timeout' };
 		$self->debug('setting timeout alarm for receiving frame');
 		alarm($self->{timeout});
 		$frame = $self->SUPER::get_frame();
@@ -1378,10 +1376,17 @@ sub get_frame {
 		alarm(0);
 	};
 	if ($@ ne '') {
-		$self->debug('unsetting timeout alarm after alarm was triggered');
+		chomp($@);
+		$self->debug("unsetting timeout alarm after alarm was triggered ($@)");
 		alarm(0);
 		$Code = COMMAND_FAILED;
-		$Error = $Message = "get_frame() timed out\n";
+		if ($@ =~ /^timeout/) {
+			$Error = $Message = "get_frame() timed out after $self->{timeout} seconds";
+
+		} else {
+			$Error = $Message = "get_frame() received an error: $@";
+
+		}
 		return undef;
 
 	} else {
