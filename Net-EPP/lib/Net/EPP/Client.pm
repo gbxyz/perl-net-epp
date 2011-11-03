@@ -184,9 +184,11 @@ certificate information). See the relevant manpage for examples.
 This method will C<croak()> if connection fails, so be sure to use C<eval()> if
 you want to catch the error.
 
-The return value for C<connect()> will be the EPP E<lt>greetingE<gt> frame
-returned by the server. Please note that the same caveat about blocking applies
-to this method as to C<get_frame()> (see below).
+By default, the return value for C<connect()> will be the EPP E<lt>greetingE<gt>
+frame returned by the server. Please note that the same caveat about blocking
+applies to this method as to C<get_frame()> (see below).
+
+If you want to get the greeting yourself, set C<$params{no_greeting}>.
 
 =cut
 
@@ -201,7 +203,7 @@ sub connect {
 
 	}
 
-	return $self->get_frame;
+	return ($params{'no_greeting'} ? 1 : $self->get_frame);
 
 }
 
