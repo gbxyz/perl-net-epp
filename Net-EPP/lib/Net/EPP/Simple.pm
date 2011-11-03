@@ -287,7 +287,7 @@ sub _connect {
 		$@ =~ s/ at .+ line .+$//;
 		$self->debug($@);
 		$Code = COMMAND_FAILED;
-		$Error = $Message = $@;
+		$Error = $Message = "Error retrieving greeting frame: ".$@;
 		return undef;
 	}
 
@@ -339,6 +339,7 @@ sub _login {
 	my $response = $self->request($login);
 
 	if (!$response) {
+		$Error = $Message = "Error getting response to login request: ".$Error;
 		return undef;
 
 	} else {
