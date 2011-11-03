@@ -11,13 +11,14 @@ use Net::EPP::ResponseCodes;
 use Time::HiRes qw(time);
 use base qw(Net::EPP::Client);
 use constant EPP_XMLNS	=> 'urn:ietf:params:xml:ns:epp-1.0';
-use vars qw($Error $Code $Message);
+use vars qw($Error $Code $Message @Log);
 use strict;
 use warnings;
 
 our $Error	= '';
 our $Code	= OK;
 our $Message	= '';
+our @Log	= ();
 
 =pod
 
@@ -280,24 +281,37 @@ sub _connect {
 
 	$self->debug(sprintf('Attempting to connect to %s:%d', $self->{host}, $self->{port}));
 	eval {
-		$self->{greeting} = $self->connect(%params);
+		$params{no_greeting} = 1;
+		$self->connect(%params);
 	};
-	if ($@ ne '' || ref($self->{greeting}) ne 'Net::EPP::Frame::Response') {
+	if ($@ ne '') {
 		chomp($@);
 		$@ =~ s/ at .+ line .+$//;
 		$self->debug($@);
 		$Code = COMMAND_FAILED;
-		$Error = $Message = "Error retrieving greeting frame: ".$@;
+		$Error = $Message = "Error connecting: ".$@;
 		return undef;
+
+	} else {
+		$self->debug('Connected OK, retrieving greeting frame');
+		$self->{greeting} = $self->get_frame;
+		if (ref($self->{greeting}) ne 'Net::EPP::Frame::Response') {
+			$Code = COMMAND_FAILED;
+			$Error = $Message = "Error retrieving greeting: ".$@;
+			return undef;
+
+		} else {
+			$self->debug('greeting frame retrieved OK');
+
+		}
 	}
 
 	$self->{connected} = 1;
 
 	map { $self->debug('S: '.$_) } split(/\n/, $self->{greeting}->toString(1));
 
-	$self->debug('Connected OK');
-
 	if ($login) {
+		$self->debug('attempting login');
 		return $self->_login;
 
 	} else {
@@ -1273,6 +1287,15 @@ Returns the a C<Net::EPP::Frame::Greeting> object representing the greeting retu
 
 sub greeting { $_[0]->{greeting} }
 
+=pod
+
+	$epp->ping;
+
+Checks that the connection is up by sending a C<E<lt>helloE<gt>> to the server. Returns false if no
+response is received.
+
+=cut
+
 sub ping {
 	my $self = shift;
 	my $hello = Net::EPP::Frame::Hello->new;
@@ -1378,6 +1401,7 @@ sub get_frame {
 	};
 	if ($@ ne '') {
 		chomp($@);
+		$@ =~ s/ at .+ line .+$//;
 		$self->debug("unsetting timeout alarm after alarm was triggered ($@)");
 		alarm(0);
 		$Code = COMMAND_FAILED;
@@ -1441,7 +1465,9 @@ sub DESTROY {
 
 sub debug {
 	my ($self, $msg) = @_;
-	printf(STDERR "%s (%d): %s\n", scalar(localtime()), $$, $msg) if (defined($self->{debug}) && $self->{debug} == 1);
+	my $log = sprintf("%s (%d): %s", scalar(localtime()), $$, $msg);
+	push(@Log, $log);
+	print STDERR $log."\n" if (defined($self->{debug}) && $self->{debug} == 1);
 }
 
 =pod
