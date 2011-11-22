@@ -198,32 +198,8 @@ sub new {
 	my ($package, %params) = @_;
 	$params{dom}		= 1;
 
-	eval 'use Config::Simple';
-	if (!$@) {
-		# we have Config::Simple, so let's try to parse the RC file:
-		my $rcfile = $ENV{'HOME'}.'/.net-epp-simple-rc';
-		if (-e $rcfile) {
-			my $config = Config::Simple->new($rcfile);
-
-			# if no host was defined in the constructor, use the default (if specified):
-			if (!defined($params{'host'}) && $config->param('default.default')) {
-				$params{'host'} = $config->param('default.default');
-			}
-
-			# if no debug level was defined in the constructor, use the default (if specified):
-			if (!defined($params{'debug'}) && $config->param('default.debug')) {
-				$params{'debug'} = $config->param('default.debug');
-			}
-
-			# grep through the file's values for settings for the selected host:
-			my %vars = $config->vars;
-			foreach my $key (grep { /^$params{'host'}\./ } keys(%vars)) {
-				my $value = $vars{$key};
-				$key =~ s/^$params{'host'}\.//;
-				$params{$key} = $value unless (defined($params{$key}));
-			}
-		}
-	}
+	my $load_config = (defined($params{load_config}) ? $params{load_config} : 1);
+	%params = ($package->_load_config, %params) if ($load_config);
 
 	$params{port}		= (defined($params{port}) && int($params{port}) > 0 ? $params{port} : 700);
 	$params{ssl}		= ($params{no_ssl} ? undef : 1);
@@ -249,12 +225,42 @@ sub new {
 
 	bless($self, $package);
 
-	if ($self->{connect}) {
 		return ($self->_connect($self->{login}) ? $self : undef);
 
 	} else {
 		return $self;
 
+	}
+}
+
+sub _load_config {
+	my ($package, $params_ref) = @_;
+
+	eval 'use Config::Simple';
+	if (!$@) {
+		# we have Config::Simple, so let's try to parse the RC file:
+		my $rcfile = $ENV{'HOME'}.'/.net-epp-simple-rc';
+		if (-e $rcfile) {
+			my $config = Config::Simple->new($rcfile);
+
+			# if no host was defined in the constructor, use the default (if specified):
+			if (!defined($params_ref->{'host'}) && $config->param('default.default')) {
+				$params_ref->{'host'} = $config->param('default.default');
+			}
+
+			# if no debug level was defined in the constructor, use the default (if specified):
+			if (!defined($params_ref->{'debug'}) && $config->param('default.debug')) {
+				$params_ref->{'debug'} = $config->param('default.debug');
+			}
+
+			# grep through the file's values for settings for the selected host:
+			my %vars = $config->vars;
+			foreach my $key (grep { /^$params_ref->{'host'}\./ } keys(%vars)) {
+				my $value = $vars{$key};
+				$key =~ s/^$params_ref->{'host'}\.//;
+				$params_ref->{$key} = $value unless (defined($params_ref->{$key}));
+			}
+		}
 	}
 }
 
@@ -323,6 +329,34 @@ sub _connect {
 sub _login {
 	my $self = shift;
 
+	$self->debug(sprintf("Attempting to login as client ID '%s'", $self->{user}));
+	my $response = $self->request( $self->_prepare_login_frame() );
+
+	if (!$response) {
+		$Error = $Message = "Error getting response to login request: ".$Error;
+		return undef;
+
+	} else {
+		$Code = $self->_get_response_code($response);
+		$Message = $self->_get_message($response);
+
+		$self->debug(sprintf('%04d: %s', $Code, $Message));
+
+		if ($Code > 1999) {
+			$Error = "Error logging in (response code $Code)";
+			return undef;
+
+		} else {
+			$self->{authenticated} = 1;
+			return 1;
+
+		}
+	}
+}
+
+sub _prepare_login_frame {
+	my $self = shift;
+
 	$self->debug('preparing login frame');
 	my $login = Net::EPP::Frame::Command::Login->new;
 
@@ -348,30 +382,7 @@ sub _login {
 		$el->appendText($object->firstChild->data);
 		$svcext->appendChild($el);
 	}
-
-	$self->debug(sprintf("Attempting to login as client ID '%s'", $self->{user}));
-	my $response = $self->request($login);
-
-	if (!$response) {
-		$Error = $Message = "Error getting response to login request: ".$Error;
-		return undef;
-
-	} else {
-		$Code = $self->_get_response_code($response);
-		$Message = $self->_get_message($response);
-
-		$self->debug(sprintf('%04d: %s', $Code, $Message));
-
-		if ($Code > 1999) {
-			$Error = "Error logging in (response code $Code)";
-			return undef;
-
-		} else {
-			$self->{authenticated} = 1;
-			return 1;
-
-		}
-	}
+	return $login;
 }
 
 =pod
@@ -1084,7 +1095,15 @@ assumes the registry uses the host object model rather than the host attribute m
 sub create_domain {
 	my ($self, $domain) = @_;
 
-	print Data::Dumper::Dumper($domain);
+	return $self->_get_response_result(
+		$self->_request(
+			$self->_prepare_create_domain_frame($domain)
+		)
+	);
+}
+
+sub _prepare_create_domain_frame {
+	my ($self, $domain) = @_;
 
 	my $frame = Net::EPP::Frame::Command::Create::Domain->new;
 	$frame->setDomain($domain->{'name'});
@@ -1094,26 +1113,7 @@ sub create_domain {
 	$frame->setNS(@{$domain->{'ns'}}) if $domain->{'ns'} and @{$domain->{'ns'}};
 
 	$frame->setAuthInfo($domain->{authInfo}) if ($domain->{authInfo} ne '');
-
-	my $response = $self->_request($frame);
-
-
-	if (!$response) {
-		return undef;
-
-	} else {
-		$Code = $self->_get_response_code($response);
-		$Message = $self->_get_message($response);
-
-		if ($Code > 1999) {
-			$Error = $response->msg;
-			return undef;
-
-		} else {
-			return 1;
-
-		}
-	}
+	return $frame;
 }
 
 sub create_host {
@@ -1123,6 +1123,18 @@ sub create_host {
 
 sub create_contact {
 	my ($self, $contact) = @_;
+
+	return $self->_get_response_result(
+		$self->_request(
+			$self->_prepare_create_contact_frame($contact)
+		)
+	);
+}
+
+
+sub _prepare_create_contact_frame {
+	my ($self, $contact) = @_;
+
 	my $frame = Net::EPP::Frame::Command::Create::Contact->new;
 
 	$frame->setContact($contact->{id});
@@ -1148,25 +1160,24 @@ sub create_contact {
 			$frame->appendStatus($status);
 		}
 	}
+	return $frame;
+}
 
-	my $response = $self->_request($frame);
 
-	if (!$response) {
+# Process response code and return result
+sub _get_response_result {
+	my ($self, $response) = @_;
+
+	return undef if !$response;
+
+	# If there was a response...
+	$Code    = $self->_get_response_code($response);
+	$Message = $self->_get_message($response);
+	if ($Code > 1999) {
+		$Error = $response->msg;
 		return undef;
-
-	} else {
-		$Code = $self->_get_response_code($response);
-		$Message = $self->_get_message($response);
-
-		if ($Code > 1999) {
-			$Error = $response->msg;
-			return undef;
-
-		} else {
-			return 1;
-
-		}
 	}
+	return 1;
 }
 
 sub update_domain {
