@@ -1116,9 +1116,36 @@ sub _prepare_create_domain_frame {
 	return $frame;
 }
 
+=head2 Creating Hosts
+
+    my $host = {
+        name  => 'ns1.example.tld',
+        addrs => [
+            { ip => '123.45.67.89', version => 'v4' },
+            { ip => '98.76.54.32',  version => 'v4' },
+        ],
+    };
+    $epp->create_host($host);
+
+=cut
+
 sub create_host {
 	my ($self, $host) = @_;
-	croak("Unfinished method create_host()");
+
+	return $self->_get_response_result(
+		$self->_request(
+			$self->_prepare_create_host_frame($host)
+		)
+	);
+}
+
+sub _prepare_create_host_frame {
+	my ($self, $host) = @_;
+
+	my $frame = Net::EPP::Frame::Command::Create::Host->new;
+	$frame->setHost($host->{name});
+	$frame->setAddr(@{$host->{addrs}});
+	return $frame;
 }
 
 sub create_contact {
