@@ -199,7 +199,7 @@ sub new {
 	$params{dom}		= 1;
 
 	my $load_config = (defined($params{load_config}) ? $params{load_config} : 1);
-	%params = ($package->_load_config, %params) if ($load_config);
+	$package->_load_config(\%params) if ($load_config);
 
 	$params{port}		= (defined($params{port}) && int($params{port}) > 0 ? $params{port} : 700);
 	$params{ssl}		= ($params{no_ssl} ? undef : 1);
@@ -225,6 +225,7 @@ sub new {
 
 	bless($self, $package);
 
+	if ($self->{connect}) {
 		return ($self->_connect($self->{login}) ? $self : undef);
 
 	} else {
