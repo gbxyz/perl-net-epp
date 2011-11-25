@@ -86,7 +86,8 @@ sub setHost {
 	my $name = $self->createElement('host:name');
 	$name->appendText($host);
 
-	$self->getNode('update')->getChildNodes->shift->appendChild($name);
+	my $n = $self->getNode('update')->getChildNodes->shift;
+	$n->insertBefore($name, $n->firstChild);
 
 	return 1;
 }
