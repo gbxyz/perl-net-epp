@@ -1289,11 +1289,6 @@ sub update_domain {
 	return $self->_update('domain', $domain);
 }
 
-sub update_host {
-	my ($self, $domain) = @_;
-	croak("Unfinished method update_host()");
-}
-
 =head2 Updating Contacts
 
 Use update_contact() method to update contact's data.
@@ -1339,10 +1334,53 @@ $update_info = {
 All fields except 'id' in $update_info hash are optional.
 
 =cut
+
 sub update_contact {
 	my ($self, $contact) = @_;
 	return $self->_update('contact', $contact);
 }
+
+=head2 Updating Hosts
+
+Use update_host() method to update EPP hosts.
+
+The $update_info for hosts may look like this:
+
+$update_info = {
+    name => 'ns1.example.com',
+    add  => {
+        status => [ qw/ clientDeleteProhibited / ],
+        # OR
+        # status => {
+        #    clientDeleteProhibited  => 'Avoid accidental removal',
+        # },
+
+        addrs  => [
+            { ip => '123.45.67.89', version => 'v4' },
+            { ip => '98.76.54.32',  version => 'v4' },
+        ],
+    },
+    rem => {
+        status => [ qw/ clientUpdateProhibited / ],
+        addrs  => [
+            { ip => '1.2.3.4', version => 'v4' },
+            { ip => '5.6.7.8', version => 'v4' },
+        ],
+    },
+    chg => {
+        name => 'ns2.example.com',
+    },
+}
+
+All fields except first 'name' in $update_info hash are optional.
+
+=cut
+
+sub update_host {
+	my ($self, $host) = @_;
+	return $self->_update('host', $host);
+}
+
 
 # Update domain/contact/host information
 sub _update {
@@ -1515,6 +1553,58 @@ sub _generate_update_contact_frame {
 	return $frame;
 }
 
+sub _generate_update_host_frame {
+	my ($self, $info) = @_;
+
+	my $frame = Net::EPP::Frame::Command::Update::Host->new;
+	$frame->setHost($info->{name});
+
+	if ( exists $info->{add} && ref $info->{add} eq 'HASH' ) {
+		my $add = $info->{add};
+		# Process addresses
+		if ( exists $add->{addrs} && ref $add->{addrs} eq 'ARRAY' ) {
+			$frame->addAddr( @{ $add->{addrs} } );
+		}
+		# Process statuses
+		if ( exists $add->{status} && ref $add->{status} ) {
+			if ( ref $add->{status} eq 'HASH' ) {
+				while ( my ($type, $info) = each %{ $add->{status} } ) {
+					$frame->addStatus($type, $info);
+				}
+			}
+			elsif ( ref $add->{status} eq 'ARRAY' ) {
+				$frame->addStatus($_) for @{ $add->{status} };
+			}
+		}
+	}
+
+	if ( exists $info->{rem} && ref $info->{rem} eq 'HASH' ) {
+		my $rem = $info->{rem};
+		# Process addresses
+		if ( exists $rem->{addrs} && ref $rem->{addrs} eq 'ARRAY' ) {
+			$frame->remAddr( @{ $rem->{addrs} } );
+		}
+		# Process statuses
+		if ( exists $rem->{status} && ref $rem->{status} ) {
+			if ( ref $rem->{status} eq 'HASH' ) {
+				while ( my ($type, $info) = each %{ $rem->{status} } ) {
+					$frame->remStatus($type, $info);
+				}
+			}
+			elsif ( ref $rem->{status} eq 'ARRAY' ) {
+				$frame->remStatus($_) for @{ $rem->{status} };
+			}
+		}
+	}
+
+	if ( exists $info->{chg} && ref $info->{chg} eq 'HASH' ) {
+		if ( $info->{chg}->{name} ) {
+			$frame->chgName( $info->{chg}->{name} );
+		}
+	}
+
+	return $frame;
+}
 
 
 =pod
