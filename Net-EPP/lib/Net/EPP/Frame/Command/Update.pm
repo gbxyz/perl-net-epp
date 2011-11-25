@@ -6,6 +6,7 @@
 package Net::EPP::Frame::Command::Update;
 use Net::EPP::Frame::Command::Update::Contact;
 use Net::EPP::Frame::Command::Update::Domain;
+use Net::EPP::Frame::Command::Update::Host;
 use base qw(Net::EPP::Frame::Command);
 use strict;
 

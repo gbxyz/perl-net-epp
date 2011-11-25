@@ -94,6 +94,100 @@ sub setHost {
 
 =pod
 
+	$frame->addStatus($type, $info);
+
+Add a status of $type with the optional extra $info.
+
+=cut
+
+sub addStatus {
+	my ($self, $type, $info) = @_;
+	my $status = $self->createElement('host:status');
+	$status->setAttribute('s', $type);
+	$status->setAttribute('lang', 'en');
+	if ($info) {
+		$status->appendText($info);
+	}
+	$self->getElementsByLocalName('host:add')->shift->appendChild($status);
+	return 1;
+}
+
+=pod
+
+	$frame->remStatus($type);
+
+Remove a status of $type.
+
+=cut
+
+sub remStatus {
+	my ($self, $type) = @_;
+	my $status = $self->createElement('host:status');
+	$status->setAttribute('s', $type);
+	$self->getElementsByLocalName('host:rem')->shift->appendChild($status);
+	return 1;
+}
+
+
+=pod
+
+	$frame->addAddr({ 'ip' => '10.0.0.1', 'version' => 'v4' });
+
+Add a set of IP addresses to the host object. EPP supports multiple
+addresses of different versions.
+
+=cut
+
+sub addAddr {
+	my ($self, @addr) = @_;
+
+	foreach my $ip (@addr) {
+		my $el = $self->createElement('host:addr');
+		$el->appendText($ip->{ip});
+		$el->setAttribute('ip', $ip->{version});
+		$self->getElementsByLocalName('host:add')->shift->appendChild($el);
+	}
+	return 1;
+}
+
+=pod
+
+	$frame->remAddr({ 'ip' => '10.0.0.2', 'version' => 'v4' });
+
+Remove a set of IP addresses from the host object. EPP supports multiple
+addresses of different versions.
+
+=cut
+
+sub remAddr {
+	my ($self, @addr) = @_;
+
+	foreach my $ip (@addr) {
+		my $el = $self->createElement('host:addr');
+		$el->appendText($ip->{ip});
+		$el->setAttribute('ip', $ip->{version});
+		$self->getElementsByLocalName('host:rem')->shift->appendChild($el);
+	}
+	return 1;
+}
+
+
+=pod
+	$frame->chgName('ns2.example.com');
+
+Change a name of host.
+
+=cut
+sub chgName {
+	my ($self, $name) = @_;
+	my $el = $self->createElement('host:name');
+	$el->appendText($name);
+	$self->getElementsByLocalName('host:chg')->shift->appendChild($el);
+}
+
+
+=pod
+
 =head1 AUTHOR
 
 CentralNic Ltd (http://www.centralnic.com/).
