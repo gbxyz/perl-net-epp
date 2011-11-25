@@ -1109,10 +1109,9 @@ sub _prepare_create_domain_frame {
 	my $frame = Net::EPP::Frame::Command::Create::Domain->new;
 	$frame->setDomain($domain->{'name'});
 	$frame->setPeriod($domain->{'period'});
+	$frame->setNS(@{$domain->{'ns'}}) if $domain->{'ns'} and @{$domain->{'ns'}};
 	$frame->setRegistrant($domain->{'registrant'});
 	$frame->setContacts($domain->{'contacts'});
-	$frame->setNS(@{$domain->{'ns'}}) if $domain->{'ns'} and @{$domain->{'ns'}};
-
 	$frame->setAuthInfo($domain->{authInfo}) if ($domain->{authInfo} ne '');
 	return $frame;
 }
