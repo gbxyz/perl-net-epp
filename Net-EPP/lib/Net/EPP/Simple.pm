@@ -458,7 +458,7 @@ sub _check {
 		$Message = $self->_get_message($response);
 
 		if ($Code > 1999) {
-			$Error = sprintf("Server returned a %d code", $Code);
+			$Error = $self->_get_error_message($response);
 			return undef;
 
 		} else {
@@ -590,7 +590,7 @@ sub _info {
 		$Message = $self->_get_message($response);
 
 		if ($Code > 1999) {
-			$Error = sprintf("Server returned a %d code", $Code);
+			$Error = $self->_get_error_message($response);
 			return undef;
 
 		} else {
@@ -1302,7 +1302,7 @@ sub _delete {
 		$Message = $self->_get_message($response);
 
 		if ($Code > 1999) {
-			$Error = sprintf("Server returned a %d code", $Code);
+			$Error = $self->_get_error_message($response);
 			return undef;
 
 		} else {
@@ -1467,6 +1467,26 @@ sub get_frame {
 	}
 }
 
+# Get details error description including code, message and reason
+sub _get_error_message {
+	my ($self, $doc) = @_;
+
+	my $code    = $self->_get_response_code($doc);
+	my $error   = "Error $code";
+
+	my $message = $self->_get_message($doc);
+	if ( $message ) {
+		$error .= ": $message";
+	}
+
+	my $reason  = $self->_get_reason($doc);
+	if ( $reason ) {
+		$error .= " ($reason)";
+	}
+
+	return $error;
+}
+
 sub _get_response_code {
 	my ($self, $doc) = @_;
 	my $els = $doc->getElementsByTagNameNS(EPP_XMLNS, 'result');
@@ -1489,6 +1509,18 @@ sub _get_message {
 		}
 	}
 	return '';
+}
+
+sub _get_reason {
+	my ($self, $doc) = @_;
+	my $reasons = $doc->getElementsByTagNameNS(EPP_XMLNS, 'reason');
+	if (defined($reasons)) {
+		my $reason = $reasons->shift;
+		if (defined($reason)) {
+			return $reason->textContent;
+		}
+	}
+        return '';
 }
 
 sub logout {
