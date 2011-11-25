@@ -91,7 +91,7 @@ sub setHost {
 
 =pod
 
-	$frame->setAddr({ 'ip' => '10.0.0.1', 'version' => 4 });
+	$frame->setAddr({ 'ip' => '10.0.0.1', 'version' => 'v4' });
 
 This adds an IP address to the host object. EPP supports multiple 
 addresses of different versions.
