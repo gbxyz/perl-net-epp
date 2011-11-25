@@ -594,19 +594,28 @@ sub _info {
 			return undef;
 
 		} else {
-			my $infData = $response->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'infData');
-
-			if ($type eq 'domain') {
-				return $self->_domain_infData_to_hash($infData);
-
-			} elsif ($type eq 'contact') {
-				return $self->_contact_infData_to_hash($infData);
-
-			} elsif ($type eq 'host') {
-				return $self->_host_infData_to_hash($infData);
-
-			}
+			return $self->parse_object_info($type, $response);
 		}
+	}
+}
+
+# An easy-to-subclass method for parsing object info
+sub parse_object_info {
+	my ($self, $type, $response) = @_;
+
+	my $infData = $response->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'infData');
+
+	if ($type eq 'domain') {
+		return $self->_domain_infData_to_hash($infData);
+
+	} elsif ($type eq 'contact') {
+		return $self->_contact_infData_to_hash($infData);
+
+	} elsif ($type eq 'host') {
+		return $self->_host_infData_to_hash($infData);
+	} else {
+		$Error = "Unknown object type '$type'";
+		return undef;
 	}
 }
 
