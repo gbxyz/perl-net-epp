@@ -1298,7 +1298,7 @@ sub update_host {
 
 Use update_contact() method to update contact's data.
 
-The $update_info has for contacts may look like this:
+The $update_info for contacts may look like this:
 
 $update_info = {
     id  => $contact_id,
