@@ -1216,9 +1216,77 @@ sub _get_response_result {
 	return 1;
 }
 
+
+=head1 Updating Objects
+
+The following methods can be used to update an object at the server:
+
+	$epp->update_domain($domain);
+	$epp->update_host($host);
+	$epp->update_contact($contact);
+
+Each of these methods has the same profile. They will return one of the following:
+
+=over
+
+=item * undef in the case of an error (check C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>).
+
+=item * 1 if the update request was accepted.
+
+=back
+
+You may wish to check the value of $Net::EPP::Simple::Code to determine whether the response code was 1000 (OK) or 1001 (action pending).
+
+=cut
+
+
+=head2 Updating Domains
+
+Use update_domain() method to update domains' data.
+
+The update info parameter may look like:
+$update_info = {
+    name => $domain,
+    chg  => {
+        registrant => $new_registrant_id,
+        authInfo   => $new_domain_password,
+    },
+    add => {
+        # DNS info with "hostObj" or "hostAttr" model, see create_domain()
+        ns       => [ ns1.example.com ns2.example.com ],
+        contacts => {
+            tech    => 'contact-id',
+            billing => 'contact-id',
+            admin   => 'contact-id',
+        },
+
+        # Status info, simple form:
+        status => [ qw/ clientUpdateProhibited clientHold / ],
+
+        # Status info may be in more detailed form:
+        # status => {
+        #    clientUpdateProbhibited  => 'Avoid accidental change',
+        #    clientHold               => 'This domain is not delegated',
+        # },
+    },
+    rem => {
+        ns       => [ ... ],
+        contacts => {
+            tech    => 'old_tech_id',
+            billing => 'old_billing_id',
+            admin   => 'old_admin_id',
+        },
+        status => [ qw/ clientTransferProhibited ... / ],
+    },
+}
+
+All fields except 'name' in $update_info hash are optional.
+
+=cut
+
 sub update_domain {
 	my ($self, $domain) = @_;
-	croak("Unfinished method update_domain()");
+	return $self->_update('domain', $domain);
 }
 
 sub update_host {
@@ -1226,10 +1294,228 @@ sub update_host {
 	croak("Unfinished method update_host()");
 }
 
-sub update_contact {
-	my ($self, $domain) = @_;
-	croak("Unfinished method update_contact()");
+=head2 Updating Contacts
+
+Use update_contact() method to update contact's data.
+
+The $update_info has for contacts may look like this:
+
+$update_info = {
+    id  => $contact_id,
+    add => {
+        status => [ qw/ clientDeleteProhibited / ],
+        # OR
+        # status => {
+        #    clientDeleteProhibited  => 'Avoid accidental removal',
+        # },
+    },
+    rem => {
+        status => [ qw/ clientUpdateProhibited / ],
+    },
+    chg => {
+        postalInfo => {
+            int => {
+                  name => 'John Doe',
+                  org => 'Example Inc.',
+                  addr => {
+                    street => [
+                      '123 Example Dr.'
+                      'Suite 100'
+                    ],
+                    city => 'Dulles',
+                    sp => 'VA',
+                    pc => '20116-6503'
+                    cc => 'US',
+              },
+            },
+        },
+        voice => '+1.7035555555x1234',
+        fax   => '+1.7035555556',
+        email => 'jdoe@example.com',
+        authInfo => 'new-contact-password',
+    },
 }
+
+All fields except 'id' in $update_info hash are optional.
+
+=cut
+sub update_contact {
+	my ($self, $contact) = @_;
+	return $self->_update('contact', $contact);
+}
+
+# Update domain/contact/host information
+sub _update {
+	my ($self, $type, $info) = @_;
+
+	my %frame_generator = (
+		'domain'  => \&_generate_update_domain_frame,
+		'contact' => \&_generate_update_contact_frame,
+		'host'	  => \&_generate_update_host_frame,
+	);
+
+	if ( !exists $frame_generator{$type} ) {
+		$Error = "Unknown object type: '$type'";
+		return undef;
+	}
+
+	my $generator = $frame_generator{$type};
+	my $frame     = $self->$generator($info);
+	return $self->_get_response_result( $self->request($frame) );
+}
+
+
+sub _generate_update_domain_frame {
+	my ($self, $info) = @_;
+
+	my $frame = Net::EPP::Frame::Command::Update::Domain->new;
+	$frame->setDomain( $info->{name} );
+
+	# 'add' element
+	if ( exists $info->{add} && ref $info->{add} eq 'HASH' ) {
+
+		my $add = $info->{add};
+
+		# Add DNS
+		if ( exists $add->{ns} && ref $add->{ns} eq 'ARRAY' ) {
+			$frame->addNS($add->{ns});
+		}
+
+		# Add contacts
+		if ( exists $add->{contacts} && ref $add->{contacts} eq 'HASH' ) {
+
+			my $contacts = $add->{contacts};
+			foreach my $type ( keys %{ $contacts } ) {
+				$frame->addContact( $type, $contacts->{$type} );
+			}
+		}
+
+		# Add status info
+		if ( exists $add->{status} && ref $add->{status} ) {
+			if ( ref $add->{status} eq 'HASH' ) {
+				while ( my ($type, $info) = each %{ $add->{status} } ) {
+					$frame->addStatus($type, $info);
+				}
+			}
+			elsif ( ref $add->{status} eq 'ARRAY' ) {
+				$frame->addStatus($_) for @{ $add->{status} };
+			}
+		}
+	}
+
+	# 'rem' element
+	if ( exists $info->{rem} && ref $info->{rem} eq 'HASH' ) {
+
+		my $rem = $info->{rem};
+
+		# DNS
+		if ( exists $rem->{ns} && ref $rem->{ns} eq 'ARRAY' ) {
+			$frame->remNS( $rem->{ns} );
+		}
+
+		# Contacts
+		if ( exists $rem->{contacts} && ref $rem->{contacts} eq 'HASH' ) {
+			my $contacts = $rem->{contacts};
+
+			foreach my $type ( keys %{ $contacts } ) {
+				$frame->remContact( $type, $contacts->{$type} );
+			}
+		}
+
+		# Status info
+		if ( exists $rem->{status} && ref $rem->{status} eq 'ARRAY' ) {
+			$frame->remStatus($_) for @{ $rem->{status} };
+		}
+	}
+
+	# 'chg' element
+	if ( exists $info->{chg} && ref $info->{chg} eq 'HASH' ) {
+
+		my $chg	= $info->{chg};
+
+		if ( defined $chg->{registrant} ) {
+			$frame->chgRegistrant( $chg->{registrant} );
+		}
+
+		if ( defined $chg->{authInfo} ) {
+			$frame->chgAuthInfo( $chg->{authInfo} );
+		}
+	}
+
+	return $frame;
+}
+
+
+sub _generate_update_contact_frame {
+	my ($self, $info) = @_;
+
+	my $frame = Net::EPP::Frame::Command::Update::Contact->new;
+	$frame->setContact( $info->{id} );
+
+	# Add
+	if ( exists $info->{add} && ref $info->{add} eq 'HASH' ) {
+		my $add = $info->{add};
+
+		if ( exists $add->{status} && ref $add->{status} ) {
+			if ( ref $add->{status} eq 'HASH' ) {
+				while ( my ($type, $info) = each %{ $add->{status} } ) {
+					$frame->addStatus($type, $info);
+				}
+			}
+			elsif ( ref $add->{status} eq 'ARRAY' ) {
+				$frame->addStatus($_) for @{ $add->{status} };
+			}
+		}
+	}
+
+	# Remove
+	if ( exists $info->{rem} && ref $info->{rem} eq 'HASH' ) {
+
+		my $rem = $info->{rem};
+
+		if ( exists $rem->{status} && ref $rem->{status} eq 'ARRAY' ) {
+			$frame->remStatus($_) for @{ $rem->{status} };
+		}
+	}
+
+	# Change
+	if ( exists $info->{chg} && ref $info->{chg} eq 'HASH' ) {
+
+		my $chg	= $info->{chg};
+
+		# Change postal info
+		if ( ref $chg->{postalInfo} eq 'HASH' ) {
+			foreach my $type ( keys %{ $chg->{postalInfo} } ) {
+				$frame->chgPostalInfo(
+					$type,
+					$chg->{postalInfo}->{$type}->{name},
+					$chg->{postalInfo}->{$type}->{org},
+					$chg->{postalInfo}->{$type}->{addr}
+				);
+			}
+		}
+
+		# Change voice / fax / email
+		for my $contact_type ( qw/ voice fax email / ) {
+			if ( defined $chg->{$contact_type} ) {
+				my $el = $frame->createElement("contact:$contact_type");
+				$el->appendText( $chg->{$contact_type} );
+				$frame->chg->appendChild($el);
+			}
+		}
+
+		# Change auth info
+		if ( $chg->{authInfo} ) {
+			$frame->chgAuthInfo( $chg->{authInfo} );
+		}
+
+		# 'disclose' option is still unimplemented
+	}
+
+	return $frame;
+}
+
+
 
 =pod
 

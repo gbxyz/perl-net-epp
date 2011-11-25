@@ -94,6 +94,101 @@ sub setContact {
 
 =pod
 
+	$frame->addStatus($type, $info);
+
+Add a status of $type with the optional extra $info.
+
+=cut
+
+sub addStatus {
+	my ($self, $type, $info) = @_;
+	my $status = $self->createElement('contact:status');
+	$status->setAttribute('s', $type);
+	$status->setAttribute('lang', 'en');
+	if ($info) {
+		$status->appendText($info);
+	}
+	$self->getElementsByLocalName('contact:add')->shift->appendChild($status);
+	return 1;
+}
+
+=pod
+
+	$frame->remStatus($type);
+
+Remove a status of $type.
+
+=cut
+
+sub remStatus {
+	my ($self, $type) = @_;
+	my $status = $self->createElement('contact:status');
+	$status->setAttribute('s', $type);
+	$self->getElementsByLocalName('contact:rem')->shift->appendChild($status);
+	return 1;
+}
+
+sub chgPostalInfo {
+	my ($self, $type, $name, $org, $addr) = @_;
+
+	my $el = $self->createElement('contact:postalInfo');
+	$el->setAttribute('type', $type);
+
+	my $nel = $self->createElement('contact:name');
+	$nel->appendText($name);
+
+	my $oel = $self->createElement('contact:org');
+	$oel->appendText($org);
+
+	my $ael = $self->createElement('contact:addr');
+
+	if (ref($addr->{street}) eq 'ARRAY') {
+		foreach my $street (@{$addr->{street}}) {
+			my $sel = $self->createElement('contact:street');
+			$sel->appendText($street);
+			$ael->appendChild($sel);
+		}
+	}
+
+	foreach my $name (qw(city sp pc cc)) {
+		my $vel = $self->createElement('contact:'.$name);
+		$vel->appendText($addr->{$name});
+		$ael->appendChild($vel);
+	}
+
+	$el->appendChild($nel);
+	$el->appendChild($oel) if $org;
+	$el->appendChild($ael);
+
+	$self->getElementsByLocalName('contact:chg')->shift->appendChild($el);
+
+	return $el;
+}
+
+
+=pod
+
+	$frame->chgAuthinfo($auth);
+
+Change the authinfo.
+
+=cut
+
+sub chgAuthInfo {
+	my ($self,$authInfo) = @_;
+
+	my $el = $self->createElement('contact:authInfo');
+	my $pw = $self->createElement('contact:pw');
+	$pw->appendText($authInfo);
+	$el->appendChild($pw);
+
+	$self->getElementsByLocalName('contact:chg')->shift->appendChild($el);
+	return 1;
+}
+
+
+=pod
+
 =head1 AUTHOR
 
 CentralNic Ltd (http://www.centralnic.com/).
