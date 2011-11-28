@@ -1688,6 +1688,44 @@ sub _delete {
 	}
 }
 
+=head1 Domain Renewal
+
+You can extend the validity period of the domain object by issuing a
+renew_domain() command.
+
+ my $result = $epp->renew_domain({
+     name         => 'example.com',
+     cur_exp_date => '2011-02-05',  # current expiration date
+     period       => 2,             # prolongation period in years
+ });
+
+Return value is C<1> on success and C<undef> on error.
+In the case of error C<$Net::EPP::Simple::Error> contains the appropriate
+error message.
+
+=cut
+
+sub renew_domain {
+	my ($self, $info) = @_;
+
+	return $self->_get_response_result(
+		$self->request(
+			$self->_generate_renew_domain_frame($info)
+		)
+	);
+}
+
+sub _generate_renew_domain_frame {
+	my ($self, $info) = @_;
+
+	my $frame = Net::EPP::Frame::Command::Renew::Domain->new;
+	$frame->setDomain( $info->{name} );
+	$frame->setCurExpDate( $info->{cur_exp_date} );
+	$frame->setPeriod( $info->{period} ) if $info->{period};
+
+	return $frame;
+}
+
 =pod
 
 =head1 Miscellaneous Methods
