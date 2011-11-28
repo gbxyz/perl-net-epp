@@ -62,7 +62,9 @@ sub new {
 
 	my $host = $self->addObject(Net::EPP::Frame::ObjectSpec->spec('host'));
 
-	foreach my $grp (qw(add rem chg)) {
+	# 'chg' element's contents are not optional for hosts, so we'll add
+	# this element only when we plan to use it (accessor is overriden)
+	foreach my $grp (qw(add rem)) {
 		my $el = $self->createElement(sprintf('host:%s', $grp));
 		$self->getNode('update')->getChildNodes->shift->appendChild($el);
 	}
@@ -173,6 +175,26 @@ sub remAddr {
 
 
 =pod
+	my $el = $frame->chg;
+
+Lazy-building of 'host:chg'element.
+
+=cut
+sub chg {
+	my $self = shift;
+
+	my $chg = $self->getElementsByLocalName('host:chg')->shift;
+	if ( $chg ) {
+		return $chg;
+	}
+	else {
+		my $el = $self->createElement('host:chg');
+		$self->getNode('update')->getChildNodes->shift->appendChild($el);
+		return $el;
+	}
+}
+
+=pod
 	$frame->chgName('ns2.example.com');
 
 Change a name of host.
@@ -182,7 +204,7 @@ sub chgName {
 	my ($self, $name) = @_;
 	my $el = $self->createElement('host:name');
 	$el->appendText($name);
-	$self->getElementsByLocalName('host:chg')->shift->appendChild($el);
+	$self->chg->appendChild($el);
 }
 
 
