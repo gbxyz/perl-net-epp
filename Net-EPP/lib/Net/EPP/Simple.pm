@@ -1416,7 +1416,7 @@ sub _generate_update_domain_frame {
 
 		# Add DNS
 		if ( exists $add->{ns} && ref $add->{ns} eq 'ARRAY' ) {
-			$frame->addNS($add->{ns});
+			$frame->addNS( @{ $add->{ns} } );
 		}
 
 		# Add contacts
@@ -1448,7 +1448,7 @@ sub _generate_update_domain_frame {
 
 		# DNS
 		if ( exists $rem->{ns} && ref $rem->{ns} eq 'ARRAY' ) {
-			$frame->remNS( $rem->{ns} );
+			$frame->remNS( @{ $rem->{ns} } );
 		}
 
 		# Contacts
