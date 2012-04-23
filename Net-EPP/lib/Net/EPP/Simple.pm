@@ -1,4 +1,4 @@
-# Copyright (c) 2011 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2012 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
@@ -1086,9 +1086,9 @@ When creating a new domain object, you may also specify a C<period> key, like so
 	    'admin' => 'contact-id',
 	    'billing' => 'contact-id',
 	  },
-	  'status' => {
+	  'status' => [
 	    'clientTransferProhibited',
-	  }
+	  ],
 	  'ns' => {
 	    'ns0.example.com',
 	    'ns1.example.com',
@@ -1995,7 +1995,7 @@ CentralNic Ltd (L<http://www.centralnic.com/>).
 
 =head1 Copyright
 
-This module is (c) 2011 CentralNic Ltd. This module is free software; you can
+This module is (c) 2012 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
