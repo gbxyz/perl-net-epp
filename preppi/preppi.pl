@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Copyright (c) 2007 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2013 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 package Preppi;
@@ -31,7 +31,7 @@ use strict;
 our $NORMAL	= Gtk2::Gdk::Cursor->new('left_ptr');
 our $BUSY	= Gtk2::Gdk::Cursor->new('watch');
 our $NAME	= __PACKAGE__;
-our $VERSION	= '0.06';
+our $VERSION	= '0.07';
 chomp(our $OPENER = `which gnome-open 2> /dev/null`);
 our $GLADE	= (-e '@PREFIX@' ? sprintf('%s/share/%s', '@PREFIX@', lc($NAME)) : $ENV{PWD}) . sprintf('/%s.glade', lc($NAME));
 our $XSD	= (-e '@PREFIX@' ? sprintf('%s/share/%s', '@PREFIX@', lc($NAME)) : $ENV{PWD}) . sprintf('/epp.xsd', lc($NAME));
@@ -564,8 +564,8 @@ sub show_about_dialog {
 	$dialog->set('name'		=> $NAME);
 	$dialog->set('version'		=> $VERSION);
 	$dialog->set('comments'		=> gettext('A Pretty Good EPP Client.'));
-	$dialog->set('copyright'	=> gettext("Copyright 2006 CentralNic Ltd. This program is\nfree software, you can use it and/or modify it\nunder the terms of the GNU General Public License."));
-	$dialog->set('website'		=> 'http://labs.centralnic.com/preppi.php');
+	$dialog->set('copyright'	=> gettext("Copyright 2013 CentralNic Ltd. This program is\nfree software, you can use it and/or modify it\nunder the terms of the GNU General Public License."));
+	$dialog->set('website'		=> 'https://www.centralnic.com/registry/labs/preppi');
 	$dialog->set('logo_icon_name'	=> 'stock_database');
 	$dialog->set('icon_name'	=> $self->{main_window}->get_icon_name);
 	$dialog->signal_connect('close', sub { $dialog->destroy });
@@ -660,11 +660,17 @@ sub connect {
 		$el->appendText($object->firstChild->data);
 		$login->svcs->appendChild($el);
 	}
+
+	# add extensions:
 	my $objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'extURI');
-	while (my $object = $objects->shift) {
-		my $el = $login->createElement('objURI');
-		$el->appendText($object->firstChild->data);
-		$login->svcs->appendChild($el);
+	if ($objects->size > 0) {
+		my $svcExtension = $login->createElement('svcExtension');
+		$login->svcs->appendChild($svcExtension);
+		while (my $object = $objects->shift) {
+			my $el = $login->createElement('extURI');
+			$el->appendText($object->firstChild->data);
+			$svcExtension->appendChild($el);
+		}
 	}
 
 	# add new password info

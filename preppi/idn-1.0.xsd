@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="urn:ietf:params:xml:ns:idn-1.0"
+        xmlns:idn="urn:ietf:params:xml:ns:idn-1.0"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified">
+  <annotation>
+    <documentation>
+      Extensible Provisioning Protocol v1.0 domain name extension
+      schema for IDN Language Tag.
+    </documentation>
+  </annotation>
+  <!-- Child elements found in EPP commands.-->
+  <element name="language" type="language"/>
+  <!-- End of schema. -->
+</schema>
