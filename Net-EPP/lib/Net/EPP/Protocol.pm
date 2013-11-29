@@ -4,6 +4,7 @@
 package Net::EPP::Protocol;
 use bytes;
 use Carp;
+use vars qw($THRESHOLD);
 use strict;
 
 =pod
@@ -46,6 +47,28 @@ This module implements functions that are common to both EPP clients and
 servers that implement the TCP transport as defined in RFC 4934. The
 main consumer of this module is currently L<Net::EPP::Client>.
 
+=head1 VARIABLES
+
+=head2 $Net::EPP::Protocol::THRESHOLD
+
+At least one EPP server implementation sends an unframed plain text error
+message when a client connects from an unauthorised address. As a result, when
+the first four bytes of the message are unpacked, the client tries to read and
+allocate a very large amount of memory.
+
+If the apparent frame length received from a server exceeds the value of
+C<$Net::EPP::Protocol::THRESHOLD>, the C<get_frame()> method will croak.
+
+The default value is 1GB.
+
+=cut
+
+BEGIN {
+	our $THRESHOLD = 1000000000;
+}
+
+=pod
+
 =head1 METHODS
 
 	my $xml = Net::EPP::Protocol->get_frame($socket);
@@ -73,6 +96,9 @@ sub get_frame {
 
 		} elsif (0 == $length) {
 			croak('Frame length is zero');
+
+		} elsif ($length > $THRESHOLD) {
+			croak("Frame length is $length which exceeds $THRESHOLD");
 
 		} else {
 			my $xml = '';
