@@ -144,7 +144,6 @@ sub new {
 			croak("Frames requested but Net::EPP::Frame isn't available");
 
 		} else {
-			$self->{'parser'} = XML::LibXML->new;
 			$self->{'class'} = 'Net::EPP::Frame';
 
 		}
@@ -154,14 +153,9 @@ sub new {
 			croak("DOM requested but XML::LibXML isn't available");
 
 		} else {
-			$self->{'parser'} = XML::LibXML->new;
 			$self->{'class'} = 'XML::LibXML::Document';
 
 		}
-
-	} else {
-		# for well-formedness checking:
-		$self->{'parser'} = XML::LibXML->new;
 
 	}
 
@@ -309,7 +303,7 @@ sub get_return_value {
 
 	} else {
 		my $document;
-		eval { $document = $self->{'parser'}->parse_string($xml) };
+		eval { $document = $self->parser->parse_string($xml) };
 		if (!defined($document) || $@ ne '') {
 			chomp($@);
 			croak(sprintf("Frame from server wasn't well formed: %s\n\nThe XML looks like this:\n\n%s\n\n", $@, $xml));
@@ -374,7 +368,7 @@ sub send_frame {
 	}
 
 	if ($wfcheck == 1) {
-		eval { $self->{'parser'}->parse_string($xml) };
+		eval { $self->parser->parse_string($xml) };
 		if ($@ ne '') {
 			chomp($@);
 			croak(sprintf("Frame from server wasn't well formed: %s\n\nThe XML looks like this:\n\n%s\n\n", $@, $xml));
@@ -429,5 +423,11 @@ redistribute it and/or modify it under the same terms as Perl itself.
 =back
 
 =cut
+
+sub parser {
+	my $self = shift;
+	$self->{'parser'} = XML::LibXML->new if (!$self->{'parser'});
+	return $self->{'parser'};
+}
 
 1;
