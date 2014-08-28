@@ -962,6 +962,7 @@ sub _transfer_request {
 		$frame->setOp($op);
 		if ($type eq 'domain') {
 			$frame->setDomain($identifier);
+			$frame->setPeriod(int($period)) if ($op eq 'request');
 
 		} elsif ($type eq 'contact') {
 			$frame->setContact($identifier);
@@ -972,7 +973,6 @@ sub _transfer_request {
 			$frame->setAuthInfo($authInfo) if ($authInfo ne '');
 		}
 
-		$frame->setPeriod(int($period)) if ($op eq 'request');
 	}
 
 	my $response = $self->_request($frame);
