@@ -1823,9 +1823,9 @@ sub request {
 
 	$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (UNIVERSAL::isa($frame, 'Net::EPP::Frame::Command'));
 
-	$self->debug(sprintf('sending a %s to the server', ref($frame)));
+	$self->debug(sprintf('sending a %s to the server', ref($frame) || (-e $frame ? 'file' : 'string')));
 	if (UNIVERSAL::isa($frame, 'XML::LibXML::Document')) {
-		map { $self->debug('C: '.$_) } split(/\n/, $frame->toString(1));
+		map { $self->debug('C: '.$_) } split(/\n/, $frame->toString(2));
 
 	} else {
 		map { $self->debug('C: '.$_) } split(/\n/, $frame);
@@ -1834,7 +1834,7 @@ sub request {
 
 	my $response = $self->SUPER::request($frame);
 
-	map { $self->debug('S: '.$_) } split(/\n/, $response->toString(1)) if (UNIVERSAL::isa($response, 'XML::LibXML::Document'));
+	map { $self->debug('S: '.$_) } split(/\n/, $response->toString(2)) if (UNIVERSAL::isa($response, 'XML::LibXML::Document'));
 
 	return $response;
 }
