@@ -87,6 +87,8 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 
 =item * C<login> can be used to disable automatic logins. If you set it to C<0>, you can manually log in using the C<$epp->_login()> method.
 
+=item * C<stdext> can be used to disable all EPP features that do not have standard C<urn:> identifiers.
+
 =back
 
 The constructor will establish a connection to the server and retrieve the
@@ -222,6 +224,8 @@ sub new {
 	$self->{ca_file}	= $params{ca_file};
 	$self->{ca_path}	= $params{ca_path};
 	$self->{ciphers}	= $params{ciphers};
+	$self->{objects}	= $params{objects};
+	$self->{extensions}	= $params{extensions};
 
 	bless($self, $package);
 
@@ -355,6 +359,29 @@ sub _login {
 	}
 }
 
+sub _get_option_uri_list {
+	my $self = shift;
+	my $tag = shift;
+	my $list = [];
+	my $elems = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, $tag);
+	while (my $elem = $elems->shift) {
+		push @$list, $elem->firstChild->data;
+	}
+	return $list;
+}
+
+sub _add_option_uri_list {
+	my $login = shift;
+	my $parent = shift;
+	my $tag = shift;
+	my $list = shift;
+	for my $uri (@$list) {
+		my $el = $login->createElement($tag);
+		$el->appendText($uri);
+		$parent->appendChild($el);
+	}
+}
+
 sub _prepare_login_frame {
 	my $self = shift;
 
@@ -366,22 +393,14 @@ sub _prepare_login_frame {
 	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
 	$login->lang->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'lang')->shift->firstChild->data);
 
-	my $objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'objURI');
-	while (my $object = $objects->shift) {
-		my $el = $login->createElement('objURI');
-		$el->appendText($object->firstChild->data);
-		$login->svcs->appendChild($el);
-	}
-	$objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'extURI');
-	my $svcext;
-	if ($objects->size) {
-		$svcext = $login->createElement('svcExtension');
+	my $objects = $self->{objects} || _get_option_uri_list($self,'objURI');
+	_add_option_uri_list($login, $login->svcs, 'objURI', $objects);
+
+	my $extensions = $self->{extensions} || _get_option_uri_list($self,'extURI');
+	if (@$extensions) {
+		my $svcext = $login->createElement('svcExtension');
 		$login->svcs->appendChild($svcext);
-	}
-	while (my $object = $objects->shift) {
-		my $el = $login->createElement('extURI');
-		$el->appendText($object->firstChild->data);
-		$svcext->appendChild($el);
+		_add_option_uri_list($login, $svcext, 'extURI', $extensions);
 	}
 	return $login;
 }
