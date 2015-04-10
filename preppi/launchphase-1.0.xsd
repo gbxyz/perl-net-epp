@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.cloudregistry.net/ns/launchphase-1.0"
+    xmlns:launchphase="http://www.cloudregistry.net/ns/launchphase-1.0"
+    elementFormDefault="qualified">
+
+  <annotation>
+    <documentation>
+      Extensible Provisioning Protocol v1.0
+      domain name extension schema for launch phase processing.
+    </documentation>
+  </annotation>
+
+  <!-- Command extension elements -->
+  <element name="create" type="launchphase:createType"/>
+  <element name="update" type="launchphase:queryType"/>
+  <element name="info" type="launchphase:queryType"/>
+
+  <complexType name="createType">
+    <group ref="launchphase:applicationType"/>
+  </complexType>
+
+  <complexType name="queryType">
+    <sequence>
+      <element name="application_id" type="launchphase:idStringType" />
+      <element name="phase" type="launchphase:idStringType" minOccurs="0" />
+    </sequence>
+  </complexType>
+
+  <group name="applicationType">
+    <sequence>
+      <element name="trademark_name" type="launchphase:genericStringType" minOccurs="0" maxOccurs="1"/>
+      <element name="trademark_number" type="launchphase:genericStringType" minOccurs="0" maxOccurs="1"/> 
+      <element name="trademark_locality" type="launchphase:ccType" minOccurs="0" maxOccurs="1"/>
+      <element name="trademark_entitlement" type="launchphase:entitlementType" minOccurs="0" maxOccurs="1"/>
+      <element name="pvrc" type="launchphase:idStringType" minOccurs="0" maxOccurs="1"/>
+      <element name="phase" type="launchphase:idStringType" minOccurs="0" />
+    </sequence>
+  </group>
+
+  <simpleType name="ccType">
+    <restriction base="token">
+      <length value="2"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="genericStringType">
+    <restriction base="normalizedString">
+      <minLength value="0"/>
+      <maxLength value="255"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="idStringType">
+    <restriction base="normalizedString">
+      <minLength value="0"/>
+      <maxLength value="25"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="entitlementType">
+    <restriction base="normalizedString">
+      <minLength value="0"/>
+      <maxLength value="50"/>
+    </restriction>
+  </simpleType>
+
+
+  <!--
+  Response extension elements
+  -->
+  <element name="infData" type="launchphase:infDataType"/>
+  <element name="creData" type="launchphase:creDataType"/>
+
+  <complexType name="creDataType">
+    <sequence>
+      <element name="application_id" type="launchphase:idStringType" />
+    </sequence>
+  </complexType>
+
+  <complexType name="infDataType">
+    <sequence>
+      <group ref="launchphase:applicationType"/>
+    </sequence>
+  </complexType>
+</schema>
