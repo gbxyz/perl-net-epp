@@ -87,6 +87,8 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 
 =item * C<login> can be used to disable automatic logins. If you set it to C<0>, you can manually log in using the C<$epp->_login()> method.
 
+=item * C<stdext> can be used to disable all EPP features that do not have standard C<urn:> identifiers.
+
 =back
 
 The constructor will establish a connection to the server and retrieve the
@@ -222,6 +224,7 @@ sub new {
 	$self->{ca_file}	= $params{ca_file};
 	$self->{ca_path}	= $params{ca_path};
 	$self->{ciphers}	= $params{ciphers};
+	$self->{stdext}		= $params{stdext};
 
 	bless($self, $package);
 
@@ -368,6 +371,7 @@ sub _prepare_login_frame {
 
 	my $objects = $self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'objURI');
 	while (my $object = $objects->shift) {
+		next if $self->{stdext} and $object->firstChild->data !~ m{^urn:};
 		my $el = $login->createElement('objURI');
 		$el->appendText($object->firstChild->data);
 		$login->svcs->appendChild($el);
@@ -379,6 +383,7 @@ sub _prepare_login_frame {
 		$login->svcs->appendChild($svcext);
 	}
 	while (my $object = $objects->shift) {
+		next if $self->{stdext} and $object->firstChild->data !~ m{^urn:};
 		my $el = $login->createElement('extURI');
 		$el->appendText($object->firstChild->data);
 		$svcext->appendChild($el);
