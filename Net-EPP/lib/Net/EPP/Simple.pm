@@ -88,11 +88,21 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 =item * C<login> can be used to disable automatic logins. If you set it to C<0>, you can manually log in using the C<$epp->_login()> method.
 
 =item * C<objects> is a reference to an array of the EPP object schema
-URIs that the client requires. If it is not specified then the client
-will echo the server's object schema list.
+URIs that the client requires.
+
+=item * C<stdobj> is a flag saying the client only requires the
+standard EPP contact, domain, and host schemas.
+
+=item * If neither C<objects> nor C<stdobj> is specified then the
+client will echo the server's object schema list.
 
 =item * C<extensions> is a reference to an array of the EPP extension
-schema URIs that the client requires. If it is not specified then the
+schema URIs that the client requires.
+
+=item * C<stdext> is a flag saying the client only requires the
+standard EPP DNSSEC extension schema.
+
+=item * If neither C<extensions> nor C<stdext> is specified then the
 client will echo the server's extension schema list.
 
 =back
