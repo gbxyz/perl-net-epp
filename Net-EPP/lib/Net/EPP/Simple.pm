@@ -227,7 +227,7 @@ sub new {
 	$self->{objects}	= $params{objects};
 	$self->{stdobj}		= $params{stdobj};
 	$self->{extensions}	= $params{extensions};
-	$self->{extuniq}	= $params{extuniq};
+	$self->{stdext}		= $params{stdext};
 
 	bless($self, $package);
 
@@ -395,22 +395,21 @@ sub _prepare_login_frame {
 	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
 	$login->lang->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'lang')->shift->firstChild->data);
 
-	my $objects = $self->{objects} || _get_option_uri_list($self,'objURI');
-	$objects = [grep m{^urn:}, @$objects] if $self->{stdobj};
+	my $objects = $self->{objects};
+	$objects = [qw[
+		urn:ietf:params:xml:ns:contact-1.0
+		urn:ietf:params:xml:ns:domain-1.0
+		urn:ietf:params:xml:ns:host-1.0
+	]] if $self->{stdobj};
+	$objects = _get_option_uri_list($self,'objURI') if not $objects;
 	_add_option_uri_list($login, $login->svcs, 'objURI', $objects);
 
-	my $extensions = $self->{extensions} || _get_option_uri_list($self,'extURI');
+	my $extensions = $self->{extensions};
+	$extensions = [qw[
+		urn:ietf:params:xml:ns:secDNS-1.1
+	]] if $self->{stdext};
+	$extensions = _get_option_uri_list($self,'extURI') if not $extensions;
 	if (@$extensions) {
-		if ($self->{extuniq}) {
-			my %ext;
-			for my $uri (@$extensions) {
-				$uri =~ m{^(.*?)([-0-9.]*)$};
-				$ext{$1} = $2 if not $ext{$1} or $ext{$1} lt $2;
-			}
-			my @ext;
-			push @ext, "$_$ext{$_}" for sort keys %ext;
-			$extensions = \@ext;
-		}
 		my $svcext = $login->createElement('svcExtension');
 		$login->svcs->appendChild($svcext);
 		_add_option_uri_list($login, $svcext, 'extURI', $extensions);
