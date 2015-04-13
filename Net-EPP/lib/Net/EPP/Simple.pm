@@ -398,9 +398,17 @@ sub _prepare_login_frame {
 
 	my $extensions = $self->{extensions} || _get_option_uri_list($self,'extURI');
 	if (@$extensions) {
+		# choose highest version number of each extension
+		my %ext;
+		for my $uri (@$extensions) {
+			$uri =~ m{^(.*?)([-0-9.]*)$};
+			$ext{$1} = $2 if not $ext{$1} or $ext{$1} lt $2;
+		}
+		my @ext;
+		push @ext, "$_$ext{$_}" for sort keys %ext;
 		my $svcext = $login->createElement('svcExtension');
 		$login->svcs->appendChild($svcext);
-		_add_option_uri_list($login, $svcext, 'extURI', $extensions);
+		_add_option_uri_list($login, $svcext, 'extURI', \@ext);
 	}
 	return $login;
 }
