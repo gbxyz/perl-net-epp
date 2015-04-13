@@ -88,11 +88,21 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 =item * C<login> can be used to disable automatic logins. If you set it to C<0>, you can manually log in using the C<$epp->_login()> method.
 
 =item * C<objects> is a reference to an array of the EPP object schema
-URIs that the client requires. If it is not specified then the client
-will echo the server's object schema list.
+URIs that the client requires.
+
+=item * C<stdobj> is a flag saying the client only requires the
+standard EPP contact, domain, and host schemas.
+
+=item * If neither C<objects> nor C<stdobj> is specified then the
+client will echo the server's object schema list.
 
 =item * C<extensions> is a reference to an array of the EPP extension
-schema URIs that the client requires. If it is not specified then the
+schema URIs that the client requires.
+
+=item * C<stdext> is a flag saying the client only requires the
+standard EPP DNSSEC extension schema.
+
+=item * If neither C<extensions> nor C<stdext> is specified then the
 client will echo the server's extension schema list.
 
 =back
@@ -231,7 +241,9 @@ sub new {
 	$self->{ca_path}	= $params{ca_path};
 	$self->{ciphers}	= $params{ciphers};
 	$self->{objects}	= $params{objects};
+	$self->{stdobj}		= $params{stdobj};
 	$self->{extensions}	= $params{extensions};
+	$self->{stdext}		= $params{stdext};
 
 	bless($self, $package);
 
@@ -399,10 +411,20 @@ sub _prepare_login_frame {
 	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
 	$login->lang->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'lang')->shift->firstChild->data);
 
-	my $objects = $self->{objects} || _get_option_uri_list($self,'objURI');
+	my $objects = $self->{objects};
+	$objects = [qw[
+		urn:ietf:params:xml:ns:contact-1.0
+		urn:ietf:params:xml:ns:domain-1.0
+		urn:ietf:params:xml:ns:host-1.0
+	]] if $self->{stdobj};
+	$objects = _get_option_uri_list($self,'objURI') if not $objects;
 	_add_option_uri_list($login, $login->svcs, 'objURI', $objects);
 
-	my $extensions = $self->{extensions} || _get_option_uri_list($self,'extURI');
+	my $extensions = $self->{extensions};
+	$extensions = [qw[
+		urn:ietf:params:xml:ns:secDNS-1.1
+	]] if $self->{stdext};
+	$extensions = _get_option_uri_list($self,'extURI') if not $extensions;
 	if (@$extensions) {
 		my $svcext = $login->createElement('svcExtension');
 		$login->svcs->appendChild($svcext);
