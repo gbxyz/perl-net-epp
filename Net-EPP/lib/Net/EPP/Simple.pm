@@ -87,7 +87,13 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 
 =item * C<login> can be used to disable automatic logins. If you set it to C<0>, you can manually log in using the C<$epp->_login()> method.
 
-=item * C<stdext> can be used to disable all EPP features that do not have standard C<urn:> identifiers.
+=item * C<objects> is a reference to an array of the EPP object schema
+URIs that the client requires. If it is not specified then the client
+will echo the server's object schema list.
+
+=item * C<extensions> is a reference to an array of the EPP extension
+schema URIs that the client requires. If it is not specified then the
+client will echo the server's extension schema list.
 
 =back
 
