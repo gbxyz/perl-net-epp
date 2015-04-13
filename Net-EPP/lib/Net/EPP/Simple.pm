@@ -231,7 +231,9 @@ sub new {
 	$self->{ca_path}	= $params{ca_path};
 	$self->{ciphers}	= $params{ciphers};
 	$self->{objects}	= $params{objects};
+	$self->{stdobj}		= $params{stdobj};
 	$self->{extensions}	= $params{extensions};
+	$self->{stdext}		= $params{stdext};
 
 	bless($self, $package);
 
@@ -399,10 +401,20 @@ sub _prepare_login_frame {
 	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
 	$login->lang->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'lang')->shift->firstChild->data);
 
-	my $objects = $self->{objects} || _get_option_uri_list($self,'objURI');
+	my $objects = $self->{objects};
+	$objects = [qw[
+		urn:ietf:params:xml:ns:contact-1.0
+		urn:ietf:params:xml:ns:domain-1.0
+		urn:ietf:params:xml:ns:host-1.0
+	]] if $self->{stdobj};
+	$objects = _get_option_uri_list($self,'objURI') if not $objects;
 	_add_option_uri_list($login, $login->svcs, 'objURI', $objects);
 
-	my $extensions = $self->{extensions} || _get_option_uri_list($self,'extURI');
+	my $extensions = $self->{extensions};
+	$extensions = [qw[
+		urn:ietf:params:xml:ns:secDNS-1.1
+	]] if $self->{stdext};
+	$extensions = _get_option_uri_list($self,'extURI') if not $extensions;
 	if (@$extensions) {
 		my $svcext = $login->createElement('svcExtension');
 		$login->svcs->appendChild($svcext);
