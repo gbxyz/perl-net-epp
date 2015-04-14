@@ -91,7 +91,7 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 URIs that the client requires.
 
 =item * C<stdobj> is a flag saying the client only requires the
-standard EPP contact, domain, and host schemas.
+standard EPP C<contact-1.0>, C<domain-1.0>, and C<host-1.0> schemas.
 
 =item * If neither C<objects> nor C<stdobj> is specified then the
 client will echo the server's object schema list.
@@ -100,7 +100,7 @@ client will echo the server's object schema list.
 schema URIs that the client requires.
 
 =item * C<stdext> is a flag saying the client only requires the
-standard EPP DNSSEC extension schema.
+standard EPP C<secDNS-1.1> DNSSEC extension schema.
 
 =item * If neither C<extensions> nor C<stdext> is specified then the
 client will echo the server's extension schema list.
