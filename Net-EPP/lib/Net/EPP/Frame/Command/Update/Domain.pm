@@ -7,6 +7,9 @@ package Net::EPP::Frame::Command::Update::Domain;
 use base qw(Net::EPP::Frame::Command::Update);
 use Net::EPP::Frame::ObjectSpec;
 use strict;
+use warnings;
+
+our $DNSSEC_URN	= 'urn:ietf:params:xml:ns:secDNS-1.1';
 
 =pod
 
@@ -340,7 +343,29 @@ sub remHostObjNS {
 	return 1;
 }
 
+=pod
 
+=head2 DNSSEC methods
+
+=cut
+
+sub _get_dnsssec {
+	my $self = shift;
+	my $tag = shift;
+
+	my $el = self->getElementsByTagNameNS($DNSSEC_URN, $tag);
+	return $el if $el;
+
+	my $ext = $self->getNode('extension');
+	$ext = $self->getNode('command')->addNewChild(undef, 'extension')
+	    if not defined $ext;
+
+	my $upd = $ext->addNewChild($DNSSEC_URN, 'secDNS:update');
+	$upd->addNewChild($DNSSEC_URN, 'secDNS:add');
+	$upd->addNewChild($DNSSEC_URN, 'secDNS:rem');
+
+	return $self->_get_dnssec($tag);
+}
 
 =pod
 
