@@ -342,7 +342,7 @@ sub remHostObjNS {
 
 
 
-=pot
+=pod
 
 =head1 AUTHOR
 
