@@ -388,18 +388,6 @@ sub _get_option_uri_list {
 	return $list;
 }
 
-sub _add_option_uri_list {
-	my $login = shift;
-	my $parent = shift;
-	my $tag = shift;
-	my $list = shift;
-	for my $uri (@$list) {
-		my $el = $login->createElement($tag);
-		$el->appendText($uri);
-		$parent->appendChild($el);
-	}
-}
-
 sub _prepare_login_frame {
 	my $self = shift;
 
@@ -418,7 +406,7 @@ sub _prepare_login_frame {
 		urn:ietf:params:xml:ns:host-1.0
 	]] if $self->{stdobj};
 	$objects = _get_option_uri_list($self,'objURI') if not $objects;
-	_add_option_uri_list($login, $login->svcs, 'objURI', $objects);
+	$login->svcs->appendTextChild('objURI', $_) for @$objects;
 
 	my $extensions = $self->{extensions};
 	$extensions = [qw[
@@ -428,7 +416,7 @@ sub _prepare_login_frame {
 	if (@$extensions) {
 		my $svcext = $login->createElement('svcExtension');
 		$login->svcs->appendChild($svcext);
-		_add_option_uri_list($login, $svcext, 'extURI', $extensions);
+		$svcext->appendTextChild('extURI', $_) for @$extensions;
 	}
 	return $login;
 }
