@@ -92,6 +92,9 @@ The objects currently registered are:
 
 =back
 
+Note that secDNS is an extension to the domain object rather than an
+object in its own right.
+
 =head1 AUTHOR
 
 CentralNic Ltd (http://www.centralnic.com/).
