@@ -7,7 +7,7 @@ our $SPEC = {
 	'domain'	=> [ 'urn:ietf:params:xml:ns:domain-1.0',	'urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd'	],
 	'contact'	=> [ 'urn:ietf:params:xml:ns:contact-1.0',	'urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd'	],
 	'host'		=> [ 'urn:ietf:params:xml:ns:host-1.0',		'urn:ietf:params:xml:ns:host-1.0 host-1.0.xsd'		],
-	'secDNS'	=> [ 'urn:ietf:params:xml:ns:secDNS-1.0',	'urn:ietf:params:xml:ns:secDNS-1.0 secDNS-1.0.xsd'	],
+	'secDNS'	=> [ 'urn:ietf:params:xml:ns:secDNS-1.1',	'urn:ietf:params:xml:ns:secDNS-1.1 secDNS-1.1.xsd'	],
 };
 
 sub spec {
