@@ -400,18 +400,14 @@ sub _prepare_login_frame {
 	$login->lang->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'lang')->shift->firstChild->data);
 
 	my $objects = $self->{objects};
-	$objects = [qw[
-		urn:ietf:params:xml:ns:contact-1.0
-		urn:ietf:params:xml:ns:domain-1.0
-		urn:ietf:params:xml:ns:host-1.0
-	]] if $self->{stdobj};
+	$objects = [map { (Net::EPP::Frame::ObjectSpec->spec($_))[1] }
+		    qw(contact domain host)] if $self->{stdobj};
 	$objects = _get_option_uri_list($self,'objURI') if not $objects;
 	$login->svcs->appendTextChild('objURI', $_) for @$objects;
 
 	my $extensions = $self->{extensions};
-	$extensions = [qw[
-		urn:ietf:params:xml:ns:secDNS-1.1
-	]] if $self->{stdext};
+	$extensions = [map { (Net::EPP::Frame::ObjectSpec->spec($_))[1] }
+		       qw(secDNS)] if $self->{stdext};
 	$extensions = _get_option_uri_list($self,'extURI') if not $extensions;
 	if (@$extensions) {
 		my $svcext = $login->createElement('svcExtension');
