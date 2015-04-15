@@ -637,8 +637,9 @@ sub parse_object_info {
 	my $infData = $response->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'infData');
 
 	if ($type eq 'domain') {
-		return $self->_domain_infData_to_hash($infData);
-
+		# secDNS extension only applies to domain objects
+		my $secinfo = $response->getNode((Net::EPP::Frame::ObjectSpec->spec('secDNS'))[1], 'infData');
+		return $self->_domain_infData_to_hash($infData, $secinfo);
 	} elsif ($type eq 'contact') {
 		return $self->_contact_infData_to_hash($infData);
 
@@ -733,7 +734,7 @@ the C<type> attribute is optional.
 =cut
 
 sub _domain_infData_to_hash {
-	my ($self, $infData) = @_;
+	my ($self, $infData, $secinfo) = @_;
 
 	my $hash = $self->_get_common_properties_from_infData($infData, 'registrant', 'name', 'exDate');
 
@@ -785,6 +786,24 @@ sub _domain_infData_to_hash {
 		my $authInfo = $auths->shift;
 		my $pw = $authInfo->getElementsByLocalName('pw');
 		$hash->{authInfo} = $pw->shift->textContent if ($pw->size == 1);
+	}
+
+	if (defined $secinfo) {
+		if (my $maxSigLife = $secinfo->getElementsByLocalName('maxSigLife')) {
+			$hash->{maxSigLife} = $maxSigLife->shift->textContent;
+		}
+		my $dslist = $secinfo->getElementsByTagName('secDNS:dsData');
+		while (my $ds = $dslist->shift) {
+			my @ds = map { $ds->getElementsByLocalName($_)->string_value() }
+			    qw(keyTag alg digestType digest);
+			push @{ $hash->{DS} }, "@ds";
+		}
+		my $keylist = $secinfo->getElementsByLocalName('keyData');
+		while (my $key = $keylist->shift) {
+			my @key = map { $key->getElementsByLocalName($_)->string_value() }
+			    qw(flags protocol alg pubKey);
+			push @{ $hash->{DNSKEY} }, "@key";
+		}
 	}
 
 	return $hash;
