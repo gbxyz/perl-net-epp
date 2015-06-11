@@ -139,6 +139,10 @@ constructor:
 C<Net::EPP::Simple> will fail to connect to the server if the
 certificate is not valid.
 
+You can disable SSL certificate verification by omitting the C<verify>
+argument or setting it to C<undef>. This is strongly discouraged,
+particularly in production environments.
+
 =head3 SSL Cipher Selection
 
 You can restrict the ciphers that you will use to connect to the server
@@ -303,9 +307,13 @@ sub _connect {
 
 	if (defined($self->{ssl}) && defined($self->{verify})) {
 		$self->debug('configuring server verification');
-		$params{SSL_verify_mode}	= 0x01;
+		$params{SSL_verify_mode}	= 1;
 		$params{SSL_ca_file}		= $self->{ca_file};
 		$params{SSL_ca_path}		= $self->{ca_path};
+
+	} elsif (defined($self->{ssl})) {
+		$params{SSL_verify_mode} = 0;
+
 	}
 
 	$self->debug(sprintf('Attempting to connect to %s:%d', $self->{host}, $self->{port}));
