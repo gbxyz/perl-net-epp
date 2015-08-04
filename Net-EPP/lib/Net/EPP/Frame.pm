@@ -177,8 +177,6 @@ sub new {
 	bless($self, $package);
 
 	my $epp = $self->createElementNS($EPP_URN, 'epp');
-	$epp->setNamespace($SCHEMA_URI, 'xsi', 0);
-	$epp->setAttributeNS($SCHEMA_URI, 'schemaLocation', "$EPP_URN epp-1.0.xsd");
 	$self->addChild($epp);
 
 	my $el = $self->createElement($type);

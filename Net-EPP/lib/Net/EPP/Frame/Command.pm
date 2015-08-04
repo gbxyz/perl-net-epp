@@ -50,7 +50,6 @@ sub addObject() {
 	my $obj = $self->createElement($self->getCommandType);
 	$obj->setNamespace($ns, $object);
 	$self->getNode($self->getCommandType)->addChild($obj);
-	$obj->setAttributeNS($Net::EPP::Frame::SCHEMA_URI, 'schemaLocation', $schema);
 
 	return $obj;
 }
