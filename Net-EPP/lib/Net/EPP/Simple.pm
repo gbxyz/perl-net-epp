@@ -941,7 +941,7 @@ sub _contact_infData_to_hash {
 		if ($addrs->size == 1) {
 			my $addr = $addrs->shift;
 			foreach my $child ($addr->childNodes) {
-				next if (XML_ELEMENT_NODE != $child->nodeType);
+				next if (XML::LibXML::XML_ELEMENT_NODE != $child->nodeType);
 				if ($child->localName eq 'street') {
 					push(@{$ref->{addr}->{$child->localName}}, $child->textContent);
 
