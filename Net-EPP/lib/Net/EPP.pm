@@ -1,4 +1,4 @@
-# Copyright (c) 2012 CentralNic Ltd. All rights reserved. This program is
+# Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
 # 
@@ -99,7 +99,7 @@ Please email any bug reports to L<epp@centralnic.com>.
 
 =head1 COPYRIGHT
 
-This module is (c) 2012 CentralNic Ltd. This module is free software; you can
+This module is (c) 2016 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
