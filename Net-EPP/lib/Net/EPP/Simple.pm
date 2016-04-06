@@ -374,7 +374,7 @@ sub _login {
 		$self->debug(sprintf('%04d: %s', $Code, $Message));
 
 		if ($Code > 1999) {
-			$Error = "Error logging in (response code $Code)";
+			$Error = "Error logging in (response code $Code, message $Message)";
 			return undef;
 
 		} else {
