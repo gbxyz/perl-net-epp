@@ -1,7 +1,7 @@
 # Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
-# 
+#
 # $Id: Contact.pm,v 1.3 2011/12/03 11:44:52 gavin Exp $
 package Net::EPP::Frame::Command::Update::Contact;
 use base qw(Net::EPP::Frame::Command::Update);
@@ -90,6 +90,45 @@ sub setContact {
 	$n->insertBefore( $el, $n->firstChild );
 
 	return 1;
+}
+
+=pod
+
+	$frame->chgVoice($voice);
+
+Change the contacts voice number.
+
+=cut
+
+sub chgVoice {
+	my ($self, $voice) = @_;
+	return $self->addEl('voice', $voice);
+}
+
+=pod
+
+	$frame->chgFax($fax);
+
+Change the contacts voice number.
+
+=cut
+
+sub chgFax {
+	my ($self, $fax) = @_;
+	return $self->addEl('fax', $fax);
+}
+
+=pod
+
+	$frame->chgEmail($email);
+
+Change the contacts email.
+
+=cut
+
+sub chgEmail {
+	my ($self, $email) = @_;
+	return $self->addEl('email', $email);
 }
 
 =pod
@@ -186,6 +225,17 @@ sub chgAuthInfo {
 	return 1;
 }
 
+sub addEl {
+	my ($self, $name, $value) = @_;
+
+	my $el = $self->createElement('contact:'.$name);
+	$el->appendText($value) if defined($value);
+
+	$self->getElementsByLocalName('contact:chg')->shift->appendChild($el);
+
+	return $el;
+
+}
 
 =pod
 
