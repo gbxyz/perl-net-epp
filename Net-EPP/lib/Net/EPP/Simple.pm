@@ -105,6 +105,9 @@ standard EPP C<secDNS-1.1> DNSSEC extension schema.
 =item * If neither C<extensions> nor C<stdext> is specified then the
 client will echo the server's extension schema list.
 
+=item * The C<lang> parameter can be used to specify the language. The
+default is "C<en>".
+
 =back
 
 The constructor will establish a connection to the server and retrieve the
@@ -248,6 +251,7 @@ sub new {
 	$self->{stdobj}		= $params{stdobj};
 	$self->{extensions}	= $params{extensions};
 	$self->{stdext}		= $params{stdext};
+	$self->{lang}		= $params{lang} || 'en';
 
 	bless($self, $package);
 
@@ -405,7 +409,7 @@ sub _prepare_login_frame {
 	$login->clID->appendText($self->{user});
 	$login->pw->appendText($self->{pass});
 	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
-	$login->lang->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'lang')->shift->firstChild->data);
+	$login->lang->appendText($self->{lang});
 
 	my $objects = $self->{objects};
 	$objects = [map { (Net::EPP::Frame::ObjectSpec->spec($_))[1] }
