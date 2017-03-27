@@ -524,24 +524,17 @@ sub _check {
 
 =head1 Retrieving Object Information
 
-You can retrieve information about an object by using one of the following:
+=head2 Domain Objects
 
 	my $info = $epp->domain_info($domain, $authInfo, $follow);
 
-	my $info = $epp->host_info($host);
-
-	my $info = $epp->contact_info($contact, $authInfo);
-
-C<Net::EPP::Simple> will construct an C<E<lt>infoE<gt>> frame and send
-it to the server, then parse the response into a simple hash ref. The
-layout of the hash ref depends on the object in question. If there is an
-error, these methods will return C<undef>, and you can then check
-C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
+This method constructs an C<E<lt>infoE<gt>> frame and sends
+it to the server, then parses the response into a simple hash ref. If
+there is an error, this method will return C<undef>, and you can then
+check C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
 
 If C<$authInfo> is defined, it will be sent to the server as per RFC
-5731, Section 3.1.2 and RFC 5733, Section 3.1.2. If the supplied
-authInfo code is validated by the registry, additional information will
-appear in the response. If it is invalid, you should get an error.
+5731, Section 3.1.2.
 
 If the C<$follow> parameter is true, then C<Net::EPP::Simple> will also
 retrieve the relevant host and contact details for a domain: instead of
@@ -554,8 +547,10 @@ original object ID will be used instead).
 =cut
 
 sub domain_info {
-	my ($self, $domain, $authInfo, $follow) = @_;
-	my $result = $self->_info('domain', $domain, $authInfo);
+	my ($self, $domain, $authInfo, $follow, $hosts) = @_;
+	$hosts = $hosts || 'all';
+
+	my $result = $self->_info('domain', $domain, $authInfo, $hosts);
 	return $result if (ref($result) ne 'HASH' || !$follow);
 
 	if (defined($result->{'ns'}) && ref($result->{'ns'}) eq 'ARRAY') {
@@ -583,22 +578,56 @@ sub domain_info {
 	return $result;
 }
 
+=pod
+
+=head2 Host Objects
+
+	my $info = $epp->host_info($host);
+
+This method constructs an C<E<lt>infoE<gt>> frame and sends
+it to the server, then parses the response into a simple hash ref. If
+there is an error, this method will return C<undef>, and you can then
+check C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
+
+=cut
+
 sub host_info {
 	my ($self, $host) = @_;
 	return $self->_info('host', $host);
 }
 
+=pod
+
+=head2 Contact Objects
+
+	my $info = $epp->contact_info($contact, $authInfo, $roid);
+
+This method constructs an C<E<lt>infoE<gt>> frame and sends
+it to the server, then parses the response into a simple hash ref. If
+there is an error, this method will return C<undef>, and you can then
+check C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
+
+If C<$authInfo> is defined, it will be sent to the server as per RFC
+RFC 5733, Section 3.1.2.
+
+If the C<$roid> parameter to C<host_info()> is set, then the C<roid>
+attribute will be set on the C<E<lt>authInfoE<gt>> element.
+
+=cut
+
 sub contact_info {
-	my ($self, $contact, $authInfo) = @_;
-	return $self->_info('contact', $contact, $authInfo);
+	my ($self, $contact, $authInfo, $roid) = @_;
+	return $self->_info('contact', $contact, $authInfo, $roid);
 }
 
 sub _info {
-	my ($self, $type, $identifier, $authInfo) = @_;
+	# $opt is the "hosts" attribute value for domains or the "roid"
+	# attribute for contacts
+	my ($self, $type, $identifier, $authInfo, $opt) = @_;
 	my $frame;
 	if ($type eq 'domain') {
 		$frame = Net::EPP::Frame::Command::Info::Domain->new;
-		$frame->setDomain($identifier);
+		$frame->setDomain($identifier, $opt || 'all');
 
 	} elsif ($type eq 'contact') {
 		$frame = Net::EPP::Frame::Command::Info::Contact->new;
@@ -619,6 +648,7 @@ sub _info {
 		my $el = $frame->createElement((Net::EPP::Frame::ObjectSpec->spec($type))[0].':authInfo');
 		my $pw = $frame->createElement((Net::EPP::Frame::ObjectSpec->spec($type))[0].':pw');
 		$pw->appendChild($frame->createTextNode($authInfo));
+		$pw->setAttribute('roid', $opt) if ($type eq 'contact' && $opt);
 		$el->appendChild($pw);
 		$frame->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'info')->appendChild($el);
 	}
@@ -652,14 +682,17 @@ sub parse_object_info {
 		# secDNS extension only applies to domain objects
 		my $secinfo = $response->getNode((Net::EPP::Frame::ObjectSpec->spec('secDNS'))[1], 'infData');
 		return $self->_domain_infData_to_hash($infData, $secinfo);
+
 	} elsif ($type eq 'contact') {
 		return $self->_contact_infData_to_hash($infData);
 
 	} elsif ($type eq 'host') {
 		return $self->_host_infData_to_hash($infData);
+
 	} else {
 		$Error = "Unknown object type '$type'";
 		return undef;
+
 	}
 }
 
