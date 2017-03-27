@@ -2068,11 +2068,21 @@ sub logout {
 	if (defined($self->{authenticated}) && 1 == $self->{authenticated}) {
 		$self->debug('logging out');
 		my $response = $self->request(Net::EPP::Frame::Command::Logout->new);
-		return undef if (!$response);
+		undef($self->{authenticated});
+		if (!$response) {
+			$Code = COMMAND_FAILED;
+			$Message = $Error = 'unknown error';
+			return undef
+
+		} else {
+			$Code = $self->_get_response_code($response);
+			$Message = $self->_get_message($response);
+
+		}
 	}
 	$self->debug('disconnecting from server');
 	$self->disconnect;
-	$self->{connected} = 0;
+	undef($self->{connected});
 	return 1;
 }
 
