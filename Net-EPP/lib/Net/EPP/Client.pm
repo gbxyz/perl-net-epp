@@ -393,7 +393,7 @@ connection out of sync with the server.
 
 sub disconnect {
 	my $self = shift;
-	$self->{'connection'}->close;
+	$self->{'connection'}->close if ($self->{'connection'});
 	return 1;
 }
 
