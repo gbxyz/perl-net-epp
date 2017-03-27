@@ -1884,22 +1884,30 @@ sub request {
 	$Error		= '';
 	$Message	= '';
 
-	$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (UNIVERSAL::isa($frame, 'Net::EPP::Frame::Command'));
-
-	$self->debug(sprintf('sending a %s to the server', ref($frame) || (-e $frame ? 'file' : 'string')));
-	if (UNIVERSAL::isa($frame, 'XML::LibXML::Document')) {
-		map { $self->debug('C: '.$_) } split(/\n/, $frame->toString(2));
+	if (!$self->{'connected'}) {
+		$Code = COMMAND_FAILED;
+		$Error = $Message = 'Not connected';
+		$self->debug('cannot send frame if not connected');
+		return undef;
 
 	} else {
-		map { $self->debug('C: '.$_) } split(/\n/, $frame);
+		$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (UNIVERSAL::isa($frame, 'Net::EPP::Frame::Command'));
 
+		$self->debug(sprintf('sending a %s to the server', ref($frame) || (-e $frame ? 'file' : 'string')));
+		if (UNIVERSAL::isa($frame, 'XML::LibXML::Document')) {
+			map { $self->debug('C: '.$_) } split(/\n/, $frame->toString(2));
+
+		} else {
+			map { $self->debug('C: '.$_) } split(/\n/, $frame);
+
+		}
+
+		my $response = $self->SUPER::request($frame);
+
+		map { $self->debug('S: '.$_) } split(/\n/, $response->toString(2)) if (UNIVERSAL::isa($response, 'XML::LibXML::Document'));
+
+		return $response;
 	}
-
-	my $response = $self->SUPER::request($frame);
-
-	map { $self->debug('S: '.$_) } split(/\n/, $response->toString(2)) if (UNIVERSAL::isa($response, 'XML::LibXML::Document'));
-
-	return $response;
 }
 
 =pod
@@ -1913,33 +1921,55 @@ network errors. If such an error occurs it will return C<undef>.
 
 sub get_frame {
 	my $self = shift;
-	my $frame;
-	$self->debug(sprintf('reading frame, waiting %d seconds before timeout', $self->{timeout}));
-	eval {
-		local $SIG{ALRM} = sub { die 'timeout' };
-		$self->debug('setting timeout alarm for receiving frame');
-		alarm($self->{timeout});
-		$frame = $self->SUPER::get_frame();
-		$self->debug('unsetting timeout alarm after successful receive');
-		alarm(0);
-	};
-	if ($@ ne '') {
-		chomp($@);
-		$@ =~ s/ at .+ line .+$//;
-		$self->debug("unsetting timeout alarm after alarm was triggered ($@)");
-		alarm(0);
+	if (!$self->{'connected'}) {
+		$self->debug('cannot send frame if not connected');
 		$Code = COMMAND_FAILED;
-		if ($@ =~ /^timeout/) {
-			$Error = $Message = "get_frame() timed out after $self->{timeout} seconds";
-
-		} else {
-			$Error = $Message = "get_frame() received an error: $@";
-
-		}
+		$Error = $Message = 'Not connected';
 		return undef;
 
 	} else {
-		return bless($frame, 'Net::EPP::Frame::Response');
+		my $frame;
+		$self->debug(sprintf('reading frame, waiting %d seconds before timeout', $self->{timeout}));
+		eval {
+			local $SIG{ALRM} = sub { die 'timeout' };
+			$self->debug('setting timeout alarm for receiving frame');
+			alarm($self->{timeout});
+			$frame = $self->SUPER::get_frame();
+			$self->debug('unsetting timeout alarm after successful receive');
+			alarm(0);
+		};
+		if ($@ ne '') {
+			chomp($@);
+			$@ =~ s/ at .+ line .+$//;
+			$self->debug("unsetting timeout alarm after alarm was triggered ($@)");
+			alarm(0);
+			$Code = COMMAND_FAILED;
+			if ($@ =~ /^timeout/) {
+				$Error = $Message = "get_frame() timed out after $self->{timeout} seconds";
+
+			} else {
+				$Error = $Message = "get_frame() received an error: $@";
+
+			}
+			return undef;
+
+		} else {
+			return bless($frame, 'Net::EPP::Frame::Response');
+
+		}
+	}
+}
+
+sub send_frame {
+	my ($self, $frame, $wfcheck) = @_;
+	if (!$self->{'connected'}) {
+		$self->debug('cannot get frame if not connected');
+		$Code = 2400;
+		$Message = 'Not connected';
+		return undef;
+
+	} else {
+		return $self->SUPER::send_frame($frame, $wfcheck);
 
 	}
 }
