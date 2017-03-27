@@ -2029,11 +2029,11 @@ sub _get_error_message {
 
 sub _get_response_code {
 	my ($self, $doc) = @_;
-	my $els = $doc->getElementsByTagNameNS(EPP_XMLNS, 'result');
-	if (defined($els)) {
-		my $el = $els->shift;
-		if (defined($el)) {
-			return $el->getAttribute('code');
+	if ($doc->isa('XML::DOM::Document')) {
+		my $els = $doc->getElementsByTagNameNS(EPP_XMLNS, 'result');
+		if (defined($els)) {
+			my $el = $els->shift;
+			return $el->getAttribute('code') if (defined($el));
 		}
 	}
 	return 2400;
@@ -2041,11 +2041,11 @@ sub _get_response_code {
 
 sub _get_message {
 	my ($self, $doc) = @_;
-	my $msgs = $doc->getElementsByTagNameNS(EPP_XMLNS, 'msg');
-	if (defined($msgs)) {
-		my $msg = $msgs->shift;
-		if (defined($msg)) {
-			return $msg->textContent;
+	if ($doc->isa('XML::DOM::Document')) {
+		my $msgs = $doc->getElementsByTagNameNS(EPP_XMLNS, 'msg');
+		if (defined($msgs)) {
+			my $msg = $msgs->shift;
+			return $msg->textContent if (defined($msg));
 		}
 	}
 	return '';
@@ -2053,11 +2053,13 @@ sub _get_message {
 
 sub _get_reason {
 	my ($self, $doc) = @_;
-	my $reasons = $doc->getElementsByTagNameNS(EPP_XMLNS, 'reason');
-	if (defined($reasons)) {
-		my $reason = $reasons->shift;
-		if (defined($reason)) {
-			return $reason->textContent;
+	if ($doc->isa('XML::DOM::Document')) {
+		my $reasons = $doc->getElementsByTagNameNS(EPP_XMLNS, 'reason');
+		if (defined($reasons)) {
+			my $reason = $reasons->shift;
+			if (defined($reason)) {
+				return $reason->textContent;
+			}
 		}
 	}
         return '';
