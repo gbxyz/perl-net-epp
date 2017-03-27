@@ -69,17 +69,21 @@ sub new {
 
 =head1 METHODS
 
-	$frame->setDomain($domain_name);
+	$frame->setDomain($domain_name, $hosts);
 
-This specifies the domain name for which information is being requested.
+This specifies the domain name for which information is being requested. The
+C<$hosts> argument is the content of the C<hosts> attribute (set to C<all>
+by default).
 
 =cut
 
 sub setDomain {
-	my ($self, $domain) = @_;
+	my ($self, $domain, $hosts) = @_;
+	$hosts = ($hosts || 'all');
 
 	my $name = $self->createElement('domain:name');
 	$name->appendText($domain);
+	$name->setAttribute('hosts', $hosts);
 
 	$self->getNode('info')->getChildNodes->shift->appendChild($name);
 
