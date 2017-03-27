@@ -334,6 +334,8 @@ sub _connect {
 		return undef;
 
 	} else {
+		$self->{connected} = 1;
+
 		$self->debug('Connected OK, retrieving greeting frame');
 		$self->{greeting} = $self->get_frame;
 		if (ref($self->{greeting}) ne 'Net::EPP::Frame::Response') {
@@ -346,8 +348,6 @@ sub _connect {
 
 		}
 	}
-
-	$self->{connected} = 1;
 
 	map { $self->debug('S: '.$_) } split(/\n/, $self->{greeting}->toString(1));
 
