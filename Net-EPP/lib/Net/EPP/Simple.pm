@@ -231,27 +231,27 @@ sub new {
 
 	my $self = $package->SUPER::new(%params);
 
-	$self->{user}		= $params{user};
-	$self->{pass}		= $params{pass};
-	$self->{debug} 		= (defined($params{debug}) ? int($params{debug}) : undef);
-	$self->{timeout}	= (defined($params{timeout}) && int($params{timeout}) > 0 ? $params{timeout} : 5);
-	$self->{reconnect}	= (defined($params{reconnect}) ? int($params{reconnect}) : 3);
-	$self->{connected}	= undef;
-	$self->{authenticated}	= undef;
-	$self->{connect}	= (exists($params{connect}) ? $params{connect} : 1);
-	$self->{login}		= (exists($params{login}) ? $params{login} : 1);
-	$self->{key}		= $params{key};
-	$self->{cert}		= $params{cert};
-	$self->{passphrase}	= $params{passphrase};
-	$self->{verify}		= $params{verify};
-	$self->{ca_file}	= $params{ca_file};
-	$self->{ca_path}	= $params{ca_path};
-	$self->{ciphers}	= $params{ciphers};
-	$self->{objects}	= $params{objects};
-	$self->{stdobj}		= $params{stdobj};
-	$self->{extensions}	= $params{extensions};
-	$self->{stdext}		= $params{stdext};
-	$self->{lang}		= $params{lang} || 'en';
+	$self->{user}			= $params{user};
+	$self->{pass}			= $params{pass};
+	$self->{debug} 			= (defined($params{debug}) ? int($params{debug}) : undef);
+	$self->{timeout}		= (defined($params{timeout}) && int($params{timeout}) > 0 ? $params{timeout} : 5);
+	$self->{reconnect}		= (defined($params{reconnect}) ? int($params{reconnect}) : 3);
+	$self->{'connected'}		= undef;
+	$self->{'authenticated'}	= undef;
+	$self->{connect}		= (exists($params{connect}) ? $params{connect} : 1);
+	$self->{login}			= (exists($params{login}) ? $params{login} : 1);
+	$self->{key}			= $params{key};
+	$self->{cert}			= $params{cert};
+	$self->{passphrase}		= $params{passphrase};
+	$self->{verify}			= $params{verify};
+	$self->{ca_file}		= $params{ca_file};
+	$self->{ca_path}		= $params{ca_path};
+	$self->{ciphers}		= $params{ciphers};
+	$self->{objects}		= $params{objects};
+	$self->{stdobj}			= $params{stdobj};
+	$self->{extensions}		= $params{extensions};
+	$self->{stdext}			= $params{stdext};
+	$self->{lang}			= $params{lang} || 'en';
 
 	bless($self, $package);
 
@@ -334,7 +334,7 @@ sub _connect {
 		return undef;
 
 	} else {
-		$self->{connected} = 1;
+		$self->{'connected'} = 1;
 
 		$self->debug('Connected OK, retrieving greeting frame');
 		$self->{greeting} = $self->get_frame;
@@ -382,7 +382,7 @@ sub _login {
 			return undef;
 
 		} else {
-			$self->{authenticated} = 1;
+			$self->{'authenticated'} = 1;
 			return 1;
 
 		}
@@ -1917,7 +1917,7 @@ sub request {
 	$Error		= '';
 	$Message	= '';
 
-	if (!$self->{'connected'}) {
+	if (!$self->connected) {
 		$Code = COMMAND_FAILED;
 		$Error = $Message = 'Not connected';
 		$self->debug('cannot send frame if not connected');
@@ -1954,7 +1954,7 @@ network errors. If such an error occurs it will return C<undef>.
 
 sub get_frame {
 	my $self = shift;
-	if (!$self->{'connected'}) {
+	if (!$self->connected) {
 		$self->debug('cannot send frame if not connected');
 		$Code = COMMAND_FAILED;
 		$Error = $Message = 'Not connected';
@@ -1995,7 +1995,7 @@ sub get_frame {
 
 sub send_frame {
 	my ($self, $frame, $wfcheck) = @_;
-	if (!$self->{'connected'}) {
+	if (!$self->connected) {
 		$self->debug('cannot get frame if not connected');
 		$Code = 2400;
 		$Message = 'Not connected';
@@ -2065,10 +2065,10 @@ sub _get_reason {
 
 sub logout {
 	my $self = shift;
-	if (defined($self->{authenticated}) && 1 == $self->{authenticated}) {
+	if ($self->authenticated) {
 		$self->debug('logging out');
 		my $response = $self->request(Net::EPP::Frame::Command::Logout->new);
-		undef($self->{authenticated});
+		undef($self->{'authenticated'});
 		if (!$response) {
 			$Code = COMMAND_FAILED;
 			$Message = $Error = 'unknown error';
@@ -2082,14 +2082,14 @@ sub logout {
 	}
 	$self->debug('disconnecting from server');
 	$self->disconnect;
-	undef($self->{connected});
+	undef($self->{'connected'});
 	return 1;
 }
 
 sub DESTROY {
 	my $self = shift;
 	$self->debug('DESTROY() method called');
-	$self->logout if (defined($self->{connected}) && 1 == $self->{connected});
+	$self->logout if ($self->connected);
 }
 
 sub debug {
@@ -2097,6 +2097,33 @@ sub debug {
 	my $log = sprintf("%s (%d): %s", scalar(localtime()), $$, $msg);
 	push(@Log, $log);
 	print STDERR $log."\n" if (defined($self->{debug}) && $self->{debug} == 1);
+}
+
+=pod
+
+	$connected = $epp->connected;
+
+Returns a boolean if C<Net::EPP::Simple> has a connection to the server. Note that this
+connection might have dropped, use C<ping()> to test it.
+
+=cut
+
+sub connected {
+	my $self = shift;
+	return defined($self->{'connected'});
+}
+
+=pod
+
+	$authenticated = $epp->authenticated;
+
+Returns a boolean if C<Net::EPP::Simple> has successfully authenticated with the server.
+
+=cut
+
+sub authenticated {
+	my $self = shift;
+	return defined($self->{'authenticated'});
 }
 
 =pod
