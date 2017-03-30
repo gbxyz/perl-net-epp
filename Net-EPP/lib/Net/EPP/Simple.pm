@@ -408,6 +408,13 @@ sub _prepare_login_frame {
 
 	$login->clID->appendText($self->{user});
 	$login->pw->appendText($self->{pass});
+
+	if ($self->{newPW}) {
+		my $newPW = $login->createElement('newPW');
+		$newPW->appendText($self->{newPW});
+		$login->getNode('login')->insertAfter($newPW, $login->pw);
+	}
+
 	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
 	$login->lang->appendText($self->{lang});
 
