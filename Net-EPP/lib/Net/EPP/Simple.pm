@@ -79,6 +79,8 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 
 =item * You can use the C<user> and C<pass> parameters to supply authentication information.
 
+=item * You can use the C<newPW> parameter to specify a new password.
+
 =item * The C<timeout> parameter controls how long the client waits for a response from the server before returning an error.
 
 =item * if C<debug> is set, C<Net::EPP::Simple> will output verbose debugging information on C<STDERR>, including all frames sent to and received from the server.
@@ -233,6 +235,7 @@ sub new {
 
 	$self->{user}			= $params{user};
 	$self->{pass}			= $params{pass};
+	$self->{newPW}			= $params{newPW};
 	$self->{debug} 			= (defined($params{debug}) ? int($params{debug}) : undef);
 	$self->{timeout}		= (defined($params{timeout}) && int($params{timeout}) > 0 ? $params{timeout} : 5);
 	$self->{reconnect}		= (defined($params{reconnect}) ? int($params{reconnect}) : 3);
