@@ -1936,7 +1936,15 @@ sub request {
 	} else {
 		$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (UNIVERSAL::isa($frame, 'Net::EPP::Frame::Command'));
 
-		$self->debug(sprintf('sending a %s to the server', ref($frame) || (-e $frame ? 'file' : 'string')));
+		my $type = ref($frame);
+		if ($frame =~ /^\//) {
+			$type = 'file';
+
+		} else {
+			$type = 'string';
+
+		}
+		$self->debug(sprintf('sending a %s to the server', $type));
 		if (UNIVERSAL::isa($frame, 'XML::LibXML::Document')) {
 			map { $self->debug('C: '.$_) } split(/\n/, $frame->toString(2));
 
