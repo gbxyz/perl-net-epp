@@ -365,7 +365,7 @@ sub _login {
 	my $self = shift;
 
 	$self->debug(sprintf("Attempting to login as client ID '%s'", $self->{user}));
-	my $response = $self->request( $self->_prepare_login_frame() );
+	my $response = $self->request($self->_prepare_login_frame());
 
 	if (!$response) {
 		$Error = $Message = "Error getting response to login request: ".$Error;
@@ -2029,7 +2029,7 @@ sub _get_error_message {
 
 sub _get_response_code {
 	my ($self, $doc) = @_;
-	if ($doc->isa('XML::DOM::Document')) {
+	if ($doc->isa('XML::DOM::Document') || $doc->isa('Net::EPP::Frame::Response')) {
 		my $els = $doc->getElementsByTagNameNS(EPP_XMLNS, 'result');
 		if (defined($els)) {
 			my $el = $els->shift;
@@ -2041,7 +2041,7 @@ sub _get_response_code {
 
 sub _get_message {
 	my ($self, $doc) = @_;
-	if ($doc->isa('XML::DOM::Document')) {
+	if ($doc->isa('XML::DOM::Document') || $doc->isa('Net::EPP::Frame::Response')) {
 		my $msgs = $doc->getElementsByTagNameNS(EPP_XMLNS, 'msg');
 		if (defined($msgs)) {
 			my $msg = $msgs->shift;
@@ -2053,7 +2053,7 @@ sub _get_message {
 
 sub _get_reason {
 	my ($self, $doc) = @_;
-	if ($doc->isa('XML::DOM::Document')) {
+	if ($doc->isa('XML::DOM::Document') || $doc->isa('Net::EPP::Frame::Response')) {
 		my $reasons = $doc->getElementsByTagNameNS(EPP_XMLNS, 'reason');
 		if (defined($reasons)) {
 			my $reason = $reasons->shift;
