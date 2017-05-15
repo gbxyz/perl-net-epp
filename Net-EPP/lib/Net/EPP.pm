@@ -34,7 +34,7 @@ extensible framework that maps protocol operations to objects. As of
 writing, its only well-developed application is the provisioning of
 Internet domain names, hosts, and related contact details.
 
-This project offers a number of Perl modules which implement various
+This package offers a number of Perl modules which implement various
 EPP-related functions:
 
 =over
@@ -43,7 +43,7 @@ EPP-related functions:
 
 =item * a low-level client (L<Net::EPP::Client>)
 
-=item * a high-level client (L<Net::EPP::Simple>)
+=item * a high(er)-level client (L<Net::EPP::Simple>)
 
 =item * an EPP frame builder (L<Net::EPP::Frame>)
 
@@ -93,7 +93,7 @@ Please email any bug reports to L<epp@centralnic.com>.
 
 =over
 
-=item * Google Code Project page: L<http://code.google.com/p/perl-net-epp>
+=item * L<https://gitlab.centralnic.com/centralnic/perl-net-epp>
 
 =back
 
