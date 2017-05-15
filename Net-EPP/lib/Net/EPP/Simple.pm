@@ -1933,6 +1933,12 @@ sub request {
 		$self->debug('cannot send frame if not connected');
 		return undef;
 
+	} elsif (!$frame) {
+		$Code = COMMAND_FAILED;
+		$Error = $Message = 'Invalid frame';
+		$self->debug($Message);
+		return undef;
+
 	} else {
 		$frame->clTRID->appendText(sha1_hex(ref($self).time().$$)) if (UNIVERSAL::isa($frame, 'Net::EPP::Frame::Command'));
 
