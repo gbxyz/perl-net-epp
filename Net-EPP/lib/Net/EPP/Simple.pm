@@ -1227,7 +1227,7 @@ sub _prepare_create_domain_frame {
 	$frame->setNS(@{$domain->{'ns'}}) if $domain->{'ns'} and @{$domain->{'ns'}};
 	$frame->setRegistrant($domain->{'registrant'});
 	$frame->setContacts($domain->{'contacts'});
-	$frame->setAuthInfo($domain->{authInfo}) if ($domain->{authInfo} ne '');
+	$frame->setAuthInfo($domain->{authInfo}) if (defined($domain->{authInfo}) && $domain->{authInfo} ne '');
 	return $frame;
 }
 
@@ -1292,10 +1292,10 @@ sub _prepare_create_contact_frame {
 		}
 	}
 
-	$frame->setVoice($contact->{voice}) if ($contact->{voice} ne '');
-	$frame->setFax($contact->{fax}) if ($contact->{fax} ne '');
+	$frame->setVoice($contact->{voice}) if (defined($contact->{voice}) && $contact->{voice} ne '');
+	$frame->setFax($contact->{fax}) if (defined($contact->{fax}) && $contact->{fax} ne '');
 	$frame->setEmail($contact->{email});
-	$frame->setAuthInfo($contact->{authInfo}) if ($contact->{authInfo} ne '');
+	$frame->setAuthInfo($contact->{authInfo}) if (defined($contact->{authInfo}) && $contact->{authInfo} ne '');
 
 	if (ref($contact->{status}) eq 'ARRAY') {
 		foreach my $status (grep { /^client/ } @{$contact->{status}}) {
