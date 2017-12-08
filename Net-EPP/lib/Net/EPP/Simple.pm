@@ -1868,7 +1868,16 @@ sub ping {
 	my $hello = Net::EPP::Frame::Hello->new;
 	my $response = $self->request($hello);
 
-	return (UNIVERSAL::isa($response, 'XML::LibXML::Document') ? 1 : undef);
+	if (UNIVERSAL::isa($response, 'XML::LibXML::Document')) {
+		$Code    = 1000;
+		$Message = 'Command completed successfully.';
+		return 1;
+
+	} else {
+		$Code    = 2400;
+		$Message = 'Error getting greeting from server.';
+		return undef;
+	}
 }
 
 sub _request {
