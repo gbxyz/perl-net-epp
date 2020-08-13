@@ -1,7 +1,7 @@
 # Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
-# 
+#
 # $Id: Simple.pm,v 1.10 2011/04/08 12:57:11 gavin Exp $
 package Net::EPP::Simple;
 use Carp;
@@ -24,7 +24,7 @@ our @Log	= ();
 
 =head1 Name
 
-Net::EPP::Simple - a simple EPP client interface for the most common jobs
+Net::EPP::Simple - a simple EPP client interface for the most common jobs.
 
 =head1 Synopsis
 
@@ -77,17 +77,26 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 
 =item * Unless the C<no_ssl> parameter is set, SSL is always on
 
-=item * You can use the C<user> and C<pass> parameters to supply authentication information.
+=item * You can use the C<user> and C<pass> parameters to supply authentication
+information.
 
 =item * You can use the C<newPW> parameter to specify a new password.
 
-=item * The C<timeout> parameter controls how long the client waits for a response from the server before returning an error.
+=item * The C<timeout> parameter controls how long the client waits for a
+response from the server before returning an error.
 
-=item * if C<debug> is set, C<Net::EPP::Simple> will output verbose debugging information on C<STDERR>, including all frames sent to and received from the server.
+=item * if C<debug> is set, C<Net::EPP::Simple> will output verbose debugging
+information on C<STDERR>, including all frames sent to and received from the
+server.
 
-=item * C<reconnect> can be used to disable automatic reconnection (it is enabled by default). Before sending a frame to the server, C<Net::EPP::Simple> will send a C<E<lt>helloE<gt>> to check that the connection is up, if not, it will try to reconnect, aborting after the I<n>th time, where I<n> is the value of C<reconnect> (the default is 3).
+=item * C<reconnect> can be used to disable automatic reconnection (it is
+enabled by default). Before sending a frame to the server, C<Net::EPP::Simple>
+will send a C<E<lt>helloE<gt>> to check that the connection is up, if not, it
+will try to reconnect, aborting after the I<n>th time, where I<n> is the value
+of C<reconnect> (the default is 3).
 
-=item * C<login> can be used to disable automatic logins. If you set it to C<0>, you can manually log in using the C<$epp->_login()> method.
+=item * C<login> can be used to disable automatic logins. If you set it
+to C<0>, you can manually log in using the C<$epp-E<gt>_login()> method.
 
 =item * C<objects> is a reference to an array of the EPP object schema
 URIs that the client requires.
@@ -113,8 +122,8 @@ default is "C<en>".
 =back
 
 The constructor will establish a connection to the server and retrieve the
-greeting (which is available via $epp-E<gt>{greeting}) and then send a
-E<lt>loginE<gt> request.
+greeting (which is available via C<$epp-E<gt>{greeting}>) and then send a
+C<E<lt>loginE<gt>> request.
 
 If the login fails, the constructor will return C<undef> and set
 C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
@@ -165,14 +174,14 @@ If you are connecting to an EPP server which requires a client
 certificate, you can configure C<Net::EPP::Simple> to use one as
 follows:
 
-	my $epp = Net::EPP::Simple->new(
-		host		=> 'epp.nic.tld',
-		user		=> 'my-id',
-		pass		=> 'my-password',
-		key		=> '/path/to/my.key',
-		cert		=> '/path/to/my.crt',
-		passphrase	=> 'foobar123',
-	);
+    my $epp = Net::EPP::Simple->new(
+        host        => 'epp.nic.tld',
+        user        => 'my-id',
+        pass        => 'my-password',
+        key         => '/path/to/my.key',
+        cert        => '/path/to/my.crt',
+        passphrase  => 'foobar123',
+    );
 
 C<key> is the filename of the private key, C<cert> is the filename of
 the certificate. If the private key is encrypted, the C<passphrase>
@@ -180,11 +189,11 @@ parameter will be used to decrypt it.
 
 =head2 Configuration File
 
-C<Net::EPP::Simple> supports the use of a simple configuration file. To 
+C<Net::EPP::Simple> supports the use of a simple configuration file. To
 use this feature, you need to install the L<Config::Simple> module.
 
-When starting up, C<Net::EPP::Simple> will look for 
-C<$HOME/.net-epp-simple-rc>. This file is an ini-style configuration 
+When starting up, C<Net::EPP::Simple> will look for
+C<$HOME/.net-epp-simple-rc>. This file is an ini-style configuration
 file.
 
 =head3 Default Options
@@ -763,28 +772,28 @@ like this:
 
 Members of the C<contacts> hash ref may be strings or, if there are
 multiple associations of the same type, an anonymous array of strings.
-If the server uses the "hostAttr" model instead of "hostObj", then the
-C<ns> member will look like this:
+If the server uses the Host Attribute model instead of the Host Object
+model, then the C<ns> member will look like this:
 
 	$info->{ns} = [
 	  {
 	    name => 'ns0.example.com',
 	    addrs => [
-	      type => 'v4',
+	      version => 'v4',
 	      addr => '10.0.0.1',
 	    ],
 	  },
 	  {
 	    name => 'ns1.example.com',
 	    addrs => [
-	      type => 'v4',
+	      version => 'v4',
 	      addr => '10.0.0.2',
 	    ],
 	  },
 	];
 
 Note that there may be multiple members in the C<addrs> section and that
-the C<type> attribute is optional.
+the C<version> attribute is optional.
 
 =cut
 
@@ -879,7 +888,7 @@ this:
 	  'roid' => 'tld-12345',
 	  'status' => [
 	    'linked',
-	    'serverDeleteProhibited',    
+	    'serverDeleteProhibited',
 	  ],
 	  'name' => 'ns0.example.tld',
 	  'addrs' => [
