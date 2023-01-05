@@ -5,12 +5,18 @@
 # $Id: Simple.pm,v 1.10 2011/04/08 12:57:11 gavin Exp $
 package Net::EPP::Simple;
 use Carp;
+use Config;
 use Digest::SHA qw(sha1_hex);
+use List::Util qw(any);
+use Net::EPP;
 use Net::EPP::Frame;
 use Net::EPP::ResponseCodes;
 use Time::HiRes qw(time);
 use base qw(Net::EPP::Client);
-use constant EPP_XMLNS	=> 'urn:ietf:params:xml:ns:epp-1.0';
+use constant {
+    EPP_XMLNS	=> 'urn:ietf:params:xml:ns:epp-1.0',
+    LOGINSEC_XMLNS => 'urn:ietf:params:xml:ns:epp:loginSec-1.0',
+};
 use vars qw($Error $Code $Message @Log);
 use strict;
 use warnings;
@@ -81,6 +87,15 @@ one for C<Net::EPP::Client>, but with the following exceptions:
 information.
 
 =item * You can use the C<newPW> parameter to specify a new password.
+
+=item * The C<login_security> parameter can be used to force the use of the
+Login Security Extension (see RFC8807). C<Net::EPP::Simple> will automatically
+use this extension if the server supports it, but clients may wish to force
+this behaviour to prevent downgrade attacks.
+
+=item * The C<appname> parameter can be used to specify the value of the
+C<E<lt>app<gt>> element in the Login Security extension (if used). Unless
+specified, the name and current version of C<Net::EPP::Simple> will be used.
 
 =item * The C<timeout> parameter controls how long the client waits for a
 response from the server before returning an error.
@@ -264,6 +279,8 @@ sub new {
 	$self->{extensions}		= $params{extensions};
 	$self->{stdext}			= $params{stdext};
 	$self->{lang}			= $params{lang} || 'en';
+	$self->{login_security}	= $params{login_security};
+	$self->{appname}	    = $params{appname};
 
 	bless($self, $package);
 
@@ -418,14 +435,70 @@ sub _prepare_login_frame {
 	$self->debug('preparing login frame');
 	my $login = Net::EPP::Frame::Command::Login->new;
 
-	$login->clID->appendText($self->{user});
-	$login->pw->appendText($self->{pass});
+    my @extensions;
+    if ($self->{'stdext'}) {
+        push(@extensions, (Net::EPP::Frame::ObjectSpec->spec('secDNS'))[1]);
 
-	if ($self->{newPW}) {
-		my $newPW = $login->createElement('newPW');
-		$newPW->appendText($self->{newPW});
-		$login->getNode('login')->insertAfter($newPW, $login->pw);
-	}
+    } elsif ($self->{'extensions'}) {
+        @extensions = @{$self->{'extensions'}};
+
+    } else {
+        @extensions = @{$self->_get_option_uri_list('extURI')};
+
+    }
+
+	$login->clID->appendText($self->{'user'});
+
+    if ($self->{'login_security'} || any { LOGINSEC_XMLNS eq $_ } @extensions) {
+        push(@extensions, LOGINSEC_XMLNS) unless (any { LOGINSEC_XMLNS eq $_ } @extensions);
+
+    	$login->pw->appendText('[LOGIN-SECURITY]');
+
+        my $loginSec = $login->createElementNS(LOGINSEC_XMLNS, 'loginSec');
+
+        my $userAgent = $login->createElement('userAgent');
+        $loginSec->appendChild($userAgent);
+
+        my $app = $login->createElement('app');
+        $app->appendText($self->{'appname'} || sprintf('%s %s', __PACKAGE__, $Net::EPP::VERSION));
+        $userAgent->appendChild($app);
+
+        my $tech = $login->createElement('tech');
+        $tech->appendText(sprintf('Perl %s', $Config{'version'}));
+        $userAgent->appendChild($tech);
+
+        my $os = $login->createElement('os');
+        $os->appendText(sprintf('%s %s', ucfirst($Config{'osname'}), $Config{'osvers'}));
+        $userAgent->appendChild($os);
+
+        my $pw = $login->createElement('pw');
+        $pw->appendText($self->{'pass'});
+        $loginSec->appendChild($pw);
+
+    	if ($self->{'newPW'}) {
+    		my $newPW = $login->createElement('newPW');
+    		$newPW->appendText('[LOGIN-SECURITY]');
+    		$login->getNode('login')->insertAfter($newPW, $login->pw);
+
+            my $newPW = $login->createElement('newPW');
+            $newPW->appendText($self->{'newPW'});
+            $loginSec->appendChild($newPW);
+        }
+
+        my $extension = $login->createElement('extension');
+        $extension->appendChild($loginSec);
+
+        $login->getCommandNode()->parentNode()->insertAfter($extension, $login->getCommandNode());
+
+    } else {
+    	$login->pw->appendText($self->{pass});
+
+    	if ($self->{newPW}) {
+    		my $newPW = $login->createElement('newPW');
+    		$newPW->appendText($self->{newPW});
+    		$login->getNode('login')->insertAfter($newPW, $login->pw);
+    	}
+    }
 
 	$login->version->appendText($self->{greeting}->getElementsByTagNameNS(EPP_XMLNS, 'version')->shift->firstChild->data);
 	$login->lang->appendText($self->{lang});
@@ -436,15 +509,13 @@ sub _prepare_login_frame {
 	$objects = _get_option_uri_list($self,'objURI') if not $objects;
 	$login->svcs->appendTextChild('objURI', $_) for @$objects;
 
-	my $extensions = $self->{extensions};
-	$extensions = [map { (Net::EPP::Frame::ObjectSpec->spec($_))[1] }
-		       qw(secDNS)] if $self->{stdext};
-	$extensions = _get_option_uri_list($self,'extURI') if not $extensions;
-	if (@$extensions) {
+	if (scalar(@extensions) > 0) {
 		my $svcext = $login->createElement('svcExtension');
 		$login->svcs->appendChild($svcext);
-		$svcext->appendTextChild('extURI', $_) for @$extensions;
+		$svcext->appendTextChild('extURI', $_) for @extensions;
+
 	}
+
 	return $login;
 }
 

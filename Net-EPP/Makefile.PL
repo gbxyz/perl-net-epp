@@ -11,5 +11,6 @@ WriteMakefile(
 		'XML::LibXML'		=> 0,
 		'Time::HiRes'		=> 0,
 		'Digest::SHA'		=> 0,
+        'List::Util'        => 0,
 	},
 );
