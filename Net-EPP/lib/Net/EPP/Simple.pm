@@ -480,7 +480,7 @@ sub _prepare_login_frame {
     		$newPW->appendText('[LOGIN-SECURITY]');
     		$login->getNode('login')->insertAfter($newPW, $login->pw);
 
-            my $newPW = $login->createElement('newPW');
+            $newPW = $login->createElement('newPW');
             $newPW->appendText($self->{'newPW'});
             $loginSec->appendChild($newPW);
         }
