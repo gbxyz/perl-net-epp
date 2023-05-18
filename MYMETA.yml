@@ -1,7 +1,7 @@
 ---
 abstract: 'a Perl library for the Extensible Provisioning Protocol (EPP)'
 author:
-  - unknown
+  - 'Gavin Brown <gavin.brown@fastmail.uk>'
 build_requires:
   ExtUtils::MakeMaker: '0'
 configure_requires:
