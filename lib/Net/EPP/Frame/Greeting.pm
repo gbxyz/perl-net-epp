@@ -1,6 +1,10 @@
 package Net::EPP::Frame::Greeting;
 use base qw(Net::EPP::Frame);
 
+1;
+
+__END__
+
 =pod
 
 =head1 NAME
@@ -75,5 +79,3 @@ sub svcMenu { $_[0]->getNode('svcMenu') }
 sub dcp { $_[0]->getNode('dcp') }
 
 =cut
-
-1;
