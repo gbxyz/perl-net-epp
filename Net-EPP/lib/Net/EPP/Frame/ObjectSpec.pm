@@ -1,4 +1,3 @@
-#! $Id: ObjectSpec.pm,v 1.2 2007/12/03 11:44:51 gavin Exp $
 package Net::EPP::Frame::ObjectSpec;
 use vars qw($SPEC);
 use strict;
@@ -94,29 +93,6 @@ The objects currently registered are:
 
 Note that secDNS is an extension to the domain object rather than an
 object in its own right.
-
-=head1 AUTHOR
-
-CentralNic Ltd (http://www.centralnic.com/).
-
-=head1 COPYRIGHT
-
-This module is (c) 2016 CentralNic Ltd. This module is free software; you can
-redistribute it and/or modify it under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-=over
-
-=item * the L<Net::EPP::Frame> module, for constructing valid EPP frames.
-
-=item * the L<Net::EPP::Client> module, for communicating with EPP servers.
-
-=item * RFCs 4930 and RFC 4934, available from L<http://www.ietf.org/>.
-
-=item * The CentralNic EPP site at L<http://www.centralnic.com/resellers/epp>.
-
-=back
 
 =cut
 

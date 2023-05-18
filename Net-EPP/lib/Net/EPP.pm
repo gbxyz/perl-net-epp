@@ -1,8 +1,3 @@
-# Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
-# free software; you can redistribute it and/or modify it under the same
-# terms as Perl itself.
-# 
-# $Id$
 package Net::EPP;
 use vars qw($VERSION);
 use Net::EPP::Client;
@@ -22,7 +17,7 @@ __END__
 
 =head1 NAME
 
-C<Net::EPP> - a Perl library for the Extensible Provisioning Protocol (EPP)
+Net::EPP - a Perl library for the Extensible Provisioning Protocol (EPP)
 
 =head1 DESCRIPTION
 
@@ -85,21 +80,9 @@ CentralNic Ltd (http://www.centralnic.com/), with the assistance of other contri
 
 =back   
 
-=head1 REPORTING BUGS
-
-Please email any bug reports to L<epp@centralnic.com>.
-
-=head1 SEE ALSO
-
-=over
-
-=item * L<https://gitlab.centralnic.com/centralnic/perl-net-epp>
-
-=back
-
 =head1 COPYRIGHT
 
-This module is (c) 2016 CentralNic Ltd. This module is free software; you can
+This module is (c) 2008 - 2023 CentralNic Ltd. This module is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut

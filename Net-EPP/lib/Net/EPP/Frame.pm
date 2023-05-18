@@ -1,8 +1,3 @@
-# Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
-# free software; you can redistribute it and/or modify it under the same
-# terms as Perl itself.
-# 
-# $Id: Frame.pm,v 1.17 2011/01/23 12:26:24 gavin Exp $
 package Net::EPP::Frame;
 use Carp;
 use Net::EPP::Frame::Command;
@@ -303,33 +298,6 @@ sub frame {
 Each subclass has its own subclasses for various objects, for example L<Net::EPP::Frame::Command::Check::Domain> creates C<E<lt>checkE<gt>> frame for domain names.
 
 Coverage for all combinations of command and object type is not complete, but work is ongoing.
-
-=head1 AUTHOR
-
-CentralNic Ltd (http://www.centralnic.com/).
-
-=head1 COPYRIGHT
-
-This module is (c) 2016 CentralNic Ltd. This module is free software; you can
-redistribute it and/or modify it under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-=over
-
-=item * L<XML::LibXML>, the Perl bindings to the libxml library
-
-=item * The libxml website at L<http://www.xmlsoft.org/>
-
-=item * the L<Net::EPP::Client> module, for communicating with EPP servers.
-
-=item * the L<Net::EPP::Frame::ObjectSpec> module, for managing EP object metadata.
-
-=item * RFCs 4930 and RFC 4934, available from L<http://www.ietf.org/>.
-
-=item * The CentralNic EPP site at L<http://www.centralnic.com/resellers/epp>.
-
-=back
 
 =cut
 

@@ -1,8 +1,3 @@
-# Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
-# free software; you can redistribute it and/or modify it under the same
-# terms as Perl itself.
-#
-# $Id: Simple.pm,v 1.10 2011/04/08 12:57:11 gavin Exp $
 package Net::EPP::Simple;
 use Carp;
 use Config;
@@ -2266,31 +2261,6 @@ error code of 1999 or lower, for an unsuccessful transaction it will be
 parameters being passed to a method, or a network error) then this will
 be set to 2400 (C<COMMAND_FAILED>). See L<Net::EPP::ResponseCodes> for
 more information about thes codes.
-
-=head1 Author
-
-CentralNic Ltd (L<http://www.centralnic.com/>).
-
-=head1 Copyright
-
-This module is (c) 2016 CentralNic Ltd. This module is free software; you can
-redistribute it and/or modify it under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-=over
-
-=item * L<Net::EPP::Client>
-
-=item * L<Net::EPP::Frame>
-
-=item * L<Net::EPP::Proxy>
-
-=item * RFCs 5730 and RFC 4934, available from L<http://www.ietf.org/>.
-
-=item * The CentralNic EPP site at L<http://www.centralnic.com/registrars/epp>.
-
-=back
 
 =cut
 

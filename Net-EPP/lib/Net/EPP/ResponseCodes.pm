@@ -1,8 +1,3 @@
-# Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
-# free software; you can redistribute it and/or modify it under the same
-# terms as Perl itself.
-# 
-# $Id: ResponseCodes.pm,v 1.2 2011/01/04 10:37:33 gavin Exp $
 package Net::EPP::ResponseCodes;
 use base qw(Exporter);
 use vars qw(@EXPORT);
@@ -181,31 +176,6 @@ brackets is the integer value associated with the constant.
 =item  AUTH_FAILED_BYE (2501)
 
 =item  SESSION_LIMIT_EXCEEDED_BYE (2502)
-
-=back
-
-=head1 AUTHOR
-
-CentralNic Ltd (L<http://www.centralnic.com/>).
-
-=head1 COPYRIGHT
-
-This module is (c) 2016 CentralNic Ltd. This module is free software; you can
-redistribute it and/or modify it under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-=over
-
-=item * L<Net::EPP::Client>
-
-=item * L<Net::EPP::Frame>
-
-=item * L<Net::EPP::Proxy>
-
-=item * RFCs 4930 and RFC 4934, available from L<http://www.ietf.org/>.
-
-=item * The CentralNic EPP site at L<http://www.centralnic.com/resellers/epp>.
 
 =back
 

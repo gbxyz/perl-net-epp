@@ -1,8 +1,3 @@
-# Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
-# free software; you can redistribute it and/or modify it under the same
-# terms as Perl itself.
-# 
-# $Id: Client.pm,v 1.17 2011/01/23 12:23:16 gavin Exp $
 package Net::EPP::Client;
 use bytes;
 use Net::EPP::Protocol;
@@ -396,33 +391,6 @@ sub disconnect {
 	$self->{'connection'}->close if ($self->{'connection'});
 	return 1;
 }
-
-=pod
-
-=head1 AUTHOR
-
-CentralNic Ltd (L<http://www.centralnic.com/>).
-
-=head1 COPYRIGHT
-
-This module is (c) 2016 CentralNic Ltd. This module is free software; you can
-redistribute it and/or modify it under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-=over
-
-=item * L<Net::EPP::Frame>
-
-=item * L<Net::EPP::Proxy>
-
-=item * RFCs 4930 and RFC 4934, available from L<http://www.ietf.org/>.
-
-=item * The CentralNic EPP site at L<http://www.centralnic.com/resellers/epp>.
-
-=back
-
-=cut
 
 sub parser {
 	my $self = shift;
