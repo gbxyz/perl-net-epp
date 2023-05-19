@@ -1,9 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=EPP Client
-Comment=Submit queries to an EPP server.
-Exec=preppi
-Type=Application
-Icon=stock_database
-Categories=X-Red-Hat-Extras;Application;Network;
-StartupNotify=true
