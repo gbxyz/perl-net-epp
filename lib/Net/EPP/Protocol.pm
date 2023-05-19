@@ -32,14 +32,6 @@ servers.
 
 =head1 DESCRIPTION
 
-EPP is the Extensible Provisioning Protocol. EPP (defined in RFC 4930)
-is an application layer client-server protocol for the provisioning and
-management of objects stored in a shared central repository. Specified
-in XML, the protocol defines generic object management operations and an
-extensible framework that maps protocol operations to objects. As of
-writing, its only well-developed application is the provisioning of
-Internet domain names, hosts, and related contact details.
-
 This module implements functions that are common to both EPP clients and
 servers that implement the TCP transport as defined in RFC 4934. The
 main consumer of this module is currently L<Net::EPP::Client>.

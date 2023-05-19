@@ -7,6 +7,7 @@ our $SPEC = {
 	'contact'	=> [ 'urn:ietf:params:xml:ns:contact-1.0',	'urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd'	],
 	'host'		=> [ 'urn:ietf:params:xml:ns:host-1.0',		'urn:ietf:params:xml:ns:host-1.0 host-1.0.xsd'		],
 	'secDNS'	=> [ 'urn:ietf:params:xml:ns:secDNS-1.1',	'urn:ietf:params:xml:ns:secDNS-1.1 secDNS-1.1.xsd'	],
+	'rgp'		=> [ 'urn:ietf:params:xml:ns:rgp-1.1',		'urn:ietf:params:xml:ns:rgp-1.1 rgp-1.1.xsd'	],
 };
 
 sub spec {
@@ -47,14 +48,6 @@ Net::EPP::Frame::ObjectSpec - metadata about EPP object types
 
 =head1 DESCRIPTION
 
-EPP is the Extensible Provisioning Protocol. EPP (defined in RFC 4930) is an
-application layer client-server protocol for the provisioning and management of
-objects stored in a shared central repository. Specified in XML, the protocol
-defines generic object management operations and an extensible framework that
-maps protocol operations to objects. As of writing, its only well-developed
-application is the provisioning of Internet domain names, hosts, and related
-contact details.
-
 Net::EPP::Frame::ObjectSpec is a simple module designed to provide easy access to
 metadata for the object types defined in the EPP specification.
 
@@ -81,18 +74,20 @@ The objects currently registered are:
 
 =over
 
-=item * C<domain>, for domain names.
+=item * C<domain>, for domain names;
 
-=item * C<host>, for DNS server hosts.
+=item * C<host>, for DNS server hosts;
 
-=item * C<contact>, for contact objects.
+=item * C<contact>, for contact objects;
 
-=item * C<secDNS>, for DNSSEC information.
+=item * C<secDNS>, for DNSSEC information;
+
+=item * C<rgp>, for registry grace periods.
 
 =back
 
-Note that secDNS is an extension to the domain object rather than an
-object in its own right.
+Note that C<secDNS> and C<rgp> refer to extensions to the domain object rather than
+objects in their own right.
 
 =cut
 

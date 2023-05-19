@@ -52,25 +52,17 @@ Net::EPP::Simple - a simple EPP client interface for the most common jobs.
 
 =head1 Description
 
-EPP is the Extensible Provisioning Protocol. EPP (defined in RFC 4930) is an
-application layer client-server protocol for the provisioning and management of
-objects stored in a shared central repository. Specified in XML, the protocol
-defines generic object management operations and an extensible framework that
-maps protocol operations to objects. As of writing, its only well-developed
-application is the provisioning of Internet domain names, hosts, and related
-contact details.
+This module provides a high level interface to EPP. It hides all the boilerplate
+of connecting, logging in, building request frames and parsing response frames behind
+a simple, Perlish interface.
 
-This module provides a high level interface to the EPP protocol. It hides all
-the boilerplate of connecting, logging in, building request frames and parsing
-response frames behind a simple, Perlish interface.
-
-It is based on the C<Net::EPP::Client> module and uses C<Net::EPP::Frame>
+It is based on the L<Net::EPP::Client> module and uses L<Net::EPP::Frame>
 to build request frames.
 
 =head1 Constructor
 
 The constructor for C<Net::EPP::Simple> has the same general form as the
-one for C<Net::EPP::Client>, but with the following exceptions:
+one for L<Net::EPP::Client>, but with the following exceptions:
 
 =over
 
@@ -1923,7 +1915,7 @@ sub message { $Message }
 
 	my $greeting = $epp->greeting;
 
-Returns the a C<Net::EPP::Frame::Greeting> object representing the greeting returned by the server.
+Returns the a L<Net::EPP::Frame::Greeting> object representing the greeting returned by the server.
 
 =cut
 
@@ -1991,16 +1983,16 @@ sub _request {
 
 =pod
 
-=head1 Overridden Methods From C<Net::EPP::Client>
+=head1 Overridden Methods From L<Net::EPP::Client>
 
 C<Net::EPP::Simple> overrides some methods inherited from
-C<Net::EPP::Client>. These are described below:
+L<Net::EPP::Client>. These are described below:
 
 =head2 The C<request()> Method
 
 C<Net::EPP::Simple> overrides this method so it can automatically populate
 the C<E<lt>clTRIDE<gt>> element with a unique string. It then passes the
-frame back up to C<Net::EPP::Client>.
+frame back up to L<Net::EPP::Client>.
 
 =cut
 
