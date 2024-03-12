@@ -312,7 +312,7 @@ sub get_return_value {
 
 =head2 Sending a frame to the server:
 
-	$epp->send_frame($frame, $wfcheck);
+	$epp->send_frame($frame);
 
 This sends a request frame to the server. C<$frame> may be one of:
 
@@ -328,45 +328,31 @@ This sends a request frame to the server. C<$frame> may be one of:
 
 =back
 
-Unless C<$wfcheck> is false, the first two of these will be checked for
-well-formedness. If the XML data is broken, then this method will croak.
-
 =cut
 
 sub send_frame {
-	my ($self, $frame, $wfcheck) = @_;
+    my ($self, $frame) = @_;
 
-	my $xml;
-	if (ref($frame) ne '' && ($frame->isa('XML::DOM::Document') || $frame->isa('XML::LibXML::Document'))) {
-		$xml		= $frame->toString;
-		$wfcheck	= 0;
+    my $xml;
+    if ($frame->isa('XML::DOM::Document') || $frame->isa('XML::LibXML::Document')) {
+        $xml = $frame->toString;
 
-	} elsif ($frame !~ /</ && -e $frame) {
-		if (!open(FRAME, $frame)) {
-			croak("Couldn't open file '$frame' for reading: $!");
+    } elsif ($frame !~ /</ && -e $frame) {
+        if (!open(FRAME, $frame)) {
+            croak("Couldn't open file '$frame' for reading: $!");
 
-		} else {
-			$xml = join('', <FRAME>);
-			close(FRAME);
-			$wfcheck = 1;
+        } else {
+            $xml = join('', <FRAME>);
+            close(FRAME);
 
-		}
+        }
 
-	} else {
-		$xml		= $frame;
-		$wfcheck	= ($wfcheck ? 1 : 0);
+    } else {
+        $xml = $frame;
 
-	}
+    }
 
-	if ($wfcheck == 1) {
-		eval { $self->parser->parse_string($xml) };
-		if ($@ ne '') {
-			chomp($@);
-			croak(sprintf("Frame from server wasn't well formed: %s\n\nThe XML looks like this:\n\n%s\n\n", $@, $xml));
-		}
-	}
-
-	return Net::EPP::Protocol->send_frame($self->{'connection'}, $xml);
+    return Net::EPP::Protocol->send_frame($self->connection, $xml);
 }
 
 =pod
