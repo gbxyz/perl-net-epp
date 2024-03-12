@@ -242,8 +242,8 @@ and then returns the next frame the server sends back.
 =cut
 
 sub request {
-	my ($self, $frame) = @_;
-	return $self->get_frame if ($self->send_frame($frame));
+    my ($self, $frame) = @_;
+    return $self->get_frame if ($self->send_frame($frame));
 }
 
 =pod
@@ -383,15 +383,20 @@ connection out of sync with the server.
 =cut
 
 sub disconnect {
-	my $self = shift;
-	$self->{'connection'}->close if ($self->{'connection'});
-	return 1;
+    my $self = shift;
+
+    if ($self->connected) {
+        $self->connection->close;
+        delete($self->{'connection'});
+    }
+
+    return 1;
 }
 
 sub parser {
-	my $self = shift;
-	$self->{'parser'} = Net::EPP::Parser->new if (!$self->{'parser'});
-	return $self->{'parser'};
+    my $self = shift;
+    $self->{'parser'} = Net::EPP::Parser->new if (!$self->{'parser'});
+    return $self->{'parser'};
 }
 
 sub connected  { defined(shift->connection) }
