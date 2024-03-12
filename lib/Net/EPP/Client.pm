@@ -160,40 +160,41 @@ sub connect {
 }
 
 sub _connect_tcp {
-	my ($self, %params) = @_;
+    my ($self, %params) = @_;
 
-	my $SocketClass = ($self->{'ssl'} == 1 ? 'IO::Socket::SSL' : 'IO::Socket::INET');
+    my $class = ($self->{'ssl'} == 1 ? 'IO::Socket::SSL' : 'IO::Socket::IP');
 
-	$self->{'connection'} = $SocketClass->new(
-		PeerAddr	=> $self->{'host'},
-		PeerPort	=> $self->{'port'},
-		Proto		=> 'tcp',
-		Type		=> SOCK_STREAM,
-		%params
-	);
+    $self->connection = $class->new(
+        'PeerAddr' => $self->{'host'},
+        'PeerPort' => $self->{'port'},
+        'Proto'    => 'tcp',
+        'Type'     => SOCK_STREAM,
+        %params
+    );
 
-	if (!defined($self->{'connection'}) || ($@ && $@ ne '')) {
-		chomp($@);
-		$@ =~ s/^$SocketClass:? ?//;
-		croak("Connection to $self->{'host'}:$self->{'port'} failed: $@")
-	};
+    if (!defined($self->connection) || ($@ && $@ ne '')) {
+        chomp($@);
+        $@ =~ s/^$class:? ?//;
+        croak("Connection to $self->{'host'}:$self->{'port'} failed: $@");
+    }
 
-	return 1;
+    return 1;
 }
 
 sub _connect_unix {
-	my ($self, %params) = @_;
+    my ($self, %params) = @_;
 
-	$self->{'connection'} = IO::Socket::UNIX->new(
-		Peer		=> $self->{'sock'},
-		Type		=> SOCK_STREAM,
-		%params
-	);
+    $self->connection = IO::Socket::UNIX->new(
+        'Peer' => $self->{'sock'},
+        'Type' => SOCK_STREAM,
+        %params
+    );
 
-	croak("Connection to $self->{'host'}:$self->{'port'} failed: $@") if (!defined($self->{'connection'}) || ($@ && $@ ne ''));
+    if (!defined($self->connection) || ($@ && $@ ne '')) {
+        croak("Connection to $self->{'host'}:$self->{'port'} failed: $@");
+    }
 
-	return 1;
-
+    return 1;
 }
 
 =pod
