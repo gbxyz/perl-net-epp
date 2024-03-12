@@ -24,9 +24,9 @@ related functions:
 
 # AUTHORS
 
-This module was originally developed by CentralNic
-([https://centralnicregistry.com/](https://centralnicregistry.com/)), with the assistance of other
-contributors around the world, including (but not limited to):
+This module is maintained by [Gavin Brown](https://metacpan.org/author/GBROWN),
+with the assistance of other contributors around the world, including (but not
+limited to):
 
 - Rick Jansen
 - Mike Kefeder

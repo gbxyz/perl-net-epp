@@ -49,9 +49,9 @@ related functions:
 
 =head1 AUTHORS
 
-This module was originally developed by CentralNic
-(L<https://centralnicregistry.com/>), with the assistance of other
-contributors around the world, including (but not limited to):
+This module is maintained by L<Gavin Brown|https://metacpan.org/author/GBROWN>,
+with the assistance of other contributors around the world, including (but not
+limited to):
 
 =over
 
