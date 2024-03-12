@@ -124,8 +124,10 @@ sub new {
 
 This method establishes the TCP connection. You can use the C<%PARAMS> hash to
 specify arguments that will be passed on to the constructors for
-L<IO::Socket::INET> (such as a timeout) or L<IO::Socket::SSL> (such as
-certificate information). See the relevant manpage for examples.
+L<IO::Socket::IP> (such as a timeout) or L<IO::Socket::SSL> (such as
+certificate information). Which of these modules will be used is determined by
+the C<ssl> parameter that was provided when instantiating the object. See the
+relevant manpage for examples.
 
 This method will C<croak()> if connection fails, so be sure to use C<eval()> if
 you want to catch the error.
@@ -142,18 +144,19 @@ and/or server certificate validation behaviour.
 =cut
 
 sub connect {
-	my ($self, %params) = @_;
+    my ($self, %params) = @_;
 
-	if (defined($self->{'sock'})) {
-		$self->_connect_unix(%params);
+    croak('already connected') if ($self->connected);
 
-	} else {
-		$self->_connect_tcp(%params);
+    if (defined($self->{'sock'})) {
+        $self->_connect_unix(%params);
 
-	}
+    } else {
+        $self->_connect_tcp(%params);
 
-	return ($params{'no_greeting'} ? 1 : $self->get_frame);
+    }
 
+    return ($params{'no_greeting'} ? 1 : $self->get_frame);
 }
 
 sub _connect_tcp {
