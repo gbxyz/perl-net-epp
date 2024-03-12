@@ -53,12 +53,12 @@ This results in an XML document like this:
 =cut
 
 sub new {
-	my $package = shift;
-	my $self = bless($package->SUPER::new('create'), $package);
+    my $package = shift;
+    my $self    = bless($package->SUPER::new('create'), $package);
 
-	$self->addObject(Net::EPP::Frame::ObjectSpec->spec('host'));
+    $self->addObject(Net::EPP::Frame::ObjectSpec->spec('host'));
 
-	return $self;
+    return $self;
 }
 
 =pod
@@ -72,16 +72,15 @@ This sets the name of the object to be created. Returns the
 
 =cut
 
-
 sub setHost {
-	my ($self, $host) = @_;
+    my ($self, $host) = @_;
 
-	my $name = $self->createElement('host:name');
-	$name->appendText($host);
+    my $name = $self->createElement('host:name');
+    $name->appendText($host);
 
-	$self->getNode('create')->getChildNodes->shift->appendChild($name);
+    $self->getNode('create')->getChildNodes->shift->appendChild($name);
 
-	return 1;
+    return 1;
 }
 
 =pod
@@ -94,15 +93,15 @@ addresses of different versions.
 =cut
 
 sub setAddr {
-	my ($self, @addr) = @_;
+    my ($self, @addr) = @_;
 
-	foreach my $ip (@addr) {
-		my $hostAttr = $self->createElement('host:addr');
-		$hostAttr->appendText($ip->{ip});
-		$hostAttr->setAttribute('ip', $ip->{version});
-		$self->getNode('create')->getChildNodes->shift->appendChild($hostAttr);
-	}
-	return 1;
+    foreach my $ip (@addr) {
+        my $hostAttr = $self->createElement('host:addr');
+        $hostAttr->appendText($ip->{ip});
+        $hostAttr->setAttribute('ip', $ip->{version});
+        $self->getNode('create')->getChildNodes->shift->appendChild($hostAttr);
+    }
+    return 1;
 }
 
 1;

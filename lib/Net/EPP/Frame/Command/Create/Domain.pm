@@ -52,12 +52,12 @@ This results in an XML document like this:
 =cut
 
 sub new {
-	my $package = shift;
-	my $self = bless($package->SUPER::new('create'), $package);
+    my $package = shift;
+    my $self    = bless($package->SUPER::new('create'), $package);
 
-	$self->addObject(Net::EPP::Frame::ObjectSpec->spec('domain'));
+    $self->addObject(Net::EPP::Frame::ObjectSpec->spec('domain'));
 
-	return $self;
+    return $self;
 }
 
 =pod
@@ -72,14 +72,14 @@ C<E<lt>domain:nameE<gt>> element.
 =cut
 
 sub setDomain {
-	my ($self, $domain) = @_;
+    my ($self, $domain) = @_;
 
-	my $name = $self->createElement('domain:name');
-	$name->appendText($domain);
+    my $name = $self->createElement('domain:name');
+    $name->appendText($domain);
 
-	$self->getNode('create')->getChildNodes->shift->appendChild($name);
+    $self->getNode('create')->getChildNodes->shift->appendChild($name);
 
-	return 1;
+    return 1;
 }
 
 =pod
@@ -93,17 +93,17 @@ Set the initial registration period. The second argument is optional.
 =cut
 
 sub setPeriod {
-	my ($self, $period, $unit) = @_;
+    my ($self, $period, $unit) = @_;
 
-	$unit = 'y' if (!defined($unit) || $unit eq '');
+    $unit = 'y' if (!defined($unit) || $unit eq '');
 
-	my $el = $self->createElement('domain:period');
-	$el->setAttribute('unit', $unit);
-	$el->appendText(int($period));
+    my $el = $self->createElement('domain:period');
+    $el->setAttribute('unit', $unit);
+    $el->appendText(int($period));
 
-	$self->getNode('create')->getChildNodes->shift->appendChild($el);
+    $self->getNode('create')->getChildNodes->shift->appendChild($el);
 
-	return 1;
+    return 1;
 }
 
 =pod
@@ -117,14 +117,14 @@ Set the registrant.
 =cut
 
 sub setRegistrant {
-	my ($self, $contact) = @_;
+    my ($self, $contact) = @_;
 
-	my $registrant = $self->createElement('domain:registrant');
-	$registrant->appendText($contact);
+    my $registrant = $self->createElement('domain:registrant');
+    $registrant->appendText($contact);
 
-	$self->getNode('create')->getChildNodes->shift->appendChild($registrant);
+    $self->getNode('create')->getChildNodes->shift->appendChild($registrant);
 
-	return 1;
+    return 1;
 }
 
 =pod
@@ -142,21 +142,21 @@ Set the contacts.
 =cut
 
 sub setContacts {
-	my ($self, $contacts) = @_;
-	my $parent = $self->getNode('create')->getChildNodes->shift;
+    my ($self, $contacts) = @_;
+    my $parent = $self->getNode('create')->getChildNodes->shift;
 
-	foreach my $type (keys(%{$contacts})) {
-		my $contact = $self->createElement('domain:contact');
-		$contact->setAttribute('type', $type);
-		$contact->appendText($contacts->{$type});
+    foreach my $type (keys(%{$contacts})) {
+        my $contact = $self->createElement('domain:contact');
+        $contact->setAttribute('type', $type);
+        $contact->appendText($contacts->{$type});
 
-		$parent->appendChild($contact);
-	}
+        $parent->appendChild($contact);
+    }
 
-	return 1;
+    return 1;
 }
 
-# 
+#
 # Type of elements of @ns depends on NS model used by EPP server.
 #   hostObj model:
 #       each element is a name of NS host object
@@ -172,87 +172,85 @@ sub setContacts {
 #        }
 #
 sub setNS {
-	my ($self, @ns) = @_;
+    my ($self, @ns) = @_;
 
+    if (ref $ns[0] eq 'HASH') {
+        $self->addHostAttrNS(@ns);
+    } else {
+        $self->addHostObjNS(@ns);
+    }
 
-        if ( ref $ns[0] eq 'HASH' ) {
-            $self->addHostAttrNS(@ns);
-        }
-        else {
-            $self->addHostObjNS(@ns);
-        }
-
-	return 1;
+    return 1;
 }
 
 sub addHostAttrNS {
-        my ($self, @ns) = @_;
+    my ($self, @ns) = @_;
 
-        my $ns = $self->createElement('domain:ns');
+    my $ns = $self->createElement('domain:ns');
 
-        # Adding attributes
-        foreach my $host (@ns) {
-                my $hostAttr = $self->createElement('domain:hostAttr');
+    # Adding attributes
+    foreach my $host (@ns) {
+        my $hostAttr = $self->createElement('domain:hostAttr');
 
-                # Adding NS name
-                my $hostName = $self->createElement('domain:hostName');
-                $hostName->appendText( $host->{name} );
-                $hostAttr->appendChild($hostName);
+        # Adding NS name
+        my $hostName = $self->createElement('domain:hostName');
+        $hostName->appendText($host->{name});
+        $hostAttr->appendChild($hostName);
 
-                # Adding IP addresses
-                if ( exists $host->{addrs} && ref $host->{addrs} eq 'ARRAY' ) {
-                        foreach my $addr ( @{ $host->{addrs} } ) {
-                                my $hostAddr = $self->createElement('domain:hostAddr');
-                                $hostAddr->appendText( $addr->{addr} );
-                                $hostAddr->setAttribute( ip => $addr->{version} );
-                                $hostAttr->appendChild($hostAddr);
-                        }
-                }
-
-                # Adding host info to frame
-                $ns->appendChild($hostAttr);
+        # Adding IP addresses
+        if (exists $host->{addrs} && ref $host->{addrs} eq 'ARRAY') {
+            foreach my $addr (@{$host->{addrs}}) {
+                my $hostAddr = $self->createElement('domain:hostAddr');
+                $hostAddr->appendText($addr->{addr});
+                $hostAddr->setAttribute(ip => $addr->{version});
+                $hostAttr->appendChild($hostAddr);
+            }
         }
-	$self->getNode('create')->getChildNodes->shift->appendChild($ns);
-        return 1;
+
+        # Adding host info to frame
+        $ns->appendChild($hostAttr);
+    }
+    $self->getNode('create')->getChildNodes->shift->appendChild($ns);
+    return 1;
 }
 
 sub addHostObjNS {
-        my ($self, @ns) = @_;
+    my ($self, @ns) = @_;
 
-	my $ns = $self->createElement('domain:ns');
-	foreach my $host (@ns) {
-                my $el = $self->createElement('domain:hostObj');
-		$el->appendText($host);
-		$ns->appendChild($el);
-	}
-	$self->getNode('create')->getChildNodes->shift->appendChild($ns);
-        return 1;
+    my $ns = $self->createElement('domain:ns');
+    foreach my $host (@ns) {
+        my $el = $self->createElement('domain:hostObj');
+        $el->appendText($host);
+        $ns->appendChild($el);
+    }
+    $self->getNode('create')->getChildNodes->shift->appendChild($ns);
+    return 1;
 }
 
 sub setAuthInfo {
-	my ($self, $authInfo) = @_;
-	my $el = $self->addEl('authInfo');
-	my $pw = $self->createElement('domain:pw');
-	$pw->appendText($authInfo);
-	$el->appendChild($pw);
-	return $el;
+    my ($self, $authInfo) = @_;
+    my $el = $self->addEl('authInfo');
+    my $pw = $self->createElement('domain:pw');
+    $pw->appendText($authInfo);
+    $el->appendChild($pw);
+    return $el;
 }
 
 sub appendStatus {
-	my ($self, $status) = @_;
-	return $self->addEl('status', $status);
+    my ($self, $status) = @_;
+    return $self->addEl('status', $status);
 }
 
 sub addEl {
-	my ($self, $name, $value) = @_;
+    my ($self, $name, $value) = @_;
 
-	my $el = $self->createElement('domain:'.$name);
-	$el->appendText($value) if defined($value);
+    my $el = $self->createElement('domain:' . $name);
+    $el->appendText($value) if defined($value);
 
-	$self->getNode('create')->getChildNodes->shift->appendChild($el);
+    $self->getNode('create')->getChildNodes->shift->appendChild($el);
 
-	return $el;
-	
+    return $el;
+
 }
 
 1;

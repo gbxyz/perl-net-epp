@@ -1,7 +1,7 @@
 # Copyright (c) 2016 CentralNic Ltd. All rights reserved. This program is
 # free software; you can redistribute it and/or modify it under the same
 # terms as Perl itself.
-# 
+#
 # $Id: Command.pm,v 1.4 2011/12/03 11:44:51 gavin Exp $
 package Net::EPP::Frame::Command;
 use Net::EPP::Frame::Command::Check;
@@ -38,29 +38,29 @@ never need to access it directly.
 =cut
 
 sub new {
-	my $package = shift;
-	my $self = $package->SUPER::new('command');
-	return bless($self, $package);
+    my $package = shift;
+    my $self    = $package->SUPER::new('command');
+    return bless($self, $package);
 }
 
 sub addObject() {
-	my ($self, $object, $ns, $schema) = @_;
+    my ($self, $object, $ns, $schema) = @_;
 
-	my $obj = $self->createElement($self->getCommandType);
-	$obj->setNamespace($ns, $object);
-	$self->getNode($self->getCommandType)->addChild($obj);
+    my $obj = $self->createElement($self->getCommandType);
+    $obj->setNamespace($ns, $object);
+    $self->getNode($self->getCommandType)->addChild($obj);
 
-	return $obj;
+    return $obj;
 }
 
 sub _addExtraElements {
-	my $self = shift;
+    my $self = shift;
 
-	$self->command->addChild($self->createElement($self->getCommandType)) if ($self->getCommandType ne '');
-	$self->command->addChild($self->createElement('clTRID'));
+    $self->command->addChild($self->createElement($self->getCommandType)) if ($self->getCommandType ne '');
+    $self->command->addChild($self->createElement('clTRID'));
 
-	$self->_addCommandElements;
-	return 1;
+    $self->_addCommandElements;
+    return 1;
 }
 
 sub _addCommandElements {
@@ -103,20 +103,20 @@ C<E<lt>clTRIDE<gt>> element.
 =cut
 
 sub getCommandType {
-	my $self = shift;
-	my $type = ref($self);
-	my $me = __PACKAGE__;
-	$type =~ s/^$me\:+//;
-	$type =~ s/\:{2}.+//;
-	return lc($type);
+    my $self = shift;
+    my $type = ref($self);
+    my $me   = __PACKAGE__;
+    $type =~ s/^$me\:+//;
+    $type =~ s/\:{2}.+//;
+    return lc($type);
 }
 
 sub getCommandNode {
-	my $self = shift;
-	return $self->getNode($self->getCommandType);
+    my $self = shift;
+    return $self->getNode($self->getCommandType);
 }
 
 sub command { $_[0]->getNode('command') }
-sub clTRID { $_[0]->getNode('clTRID') }
+sub clTRID  { $_[0]->getNode('clTRID') }
 
 1;
