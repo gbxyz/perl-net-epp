@@ -220,10 +220,10 @@ sub request {
 
 	my $frame = $epp->get_frame;
 
-This method returns an EPP response frame from the server. This may either be a
-scalar filled with XML, an L<XML::LibXML::Document> object (or an
-L<XML::DOM::Document> object), depending on whether you defined the C<dom>
-parameter to the constructor.
+This method returns an EPP response frame from the server. This will be a
+L<Net::EPP::Frame::Response> object unless the C<frames> argument to the
+constructor was false, in which case it will be a string containing a blob of
+XML.
 
 B<Important Note>: this method will block your program until it receives the
 full frame from the server. That could be a bad thing for your program, so you
@@ -255,25 +255,18 @@ sub get_frame {
 }
 
 sub get_return_value {
-	my ($self, $xml) = @_;
+    my ($self, $xml) = @_;
 
-	if (!defined($self->{'class'})) {
-		return $xml;
+    my $document;
+    eval { $document = $self->parser->parse_string($xml) };
+    if (!defined($document) || $@ ne '') {
+        chomp($@);
+        croak(sprintf("Frame from server wasn't well formed: %s\n\nThe XML looks like this:\n\n%s\n\n", $@, $xml));
 
-	} else {
-		my $document;
-		eval { $document = $self->parser->parse_string($xml) };
-		if (!defined($document) || $@ ne '') {
-			chomp($@);
-			croak(sprintf("Frame from server wasn't well formed: %s\n\nThe XML looks like this:\n\n%s\n\n", $@, $xml));
-			return undef;
+    } else {
+        return bless($document, 'Net::EPP::Frame::Response');
 
-		} else {
-			my $class = $self->{'class'};
-			return bless($document, $class);
-
-		}
-	}
+    }
 }
 
 =pod
