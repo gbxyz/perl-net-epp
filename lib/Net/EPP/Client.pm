@@ -394,6 +394,9 @@ sub parser {
 	return $self->{'parser'};
 }
 
+sub connected  { defined(shift->connection) }
+sub connection { shift->{'connection'} }
+
 1;
 
 =pod
