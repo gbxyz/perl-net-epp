@@ -23,12 +23,7 @@ Provisioning Protocol (EPP)|https://www.rfc-editor.org/info/std69>.
 	use Net::EPP::Client;
 	use strict;
 
-	my $epp = Net::EPP::Client->new(
-		host	=> 'epp.nic.tld',
-		port	=> 700,
-		ssl	=> 1,
-		frames	=> 1,
-	);
+	my $epp = Net::EPP::Client->new('host'  => 'epp.nic.tld');
 
 	my $greeting = $epp->connect;
 
@@ -36,121 +31,87 @@ Provisioning Protocol (EPP)|https://www.rfc-editor.org/info/std69>.
 
 	my $answer = $epp->get_frame;
 
-	$epp->send_frame('<epp><logout /></epp>');
-
-	my $answer = $epp->get_frame;
+	my $answer = $epp->request('<epp><logout /></epp>');
 
 =head1 DESCRIPTION
 
-L<RFC 5743|https://www.rfc-editor.org/rfc/rfc5734.html> defines a TCP based
-transport model for EPP, and this module implements a client for that model.
-You can establish and manage EPP connections and send and receive responses 
-ver this connection.
+L<RFC 5743|https://www.rfc-editor.org/rfc/rfc5734.html> defines a TCP- (and
+TLS-) based transport model for EPP, and this module implements a client for
+that model. You can establish and manage EPP connections and send and receive
+responses over this connection.
 
-C<Net::EPP::Client> also provides some time-saving features, such as being
-able to provide request and response frames as C<Net::EPP::Frame> objects.
-
-=cut
-
-BEGIN {
-	our $XMLDOM   = 0;
-	our $EPPFRAME = 0;
-	eval {
-		require XML::LibXML;
-		$XMLDOM = 1;
-	};
-	eval {
-		require Net::EPP::Frame;
-		$EPPFRAME = 1;
-	};
-}
-
-=pod
+C<Net::EPP::Client> is a low-level EPP client. If you are writing applications,
+you should use L<Net::EPP::Simple> instead.
 
 =head1 CONSTRUCTOR
 
-	my $epp = Net::EPP::Client->new(PARAMS);
+	my $epp = Net::EPP::Client->new(%PARAMS);
 
 The constructor method creates a new EPP client object. It accepts a number of
 parameters:
 
 =over
 
-=item * host
+=item * C<host>
 
-C<host> specifies the computer to connect to. This may be a DNS hostname or
-an IP address.
+MANDATORY. Specifies the computer to connect to. This may be a DNS hostname or
+an IP address. If a hostname is provided, IPv6 will be used if available.
 
-=item * port
+=item * C<port>
 
-C<port> specifies the TCP port to connect to. This is usually 700.
+OPTIONAL. Specifies the TCP port to connect to. This defaults to C<700>.
 
-=item * ssl
+=item * C<ssl>
 
-If the C<ssl> parameter is defined, then L<IO::Socket::SSL> will be used to
-provide an encrypted connection. If not, then a plaintext connection will be
-created.
+OPTIONAL. If the value of this parameter is false, then a plaintext
+connection will be created. Otherwise, L<IO::Socket::SSL> will be used to
+provide an encrypted connection.
 
-=item * dom (deprecated)
+=item * C<frames>
 
-If the C<dom> parameter is defined, then all response frames will be returned
-as L<XML::LibXML::Document> objects.
-
-=item * frames
-
-If the C<frames> parameter is defined, then all response frames will be
-returned as L<Net::EPP::Frame> objects (actually, L<XML::LibXML::Document>
-objects reblessed as L<Net::EPP::Frame> objects).
+OPTIONAL. If the value of this parameter is false, then the C<request()> and
+C<get_frame()> methods (see below) will return strings instead of
+C<Net::EPP::Frame::Response> objects.
 
 =back
 
 =cut
 
 sub new {
-	my ($package, %params) = @_;
+    my ($package, %params) = @_;
 
-	my $self;
-	if (defined($params{'sock'})) {
-		$self = {
-			'sock'		=> $params{'sock'},
-			ssl		=> 0,
-			'dom'		=> (defined($params{'dom'}) ? 1 : 0),
-			'frames'	=> (defined($params{'frames'}) ? 1 : 0),
-		}
-	} else {
-		croak("missing hostname")	if (!defined($params{'host'}));
-		croak("missing port")		if (!defined($params{'port'}));
+    my $self;
 
-		$self = {
-			'host'		=> $params{'host'},
-			'port'		=> $params{'port'},
-			'ssl'		=> (defined($params{'ssl'}) ? 1 : 0),
-			'dom'		=> (defined($params{'dom'}) ? 1 : 0),
-			'frames'	=> (defined($params{'frames'}) ? 1 : 0),
-		};
-	}
+    #
+    # this is an undocumented and unsupported feature that allows clients to
+    # connect to a local Unix socket instead of a TCP service. IIRC the only
+    # use case for this was the old Net::EPP::Proxy module which went away 𝑛
+    # decades ago.
+    #
+    if (defined($params{'sock'})) {
+        $self = {
+            'sock' => $params{'sock'},
+            'ssl'  => 0,
+        };
 
-	if ($self->{'frames'} == 1) {
-		if ($EPPFRAME == 0) {
-			croak("Frames requested but Net::EPP::Frame isn't available");
+    } else {
+        croak("missing hostname") if (!defined($params{'host'}));
 
-		} else {
-			$self->{'class'} = 'Net::EPP::Frame';
+        $self = {
+            'host' => $params{'host'},
+            'port' => $params{'port'} || 700,
 
-		}
+            #
+            # since v0.27, TLS is enabled by default and must be explicitly
+            # disabled.
+            #
+            'ssl' => (exists($params{'ssl'}) && !$params{'ssl'} ? 0 : 1),
+        };
+    }
 
-	} elsif ($self->{'dom'} == 1) {
-		if ($XMLDOM == 0) {
-			croak("DOM requested but XML::LibXML isn't available");
+    $self->{'frames'} = (exists($params{'frames'}) && !$params{'frames'} ? 0 : 1);
 
-		} else {
-			$self->{'class'} = 'XML::LibXML::Document';
-
-		}
-
-	}
-
-	return bless($self, $package);
+    return bless($self, $package);
 }
 
 =pod
