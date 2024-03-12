@@ -173,7 +173,10 @@ By default, the return value for C<connect()> will be the EPP E<lt>greetingE<gt>
 frame returned by the server. Please note that the same caveat about blocking
 applies to this method as to C<get_frame()> (see below).
 
-If you want to get the greeting yourself, set C<$params{no_greeting}>.
+If you want to get the greeting yourself, set C<$params{no_greeting}> to C<1>.
+
+If TLS is enabled, then you can use C<%params> to configure a client certificate
+and/or server certificate validation behaviour.
 
 =cut
 
