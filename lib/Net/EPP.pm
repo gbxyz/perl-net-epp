@@ -22,13 +22,12 @@ Net::EPP - a Perl library for the Extensible Provisioning Protocol (EPP)
 =head1 DESCRIPTION
 
 EPP is the Extensible Provisioning Protocol. EPP (defined in
-L<RFC 5730|https://www.rfc-editor.org/rfc/rfc5730.html>) is an application-
-layer client-server protocol for the provisioning and management of objects
-stored in a shared central repository. Specified in XML, the protocol
-defines generic object management operations and an extensible framework
-that maps protocol operations to objects. As of writing, its only well-
-developed application is the provisioning of domain names, hosts, and
-related contact details.
+L<STD 69|https://www.rfc-editor.org/info/std69>) is an application-layer
+client-server protocol for the provisioning and management of objects stored in
+a shared central repository. Specified in XML, the protocol defines generic
+object management operations and an extensible framework that maps protocol
+operations to objects. As of writing, its only well-developed application is the
+provisioning of domain names, hosts, and related contact details.
 
 This package offers a number of Perl modules which implement various EPP-
 related functions:
@@ -80,7 +79,8 @@ contributors around the world, including (but not limited to):
 
 =head1 COPYRIGHT
 
-This module is (c) 2008 - 2023 CentralNic Ltd. This module is free software; you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This module is (c) 2008 - 2023 CentralNic Ltd and 2024 Gavin Brown. This module
+is free software; you can redistribute it and/or modify it under the same terms
+as Perl itself.
 
 =cut
