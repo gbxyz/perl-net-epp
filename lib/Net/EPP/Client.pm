@@ -282,8 +282,8 @@ the server returned a mal-formed frame, this method will C<croak()>.
 =cut
 
 sub get_frame {
-	my $self = shift;
-	return $self->get_return_value(Net::EPP::Protocol->get_frame($self->{'connection'}));
+    my $self = shift;
+    return $self->get_return_value(Net::EPP::Protocol->get_frame($self->connection));
 }
 
 sub get_return_value {
