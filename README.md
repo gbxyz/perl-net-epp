@@ -1,6 +1,6 @@
 # NAME
 
-Net::EPP - a Perl library for the Extensible Provisioning Protocol (EPP)
+Net::EPP - a Perl library for the Extensible Provisioning Protocol (EPP).
 
 # DESCRIPTION
 

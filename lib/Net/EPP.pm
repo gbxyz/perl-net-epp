@@ -7,7 +7,7 @@ use Net::EPP::ResponseCodes;
 use Net::EPP::Simple;
 use strict;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 1;
 
@@ -17,7 +17,7 @@ __END__
 
 =head1 NAME
 
-Net::EPP - a Perl library for the Extensible Provisioning Protocol (EPP)
+Net::EPP - a Perl library for the Extensible Provisioning Protocol (EPP).
 
 =head1 DESCRIPTION
 
