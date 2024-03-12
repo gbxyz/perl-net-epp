@@ -118,7 +118,7 @@ sub new {
 
 =head1 METHODS
 
-=head2 Connecting to a server:
+=head2 CONNECTING TO A SERVER
 
 	my $greeting = $epp->connect(%PARAMS);
 
@@ -199,7 +199,7 @@ sub _connect_unix {
 
 =pod
 
-=head2 Communicating with the server:
+=head2 COMMUNICATING WITH THE SERVER
 
 	my $answer = $epp->request($question);
 
@@ -216,7 +216,7 @@ sub request {
 
 =pod
 
-=head2 Getting a frame from the server:
+=head2 GETTING A FRAME FROM THE SERVER
 
 	my $frame = $epp->get_frame;
 
@@ -271,7 +271,7 @@ sub parse_response {
 
 =pod
 
-=head2 Sending a frame to the server:
+=head2 SENDING A FRAME TO THE SERVER
 
 	$epp->send_frame($frame);
 
@@ -318,7 +318,7 @@ sub send_frame {
 
 =pod
 
-=head2 Disconnecting from the server:
+=head2 DISCONNECTING FROM THE SERVER
 
 	$epp->disconnect;
 
