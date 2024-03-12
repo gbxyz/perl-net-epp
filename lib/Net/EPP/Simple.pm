@@ -2254,6 +2254,10 @@ parameters being passed to a method, or a network error) then this will
 be set to 2400 (C<COMMAND_FAILED>). See L<Net::EPP::ResponseCodes> for
 more information about thes codes.
 
-=cut
+=head1 COPYRIGHT
 
-1;
+This module is (c) 2008 - 2023 CentralNic Ltd and 2024 Gavin Brown. This module
+is free software; you can redistribute it and/or modify it under the same terms
+as Perl itself.
+
+=cut
