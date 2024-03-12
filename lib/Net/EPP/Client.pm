@@ -251,20 +251,20 @@ the server returned a mal-formed frame, this method will C<croak()>.
 
 sub get_frame {
     my $self = shift;
-    return $self->get_return_value(Net::EPP::Protocol->get_frame($self->connection));
+    return $self->parse_response(Net::EPP::Protocol->get_frame($self->connection));
 }
 
-sub get_return_value {
+sub parse_response {
     my ($self, $xml) = @_;
 
-    my $document;
-    eval { $document = $self->parser->parse_string($xml) };
-    if (!defined($document) || $@ ne '') {
+    my $doc;
+    eval { $doc = $self->parser->parse_string($xml) };
+    if (!defined($doc) || $@ ne '') {
         chomp($@);
         croak(sprintf("Frame from server wasn't well formed: %s\n\nThe XML looks like this:\n\n%s\n\n", $@, $xml));
 
     } else {
-        return bless($document, 'Net::EPP::Frame::Response');
+        return bless($doc, 'Net::EPP::Frame::Response');
 
     }
 }
