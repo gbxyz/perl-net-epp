@@ -13,8 +13,9 @@ use warnings;
 
 =head1 NAME
 
-Net::EPP::Client - a client library for the TCP transport for EPP, the
-Extensible Provisioning Protocol.
+Net::EPP::Client - a client library for the
+L<TLS transport|https://www.rfc-editor.org/rfc/rfc5734.html> of the L<Extensible
+Provisioning Protocol (EPP)|https://www.rfc-editor.org/info/std69>.
 
 =head1 SYNOPSIS
 
@@ -394,3 +395,13 @@ sub parser {
 }
 
 1;
+
+=pod
+
+=head1 COPYRIGHT
+
+This module is (c) 2008 - 2023 CentralNic Ltd and 2024 Gavin Brown. This module
+is free software; you can redistribute it and/or modify it under the same terms
+as Perl itself.
+
+=cut
