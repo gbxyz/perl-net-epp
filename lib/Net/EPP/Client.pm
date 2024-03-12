@@ -1,11 +1,11 @@
 package Net::EPP::Client;
-use bytes;
-use Net::EPP::Protocol;
-use Net::EPP::Parser;
 use Carp;
-use IO::Socket;
+use IO::Socket::IP;
 use IO::Socket::SSL;
-use vars qw($XMLDOM $EPPFRAME);
+use Net::EPP::Parser;
+use Net::EPP::Frame::Response;
+use Net::EPP::Protocol;
+use bytes;
 use strict;
 use warnings;
 
