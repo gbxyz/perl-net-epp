@@ -24,11 +24,11 @@ our @Log     = ();
 
 =pod
 
-=HEAD1 NAME
+=head1 NAME
 
 Net::EPP::Simple - a simple EPP client interface for the most common jobs.
 
-=HEAD1 SYNOPSIS
+=head1 SYNOPSIS
 
     #!/usr/bin/perl
     use Net::EPP::Simple;
@@ -193,7 +193,7 @@ C<key> is the filename of the private key, C<cert> is the filename of
 the certificate. If the private key is encrypted, the C<passphrase>
 parameter will be used to decrypt it.
 
-=HEAD2 CONFIGURATION FILE
+=head2 CONFIGURATION FILE
 
 C<Net::EPP::Simple> supports the use of a simple configuration file. To
 use this feature, you need to install the L<Config::Simple> module.
@@ -202,7 +202,7 @@ When starting up, C<Net::EPP::Simple> will look for
 C<$HOME/.net-epp-simple-rc>. This file is an ini-style configuration
 file.
 
-=HEAD3 DEFAULT OPTIONS
+=head3 DEFAULT OPTIONS
 
 You can specify default options for all EPP servers using the C<[default]>
 section:
@@ -211,7 +211,7 @@ section:
     default=epp.nic.tld
     debug=1
 
-=HEAD3 SERVER SPECIFIC OPTIONS
+=head3 SERVER SPECIFIC OPTIONS
 
 You can specify options for for specific EPP servers by giving each EPP server
 its own section:
@@ -512,7 +512,7 @@ sub _prepare_login_frame {
 
 =pod
 
-=HEAD1 AVAILABILITY CHECKS
+=head1 AVAILABILITY CHECKS
 
 You can do a simple C<E<lt>checkE<gt>> request for an object like so:
 
@@ -603,9 +603,9 @@ sub _check {
 
 =pod
 
-=HEAD1 RETRIEVING OBJECT INFORMATION
+=head1 RETRIEVING OBJECT INFORMATION
 
-=HEAD2 DOMAIN OBJECTS
+=head2 DOMAIN OBJECTS
 
     my $info = $epp->domain_info($domain, $authInfo, $follow);
 
@@ -661,7 +661,7 @@ sub domain_info {
 
 =pod
 
-=HEAD2 HOST OBJECTS
+=head2 HOST OBJECTS
 
     my $info = $epp->host_info($host);
 
@@ -679,7 +679,7 @@ sub host_info {
 
 =pod
 
-=HEAD2 CONTACT OBJECTS
+=head2 CONTACT OBJECTS
 
     my $info = $epp->contact_info($contact, $authInfo, $roid);
 
@@ -800,7 +800,7 @@ sub _get_common_properties_from_infData {
 
 =pod
 
-=HEAD2 DOMAIN INFORMATION
+=head2 DOMAIN INFORMATION
 
 The hash ref returned by C<domain_info()> will usually look something
 like this:
@@ -928,7 +928,7 @@ sub _domain_infData_to_hash {
 
 =pod
 
-=HEAD2 HOST INFORMATION
+=head2 HOST INFORMATION
 
 The hash ref returned by C<host_info()> will usually look something like
 this:
@@ -968,7 +968,7 @@ sub _host_infData_to_hash {
 
 =pod
 
-=HEAD2 CONTACT INFORMATION
+=head2 CONTACT INFORMATION
 
 The hash ref returned by C<contact_info()> will usually look something
 like this:
@@ -1065,7 +1065,7 @@ sub _contact_infData_to_hash {
 
 =pod
 
-=HEAD1 OBJECT TRANSFERS
+=head1 OBJECT TRANSFERS
 
 The EPP C<E<lt>transferE<gt>> command suppots five different operations:
 query, request, cancel, approve, and reject. C<Net::EPP::Simple> makes
@@ -1203,7 +1203,7 @@ sub contact_transfer_reject {
 
 =pod
 
-=HEAD1 CREATING OBJECTS
+=head1 CREATING OBJECTS
 
 The following methods can be used to create a new object at the server:
 
@@ -1229,7 +1229,7 @@ C<Net::EPP::Simple> will ignore object properties that it does not recognise,
 and those properties (such as server-managed status codes) that clients are
 not permitted to set.
 
-=HEAD2 CREATING NEW DOMAINS
+=head2 CREATING NEW DOMAINS
 
 When creating a new domain object, you may also specify a C<period> key, like so:
 
@@ -1270,7 +1270,7 @@ sub _prepare_create_domain_frame {
     return $frame;
 }
 
-=HEAD2 CREATING HOSTS
+=head2 CREATING HOSTS
 
     $epp->create_host({
         name  => 'ns1.example.tld',
@@ -1345,7 +1345,7 @@ sub _get_response_result {
     return 1;
 }
 
-=HEAD1 UPDATING OBJECTS
+=head1 UPDATING OBJECTS
 
 The following methods can be used to update an object at the server:
 
@@ -1367,7 +1367,7 @@ You may wish to check the value of $Net::EPP::Simple::Code to determine whether 
 
 =cut
 
-=HEAD2 UPDATING DOMAINS
+=head2 UPDATING DOMAINS
 
 Use C<update_domain($info)> method to update a domain name.
 
@@ -1418,7 +1418,7 @@ sub update_domain {
     return $self->_update('domain', $domain);
 }
 
-=HEAD2 UPDATING CONTACTS
+=head2 UPDATING CONTACTS
 
 Use C<update_contact(info)> method to update a contact object.
 
@@ -1467,7 +1467,7 @@ sub update_contact {
     return $self->_update('contact', $contact);
 }
 
-=HEAD2 UPDATING HOSTS
+=head2 UPDATING HOSTS
 
 Use C<update_host($info)> method to update a host object.
 
@@ -1722,7 +1722,7 @@ sub _generate_update_host_frame {
 
 =pod
 
-=HEAD1 DELETING OBJECTS
+=head1 DELETING OBJECTS
 
 The following methods can be used to delete an object at the server:
 
@@ -1800,7 +1800,7 @@ sub _delete {
     }
 }
 
-=HEAD1 DOMAIN RENEWAL
+=head1 DOMAIN RENEWAL
 
 You can extend the validity period of the domain object by issuing a
 renew_domain() command.
@@ -1836,7 +1836,7 @@ sub _generate_renew_domain_frame {
 
 =pod
 
-=HEAD1 MISCELLANEOUS METHODS
+=head1 MISCELLANEOUS METHODS
 
 =cut
 
@@ -1918,12 +1918,12 @@ sub _request {
 
 =pod
 
-=HEAD1 OVERRIDDEN METHODS FROM L<Net::EPP::Client>
+=head1 OVERRIDDEN METHODS FROM L<Net::EPP::Client>
 
 C<Net::EPP::Simple> overrides some methods inherited from
 L<Net::EPP::Client>. These are described below:
 
-=HEAD2 C<request()>
+=head2 C<request()>
 
 C<Net::EPP::Simple> overrides this method so it can automatically populate
 the C<E<lt>clTRIDE<gt>> element with a unique string. It then passes the
@@ -2166,7 +2166,7 @@ sub authenticated {
 
 =pod
 
-=HEAD1 PACKAGE VARIABLES
+=head1 PACKAGE VARIABLES
 
 =head2 $Net::EPP::Simple::Error
 
