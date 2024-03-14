@@ -193,55 +193,18 @@ C<key> is the filename of the private key, C<cert> is the filename of
 the certificate. If the private key is encrypted, the C<passphrase>
 parameter will be used to decrypt it.
 
-=head2 CONFIGURATION FILE
-
-C<Net::EPP::Simple> supports the use of a simple configuration file. To
-use this feature, you need to install the L<Config::Simple> module.
-
-When starting up, C<Net::EPP::Simple> will look for
-C<$HOME/.net-epp-simple-rc>. This file is an ini-style configuration
-file.
-
-=head3 DEFAULT OPTIONS
-
-You can specify default options for all EPP servers using the C<[default]>
-section:
-
-    [default]
-    default=epp.nic.tld
-    debug=1
-
-=head3 SERVER SPECIFIC OPTIONS
-
-You can specify options for for specific EPP servers by giving each EPP server
-its own section:
-
-    [epp.nic.tld]
-    user=abc123
-    pass=foo2bar
-    port=777
-    ssl=0
-
-This means that when you write a script that uses C<Net::EPP::Simple>, you can
-do the following:
-
-    # config file has a default server:
-    my $epp = Net::EPP::Simple->new;
-
-    # config file has connection options for this EPP server:
-    my $epp = Net::EPP:Simple->new('host' => 'epp.nic.tld');
-
-Any parameters provided to the constructor will override those in the config
-file.
-
 =cut
 
 sub new {
     my ($package, %params) = @_;
     $params{dom} = 1;
 
-    my $load_config = (defined($params{load_config}) ? $params{load_config} : 1);
-    $package->_load_config(\%params) if ($load_config);
+    my $load_config;
+    if (exists($params{load_config})) {
+        confess('the load_config parameter is deprecated and may be removed in a future version');
+        $load_config = $params{load_config};
+        $package->_load_config(\%params) if ($load_config);
+    }
 
     $params{port} = (defined($params{port}) && int($params{port}) > 0 ? $params{port} : 700);
     $params{ssl}  = ($params{no_ssl}                                  ? undef         : 1);
@@ -284,6 +247,9 @@ sub new {
     }
 }
 
+#
+# this functionality is now DEPRECATED
+#
 sub _load_config {
     my ($package, $params_ref) = @_;
 
