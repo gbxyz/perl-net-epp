@@ -24,11 +24,11 @@ our @Log     = ();
 
 =pod
 
-=head1 Name
+=HEAD1 NAME
 
 Net::EPP::Simple - a simple EPP client interface for the most common jobs.
 
-=head1 Synopsis
+=HEAD1 SYNOPSIS
 
     #!/usr/bin/perl
     use Net::EPP::Simple;
@@ -193,7 +193,7 @@ C<key> is the filename of the private key, C<cert> is the filename of
 the certificate. If the private key is encrypted, the C<passphrase>
 parameter will be used to decrypt it.
 
-=head2 Configuration File
+=HEAD2 CONFIGURATION FILE
 
 C<Net::EPP::Simple> supports the use of a simple configuration file. To
 use this feature, you need to install the L<Config::Simple> module.
@@ -202,34 +202,34 @@ When starting up, C<Net::EPP::Simple> will look for
 C<$HOME/.net-epp-simple-rc>. This file is an ini-style configuration
 file.
 
-=head3 Default Options
+=HEAD3 DEFAULT OPTIONS
 
 You can specify default options for all EPP servers using the C<[default]>
 section:
 
-	[default]
-	default=epp.nic.tld
-	debug=1
+    [default]
+    default=epp.nic.tld
+    debug=1
 
-=head3 Server Specific Options
+=HEAD3 SERVER SPECIFIC OPTIONS
 
 You can specify options for for specific EPP servers by giving each EPP server
 its own section:
 
-	[epp.nic.tld]
-	user=abc123
-	pass=foo2bar
-	port=777
-	ssl=0
+    [epp.nic.tld]
+    user=abc123
+    pass=foo2bar
+    port=777
+    ssl=0
 
 This means that when you write a script that uses C<Net::EPP::Simple>, you can
 do the following:
 
-	# config file has a default server:
-	my $epp = Net::EPP::Simple->new;
+    # config file has a default server:
+    my $epp = Net::EPP::Simple->new;
 
-	# config file has connection options for this EPP server:
-	my $epp = Net::EPP:Simple->new('host' => 'epp.nic.tld');
+    # config file has connection options for this EPP server:
+    my $epp = Net::EPP:Simple->new('host' => 'epp.nic.tld');
 
 Any parameters provided to the constructor will override those in the config
 file.
@@ -512,15 +512,15 @@ sub _prepare_login_frame {
 
 =pod
 
-=head1 Availability Checks
+=HEAD1 AVAILABILITY CHECKS
 
 You can do a simple C<E<lt>checkE<gt>> request for an object like so:
 
-	my $result = $epp->check_domain($domain);
+    my $result = $epp->check_domain($domain);
 
-	my $result = $epp->check_host($host);
+    my $result = $epp->check_host($host);
 
-	my $result = $epp->check_contact($contact);
+    my $result = $epp->check_contact($contact);
 
 Each of these methods has the same profile. They will return one of the
 following:
@@ -603,11 +603,11 @@ sub _check {
 
 =pod
 
-=head1 Retrieving Object Information
+=HEAD1 RETRIEVING OBJECT INFORMATION
 
-=head2 Domain Objects
+=HEAD2 DOMAIN OBJECTS
 
-	my $info = $epp->domain_info($domain, $authInfo, $follow);
+    my $info = $epp->domain_info($domain, $authInfo, $follow);
 
 This method constructs an C<E<lt>infoE<gt>> frame and sends
 it to the server, then parses the response into a simple hash ref. If
@@ -661,9 +661,9 @@ sub domain_info {
 
 =pod
 
-=head2 Host Objects
+=HEAD2 HOST OBJECTS
 
-	my $info = $epp->host_info($host);
+    my $info = $epp->host_info($host);
 
 This method constructs an C<E<lt>infoE<gt>> frame and sends
 it to the server, then parses the response into a simple hash ref. If
@@ -679,9 +679,9 @@ sub host_info {
 
 =pod
 
-=head2 Contact Objects
+=HEAD2 CONTACT OBJECTS
 
-	my $info = $epp->contact_info($contact, $authInfo, $roid);
+    my $info = $epp->contact_info($contact, $authInfo, $roid);
 
 This method constructs an C<E<lt>infoE<gt>> frame and sends
 it to the server, then parses the response into a simple hash ref. If
@@ -800,61 +800,52 @@ sub _get_common_properties_from_infData {
 
 =pod
 
-=head2 Domain Information
+=HEAD2 DOMAIN INFORMATION
 
 The hash ref returned by C<domain_info()> will usually look something
 like this:
 
-	$info = {
-	  'contacts' => {
-	    'admin' => 'contact-id'
-	    'tech' => 'contact-id'
-	    'billing' => 'contact-id'
-	  },
-	  'registrant' => 'contact-id',
-	  'clID' => 'registrar-id',
-	  'roid' => 'tld-12345',
-	  'status' => [
-	    'ok'
-	  ],
-	  'authInfo' => 'abc-12345',
-	  'name' => 'example.tld',
-	  'trDate' => '2011-01-18T11:08:03.0Z',
-	  'ns' => [
-	    'ns0.example.com',
-	    'ns1.example.com',
-	  ],
-	  'crDate' => '2011-02-16T12:06:31.0Z',
-	  'exDate' => '2011-02-16T12:06:31.0Z',
-	  'crID' => 'registrar-id',
-	  'upDate' => '2011-08-29T04:02:12.0Z',
-	  hosts => [
-	    'ns0.example.tld',
-	    'ns1.example.tld',
-	  ],
-	};
+    {
+        'contacts' => {
+            'admin' => 'contact-id' 'tech' => 'contact-id' 'billing' => 'contact-id'
+        },
+        'registrant' => 'contact-id',
+        'clID'       => 'registrar-id',
+        'roid'       => 'tld-12345',
+        'status'     => ['ok'],
+        'authInfo'   => 'abc-12345',
+        'name'       => 'example.tld',
+        'trDate'     => '2011-01-18T11:08:03.0Z',
+        'ns'         => ['ns0.example.com', 'ns1.example.com',],
+        'crDate'     => '2011-02-16T12:06:31.0Z',
+        'exDate'     => '2011-02-16T12:06:31.0Z',
+        'crID'       => 'registrar-id',
+        'upDate'     => '2011-08-29T04:02:12.0Z',
+        hosts        => ['ns0.example.tld', 'ns1.example.tld',],
+    }
 
 Members of the C<contacts> hash ref may be strings or, if there are
 multiple associations of the same type, an anonymous array of strings.
 If the server uses the Host Attribute model instead of the Host Object
 model, then the C<ns> member will look like this:
 
-	$info->{ns} = [
-	  {
-	    name => 'ns0.example.com',
-	    addrs => [
-	      version => 'v4',
-	      addr => '10.0.0.1',
-	    ],
-	  },
-	  {
-	    name => 'ns1.example.com',
-	    addrs => [
-	      version => 'v4',
-	      addr => '10.0.0.2',
-	    ],
-	  },
-	];
+    [
+        {
+            name  => 'ns0.example.com',
+            addrs => [
+                version => 'v4',
+                addr    => '10.0.0.1',
+            ],
+        },
+        {
+            name  => 'ns1.example.com',
+            addrs => [
+                version => 'v4',
+                addr    => '10.0.0.2',
+            ],
+        },
+    ]
+
 
 Note that there may be multiple members in the C<addrs> section and that
 the C<version> attribute is optional.
@@ -937,28 +928,25 @@ sub _domain_infData_to_hash {
 
 =pod
 
-=head2 Host Information
+=HEAD2 HOST INFORMATION
 
 The hash ref returned by C<host_info()> will usually look something like
 this:
 
-	$info = {
-	  'crDate' => '2011-09-17T15:38:56.0Z',
-	  'clID' => 'registrar-id',
-	  'crID' => 'registrar-id',
-	  'roid' => 'tld-12345',
-	  'status' => [
-	    'linked',
-	    'serverDeleteProhibited',
-	  ],
-	  'name' => 'ns0.example.tld',
-	  'addrs' => [
-	    {
-	      'version' => 'v4',
-	      'addr' => '10.0.0.1'
-	    }
-	  ]
-	};
+    {
+        'crDate' => '2011-09-17T15:38:56.0Z',
+        'clID'   => 'registrar-id',
+        'crID'   => 'registrar-id',
+        'roid'   => 'tld-12345',
+        'status' => ['linked', 'serverDeleteProhibited',],
+        'name'   => 'ns0.example.tld',
+        'addrs'  => [
+            {
+                'version' => 'v4',
+                'addr'    => '10.0.0.1'
+            }
+        ]
+    }
 
 Note that hosts may have multiple addresses, and that C<version> is
 optional.
@@ -980,41 +968,34 @@ sub _host_infData_to_hash {
 
 =pod
 
-=head2 Contact Information
+=HEAD2 CONTACT INFORMATION
 
 The hash ref returned by C<contact_info()> will usually look something
 like this:
 
-	$VAR1 = {
-	  'id' => 'contact-id',
-	  'postalInfo' => {
-	    'int' => {
-	      'name' => 'John Doe',
-	      'org' => 'Example Inc.',
-	      'addr' => {
-	        'street' => [
-	          '123 Example Dr.'
-	          'Suite 100'
-	        ],
-	        'city' => 'Dulles',
-	        'sp' => 'VA',
-	        'pc' => '20116-6503'
-	        'cc' => 'US',
-	      }
-	    }
-	  },
-	  'clID' => 'registrar-id',
-	  'roid' => 'CNIC-HA321983',
-	  'status' => [
-	    'linked',
-	    'serverDeleteProhibited'
-	  ],
-	  'voice' => '+1.7035555555x1234',
-	  'fax' => '+1.7035555556',
-	  'email' => 'jdoe@example.com',
-	  'crDate' => '2011-09-23T03:51:29.0Z',
-	  'upDate' => '1999-11-30T00:00:00.0Z'
-	};
+    {
+        'id'         => 'contact-id',
+        'postalInfo' => {
+            'int' => {
+                'name' => 'John Doe',
+                'org'  => 'Example Inc.',
+                'addr' => {
+                    'street' => ['123 Example Dr.', 'Suite 100'],
+                    'city'   => 'Dulles',
+                    'sp'     => 'VA',
+                    'pc'     => '20116-6503',
+                    'cc'     => 'US',
+                }}
+        },
+        'clID'   => 'registrar-id',
+        'roid'   => 'CNIC-HA321983',
+        'status' => ['linked', 'serverDeleteProhibited'],
+        'voice'  => '+1.7035555555x1234',
+        'fax'    => '+1.7035555556',
+        'email'  => 'jdoe@example.com',
+        'crDate' => '2011-09-23T03:51:29.0Z',
+        'upDate' => '1999-11-30T00:00:00.0Z'
+    }
 
 There may be up to two members of the C<postalInfo> hash, corresponding
 to the C<int> and C<loc> internationalised and localised types.
@@ -1084,41 +1065,41 @@ sub _contact_infData_to_hash {
 
 =pod
 
-=head1 Object Transfers
+=HEAD1 OBJECT TRANSFERS
 
 The EPP C<E<lt>transferE<gt>> command suppots five different operations:
 query, request, cancel, approve, and reject. C<Net::EPP::Simple> makes
 these available using the following methods:
 
-	# For domain objects:
+    # For domain objects:
 
-	$epp->domain_transfer_query($domain);
-	$epp->domain_transfer_cancel($domain);
-	$epp->domain_transfer_request($domain, $authInfo, $period);
-	$epp->domain_transfer_approve($domain);
-	$epp->domain_transfer_reject($domain);
+    $epp->domain_transfer_query($domain);
+    $epp->domain_transfer_cancel($domain);
+    $epp->domain_transfer_request($domain, $authInfo, $period);
+    $epp->domain_transfer_approve($domain);
+    $epp->domain_transfer_reject($domain);
 
-	# For contact objects:
+    # For contact objects:
 
-	$epp->contact_transfer_query($contact);
-	$epp->contact_transfer_cancel($contact);
-	$epp->contact_transfer_request($contact, $authInfo);
-	$epp->contact_transfer_approve($contact);
-	$epp->contact_transfer_reject($contact);
+    $epp->contact_transfer_query($contact);
+    $epp->contact_transfer_cancel($contact);
+    $epp->contact_transfer_request($contact, $authInfo);
+    $epp->contact_transfer_approve($contact);
+    $epp->contact_transfer_reject($contact);
 
 Most of these methods will just set the value of C<$Net::EPP::Simple::Code>
 and return either true or false. However, the C<domain_transfer_request()>,
 C<domain_transfer_query()>, C<contact_transfer_request()> and C<contact_transfer_query()>
 methods will return a hash ref that looks like this:
 
-	my $trnData = {
-	  'name' => 'example.tld',
-	  'reID' => 'losing-registrar',
-	  'acDate' => '2011-12-04T12:24:53.0Z',
-	  'acID' => 'gaining-registrar',
-	  'reDate' => '2011-11-29T12:24:53.0Z',
-	  'trStatus' => 'pending'
-	};
+    {
+        'name'     => 'example.tld',
+        'reID'     => 'losing-registrar',
+        'acDate'   => '2011-12-04T12:24:53.0Z',
+        'acID'     => 'gaining-registrar',
+        'reDate'   => '2011-11-29T12:24:53.0Z',
+        'trStatus' => 'pending'
+    }
 
 =cut
 
@@ -1222,55 +1203,48 @@ sub contact_transfer_reject {
 
 =pod
 
-=head1 Creating Objects
+=HEAD1 CREATING OBJECTS
 
 The following methods can be used to create a new object at the server:
 
-	$epp->create_domain($domain);
-	$epp->create_host($host);
-	$epp->create_contact($contact);
+    $epp->create_domain($domain);
+    $epp->create_host($host);
+    $epp->create_contact($contact);
 
 The argument for these methods is a hash ref of the same format as that
 returned by the info methods above. As a result, cloning an existing
 object is as simple as the following:
 
-	my $info = $epp->contact_info($contact);
+    my $info = $epp->contact_info($contact);
 
-	# set a new contact ID to avoid clashing with the existing object
-	$info->{id} = $new_contact;
+    # set a new contact ID to avoid clashing with the existing object
+    $info->{id} = $new_contact;
 
-	# randomize authInfo:
-	$info->{authInfo} = $random_string;
+    # randomize authInfo:
+    $info->{authInfo} = $random_string;
 
-	$epp->create_contact($info);
+    $epp->create_contact($info);
 
 C<Net::EPP::Simple> will ignore object properties that it does not recognise,
 and those properties (such as server-managed status codes) that clients are
 not permitted to set.
 
-=head2 Creating New Domains
+=HEAD2 CREATING NEW DOMAINS
 
 When creating a new domain object, you may also specify a C<period> key, like so:
 
-	my $domain = {
-	  'name' => 'example.tld',
-	  'period' => 2,
-	  'registrant' => 'contact-id',
-	  'contacts' => {
-	    'tech' => 'contact-id',
-	    'admin' => 'contact-id',
-	    'billing' => 'contact-id',
-	  },
-	  'status' => [
-	    'clientTransferProhibited',
-	  ],
-	  'ns' => {
-	    'ns0.example.com',
-	    'ns1.example.com',
-	  },
-	};
-
-	$epp->create_domain($domain);
+    $epp->create_domain({
+        'name'       => 'example.tld',
+        'period'     => 2,
+        'registrant' => 'contact-id',
+        'contacts'   => {
+            'tech'    => 'contact-id',
+            'admin'   => 'contact-id',
+            'billing' => 'contact-id',
+        },
+        'status' => ['clientTransferProhibited',],
+        'ns'     => {'ns0.example.com', 'ns1.example.com',},
+    });
 
 The C<period> key is assumed to be in years rather than months. C<Net::EPP::Simple>
 assumes the registry uses the host object model rather than the host attribute model.
@@ -1296,16 +1270,15 @@ sub _prepare_create_domain_frame {
     return $frame;
 }
 
-=head2 Creating Hosts
+=HEAD2 CREATING HOSTS
 
-    my $host = {
+    $epp->create_host({
         name  => 'ns1.example.tld',
         addrs => [
-            { ip => '123.45.67.89', version => 'v4' },
-            { ip => '98.76.54.32',  version => 'v4' },
+            {ip => '192.0.2.1', version => 'v4'},
+            {ip => '192.0.2.2',  version => 'v4'},
         ],
-    };
-    $epp->create_host($host);
+    });
 
 =cut
 
@@ -1372,13 +1345,13 @@ sub _get_response_result {
     return 1;
 }
 
-=head1 Updating Objects
+=HEAD1 UPDATING OBJECTS
 
 The following methods can be used to update an object at the server:
 
-	$epp->update_domain($domain);
-	$epp->update_host($host);
-	$epp->update_contact($contact);
+    $epp->update_domain($domain);
+    $epp->update_host($host);
+    $epp->update_contact($contact);
 
 Each of these methods has the same profile. They will return one of the following:
 
@@ -1394,47 +1367,49 @@ You may wish to check the value of $Net::EPP::Simple::Code to determine whether 
 
 =cut
 
-=head2 Updating Domains
+=HEAD2 UPDATING DOMAINS
 
-Use update_domain() method to update domains' data.
+Use C<update_domain($info)> method to update a domain name.
 
-The update info parameter may look like:
-$update_info = {
-    name => $domain,
-    chg  => {
-        registrant => $new_registrant_id,
-        authInfo   => $new_domain_password,
-    },
-    add => {
-        # DNS info with "hostObj" or "hostAttr" model, see create_domain()
-        ns       => [ ns1.example.com ns2.example.com ],
-        contacts => {
-            tech    => 'contact-id',
-            billing => 'contact-id',
-            admin   => 'contact-id',
+The C<$info> argument should look like this:
+
+    {
+        name => $domain,
+        chg  => {
+            registrant => $new_registrant_id,
+            authInfo   => $new_domain_password,
         },
+        add => {
 
-        # Status info, simple form:
-        status => [ qw/ clientUpdateProhibited clientHold / ],
+            # DNS info with "hostObj" or "hostAttr" model, see create_domain()
+            ns       => [ns1 . example . com ns2 . example . com],
+            contacts => {
+                tech    => 'contact-id',
+                billing => 'contact-id',
+                admin   => 'contact-id',
+            },
 
-        # Status info may be in more detailed form:
-        # status => {
-        #    clientUpdateProbhibited  => 'Avoid accidental change',
-        #    clientHold               => 'This domain is not delegated',
-        # },
-    },
-    rem => {
-        ns       => [ ... ],
-        contacts => {
-            tech    => 'old_tech_id',
-            billing => 'old_billing_id',
-            admin   => 'old_admin_id',
+            # Status info, simple form:
+            status => [qw/ clientUpdateProhibited clientHold /],
+
+            # Status info may be in more detailed form:
+            # status => {
+            #    clientUpdateProbhibited  => 'Avoid accidental change',
+            #    clientHold               => 'This domain is not delegated',
+            # },
         },
-        status => [ qw/ clientTransferProhibited ... / ],
-    },
-}
+        rem => {
+            ns       => [...],
+            contacts => {
+                tech    => 'old_tech_id',
+                billing => 'old_billing_id',
+                admin   => 'old_admin_id',
+            },
+            status => [qw/ clientTransferProhibited ... /],
+        },
+    }
 
-All fields except 'name' in $update_info hash are optional.
+All fields except C<name> are optional.
 
 =cut
 
@@ -1443,49 +1418,47 @@ sub update_domain {
     return $self->_update('domain', $domain);
 }
 
-=head2 Updating Contacts
+=HEAD2 UPDATING CONTACTS
 
-Use update_contact() method to update contact's data.
+Use C<update_contact(info)> method to update a contact object.
 
-The $update_info for contacts may look like this:
+The C<$info> argument should look like this:
 
-$update_info = {
-    id  => $contact_id,
-    add => {
-        status => [ qw/ clientDeleteProhibited / ],
-        # OR
-        # status => {
-        #    clientDeleteProhibited  => 'Avoid accidental removal',
-        # },
-    },
-    rem => {
-        status => [ qw/ clientUpdateProhibited / ],
-    },
-    chg => {
-        postalInfo => {
-            int => {
-                  name => 'John Doe',
-                  org => 'Example Inc.',
-                  addr => {
-                    street => [
-                      '123 Example Dr.'
-                      'Suite 100'
-                    ],
-                    city => 'Dulles',
-                    sp => 'VA',
-                    pc => '20116-6503'
-                    cc => 'US',
-              },
-            },
+    {
+        id  => $contact_id,
+        add => {
+            status => [qw/ clientDeleteProhibited /],
+
+            # OR
+            # status => {
+            #    clientDeleteProhibited  => 'Avoid accidental removal',
+            # },
         },
-        voice => '+1.7035555555x1234',
-        fax   => '+1.7035555556',
-        email => 'jdoe@example.com',
-        authInfo => 'new-contact-password',
-    },
-}
+        rem => {
+            status => [qw/ clientUpdateProhibited /],
+        },
+        chg => {
+            postalInfo => {
+                int => {
+                    name => 'John Doe',
+                    org  => 'Example Inc.',
+                    addr => {
+                        street => ['123 Example Dr.', 'Suite 100'],
+                        city   => 'Dulles',
+                        sp     => 'VA',
+                        pc     => '20116-6503',
+                        cc     => 'US',
+                    },
+                },
+            },
+            voice    => '+1.7035555555x1234',
+            fax      => '+1.7035555556',
+            email    => 'jdoe@example.com',
+            authInfo => 'new-contact-password',
+        },
+    }
 
-All fields except 'id' in $update_info hash are optional.
+All fields except C<id> are optional.
 
 =cut
 
@@ -1494,39 +1467,34 @@ sub update_contact {
     return $self->_update('contact', $contact);
 }
 
-=head2 Updating Hosts
+=HEAD2 UPDATING HOSTS
 
-Use update_host() method to update EPP hosts.
+Use C<update_host($info)> method to update a host object.
 
-The $update_info for hosts may look like this:
+The C<$info> argument should look like this:
 
-$update_info = {
-    name => 'ns1.example.com',
-    add  => {
-        status => [ qw/ clientDeleteProhibited / ],
-        # OR
-        # status => {
-        #    clientDeleteProhibited  => 'Avoid accidental removal',
-        # },
+    {
+        name => 'ns1.example.com',
+        add  => {
+            status => [qw/ clientDeleteProhibited /],
 
-        addrs  => [
-            { ip => '123.45.67.89', version => 'v4' },
-            { ip => '98.76.54.32',  version => 'v4' },
-        ],
-    },
-    rem => {
-        status => [ qw/ clientUpdateProhibited / ],
-        addrs  => [
-            { ip => '1.2.3.4', version => 'v4' },
-            { ip => '5.6.7.8', version => 'v4' },
-        ],
-    },
-    chg => {
-        name => 'ns2.example.com',
-    },
-}
+            # OR
+            # status => {
+            #    clientDeleteProhibited  => 'Avoid accidental removal',
+            # },
 
-All fields except first 'name' in $update_info hash are optional.
+            addrs => [{ip => '123.45.67.89', version => 'v4'}, {ip => '98.76.54.32', version => 'v4'},],
+        },
+        rem => {
+            status => [qw/ clientUpdateProhibited /],
+            addrs  => [{ip => '1.2.3.4', version => 'v4'}, {ip => '5.6.7.8', version => 'v4'},],
+        },
+        chg => {
+            name => 'ns2.example.com',
+        },
+    }
+
+All fields except C<name> are optional.
 
 =cut
 
@@ -1754,13 +1722,13 @@ sub _generate_update_host_frame {
 
 =pod
 
-=head1 Deleting Objects
+=HEAD1 DELETING OBJECTS
 
 The following methods can be used to delete an object at the server:
 
-	$epp->delete_domain($domain);
-	$epp->delete_host($host);
-	$epp->delete_contact($contact);
+    $epp->delete_domain($domain);
+    $epp->delete_host($host);
+    $epp->delete_contact($contact);
 
 Each of these methods has the same profile. They will return one of the following:
 
@@ -1832,7 +1800,7 @@ sub _delete {
     }
 }
 
-=head1 Domain Renewal
+=HEAD1 DOMAIN RENEWAL
 
 You can extend the validity period of the domain object by issuing a
 renew_domain() command.
@@ -1868,7 +1836,7 @@ sub _generate_renew_domain_frame {
 
 =pod
 
-=head1 Miscellaneous Methods
+=HEAD1 MISCELLANEOUS METHODS
 
 =cut
 
@@ -1880,7 +1848,7 @@ sub message { $Message }
 
 =pod
 
-	my $greeting = $epp->greeting;
+    my $greeting = $epp->greeting;
 
 Returns the a L<Net::EPP::Frame::Greeting> object representing the greeting returned by the server.
 
@@ -1890,7 +1858,7 @@ sub greeting { $_[0]->{greeting} }
 
 =pod
 
-	$epp->ping;
+    $epp->ping;
 
 Checks that the connection is up by sending a C<E<lt>helloE<gt>> to the server. Returns false if no
 response is received.
@@ -1950,12 +1918,12 @@ sub _request {
 
 =pod
 
-=head1 Overridden Methods From L<Net::EPP::Client>
+=HEAD1 OVERRIDDEN METHODS FROM L<Net::EPP::Client>
 
 C<Net::EPP::Simple> overrides some methods inherited from
 L<Net::EPP::Client>. These are described below:
 
-=head2 The C<request()> Method
+=HEAD2 C<request()>
 
 C<Net::EPP::Simple> overrides this method so it can automatically populate
 the C<E<lt>clTRIDE<gt>> element with a unique string. It then passes the
@@ -2013,7 +1981,7 @@ sub request {
 
 =pod
 
-=head2 The C<get_frame()> Method
+=head2 C<get_frame()>
 
 C<Net::EPP::Simple> overrides this method so it can catch timeouts and
 network errors. If such an error occurs it will return C<undef>.
@@ -2171,7 +2139,7 @@ sub debug {
 
 =pod
 
-	$connected = $epp->connected;
+    $connected = $epp->connected;
 
 Returns a boolean if C<Net::EPP::Simple> has a connection to the server. Note that this
 connection might have dropped, use C<ping()> to test it.
@@ -2185,7 +2153,7 @@ sub connected {
 
 =pod
 
-	$authenticated = $epp->authenticated;
+    $authenticated = $epp->authenticated;
 
 Returns a boolean if C<Net::EPP::Simple> has successfully authenticated with the server.
 
@@ -2198,7 +2166,7 @@ sub authenticated {
 
 =pod
 
-=head1 Package Variables
+=HEAD1 PACKAGE VARIABLES
 
 =head2 $Net::EPP::Simple::Error
 
