@@ -376,7 +376,7 @@ sub _login {
     }
 }
 
-sub _get_option_uri_list {
+sub _get_uris_from_greeting {
     my $self  = shift;
     my $tag   = shift;
     my $list  = [];
@@ -463,14 +463,13 @@ sub _prepare_login_frame {
 
     my $objects = $self->{objects};
     $objects = [map { (Net::EPP::Frame::ObjectSpec->spec($_))[1] } qw(contact domain host)] if $self->{stdobj};
-    $objects = _get_option_uri_list($self, 'objURI')                                        if not $objects;
+    $objects = $self->_get_uris_from_greeting('objURI')                                     if not $objects;
     $login->svcs->appendTextChild('objURI', $_) for @$objects;
 
     if (scalar(@extensions) > 0) {
         my $svcext = $login->createElement('svcExtension');
         $login->svcs->appendChild($svcext);
         $svcext->appendTextChild('extURI', $_) for @extensions;
-
     }
 
     return $login;
