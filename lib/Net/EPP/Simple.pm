@@ -30,59 +30,59 @@ Net::EPP::Simple - a simple EPP client interface for the most common jobs.
 
 =head1 Synopsis
 
-	#!/usr/bin/perl
-	use Net::EPP::Simple;
-	use strict;
+    #!/usr/bin/perl
+    use Net::EPP::Simple;
+    use strict;
 
-	my $epp = Net::EPP::Simple->new(
-		host	=> 'epp.nic.tld',
-		user	=> 'my-id',
-		pass	=> 'my-password',
-	);
+    my $epp = Net::EPP::Simple->new(
+        host => 'epp.nic.tld',
+        user => 'my-id',
+        pass => 'my-password',
+    );
 
-	my $domain = 'example.tld';
+    my $domain = 'example.tld';
 
-	if ($epp->check_domain($domain) == 1) {
-		print "Domain is available\n" ;
+    if ($epp->check_domain($domain) == 1) {
+        print "Domain is available\n" ;
 
-	} else {
-		my $info = $epp->domain_info($domain);
-		printf("Domain was registered on %s by %s\n", $info->{crDate}, $info->{crID});
+    } else {
+        my $info = $epp->domain_info($domain);
+        printf("Domain was registered on %s by %s\n", $info->{crDate}, $info->{crID});
 
-	}
+    }
 
-=head1 Description
+=head1 DESCRIPTION
 
 This module provides a high level interface to EPP. It hides all the boilerplate
-of connecting, logging in, building request frames and parsing response frames behind
-a simple, Perlish interface.
+of connecting, logging in, building request frames and parsing response frames
+behind a simple, Perlish interface.
 
-It is based on the L<Net::EPP::Client> module and uses L<Net::EPP::Frame>
-to build request frames.
+It is based on the L<Net::EPP::Client> module and uses L<Net::EPP::Frame> to
+build request frames.
 
-=head1 Constructor
+=head1 CONSTRUCTOR
 
-The constructor for C<Net::EPP::Simple> has the same general form as the
-one for L<Net::EPP::Client>, but with the following exceptions:
+    my $epp = Net::EPP::Simple->new(%PARAMS);
+
+The constructor accepts the following arguments:
 
 =over
 
-=item * Unless otherwise set, C<port> defaults to 700
+=item * C<host> identifies the EPP server to connect to.
 
-=item * Unless the C<no_ssl> parameter is set, SSL is always on
+=item * C<port> specifies the port, which defaults to C<700>.
 
-=item * You can use the C<user> and C<pass> parameters to supply authentication
-information.
+=item * C<user> and C<pass> parameters specify authentication information.
 
-=item * You can use the C<newPW> parameter to specify a new password.
+=item * C<newPW> specifies a new password that is set during login.
 
 =item * The C<login_security> parameter can be used to force the use of the
-Login Security Extension (see RFC8807). C<Net::EPP::Simple> will automatically
-use this extension if the server supports it, but clients may wish to force
-this behaviour to prevent downgrade attacks.
+Login Security Extension (see L<RFC 8807|https://www.rfc-editor.org/rfc/rfc8807.html>).
+C<Net::EPP::Simple> will automatically use this extension if the server supports
+it, but clients may wish to force this behaviour to prevent downgrade attacks.
 
 =item * The C<appname> parameter can be used to specify the value of the
-C<E<lt>app<gt>> element in the Login Security extension (if used). Unless
+C<E<lt>appE<gt>> element in the Login Security extension (if used). Unless
 specified, the name and current version of C<Net::EPP::Simple> will be used.
 
 =item * The C<timeout> parameter controls how long the client waits for a
@@ -98,60 +98,60 @@ will send a C<E<lt>helloE<gt>> to check that the connection is up, if not, it
 will try to reconnect, aborting after the I<n>th time, where I<n> is the value
 of C<reconnect> (the default is 3).
 
-=item * C<login> can be used to disable automatic logins. If you set it
-to C<0>, you can manually log in using the C<$epp-E<gt>_login()> method.
+=item * C<login> can be used to disable automatic logins. If you set it to C<0>,
+you can manually log in using the C<$epp-E<gt>_login()> method.
 
-=item * C<objects> is a reference to an array of the EPP object schema
+=item * C<objects> is a reference to an array of the EPP object namespace URIs
+that the client requires.
+
+=item * C<stdobj> is a flag saying the client only requires the standard EPP
+C<contact-1.0>, C<domain-1.0>, and C<host-1.0> namespaces.
+
+=item * If neither C<objects> nor C<stdobj> is specified then the client will
+echo the server's object namespace list.
+
+=item * C<extensions> is a reference to an array of the EPP extension namespace
 URIs that the client requires.
 
-=item * C<stdobj> is a flag saying the client only requires the
-standard EPP C<contact-1.0>, C<domain-1.0>, and C<host-1.0> schemas.
+=item * C<stdext> is a flag saying the client only requires the standard EPP
+C<secDNS-1.1> DNSSEC extension namespace.
 
-=item * If neither C<objects> nor C<stdobj> is specified then the
-client will echo the server's object schema list.
+=item * If neither C<extensions> nor C<stdext> is specified then the client will
+echo the server's extension namespace list.
 
-=item * C<extensions> is a reference to an array of the EPP extension
-schema URIs that the client requires.
-
-=item * C<stdext> is a flag saying the client only requires the
-standard EPP C<secDNS-1.1> DNSSEC extension schema.
-
-=item * If neither C<extensions> nor C<stdext> is specified then the
-client will echo the server's extension schema list.
-
-=item * The C<lang> parameter can be used to specify the language. The
-default is "C<en>".
+=item * The C<lang> parameter can be used to specify the language. The default
+is "C<en>".
 
 =back
 
 The constructor will establish a connection to the server and retrieve the
-greeting (which is available via C<$epp-E<gt>{greeting}>) and then send a
+greeting (which is available via C<$epp-E<gt>greeting>) and then send a
 C<E<lt>loginE<gt>> request.
 
 If the login fails, the constructor will return C<undef> and set
 C<$Net::EPP::Simple::Error> and C<$Net::EPP::Simple::Code>.
 
-=head2 Client and Server SSL options
+=head2 CLIENT AND SERVER SSL OPTIONS
 
 RFC 5730 requires that all EPP instances must be protected using "mutual,
 strong client-server authentication". In practice, this means that both
 client and server must present an SSL certificate, and that they must
 both verify the certificate of their peer.
 
-=head3 Server Certificate Verification
+=head3 SERVER CERTIFICATE VERIFICATION
 
 C<Net::EPP::Simple> will verify the certificate presented by a server if
 the C<verify>, and either C<ca_file> or C<ca_path> are passed to the
 constructor:
 
-	my $epp = Net::EPP::Simple->new(
-		host	=> 'epp.nic.tld',
-		user	=> 'my-id',
-		pass	=> 'my-password',
-		verify	=> 1,
-		ca_file	=> '/etc/pki/tls/certs/ca-bundle.crt',
-		ca_path	=> '/etc/pki/tls/certs',
-	);
+    my $epp = Net::EPP::Simple->new(
+        host    => 'epp.nic.tld',
+        user    => 'my-id',
+        pass    => 'my-password',
+        verify  => 1,
+        ca_file => '/etc/pki/tls/certs/ca-bundle.crt',
+        ca_path => '/etc/pki/tls/certs',
+    );
 
 C<Net::EPP::Simple> will fail to connect to the server if the
 certificate is not valid.
@@ -160,7 +160,10 @@ You can disable SSL certificate verification by omitting the C<verify>
 argument or setting it to C<undef>. This is strongly discouraged,
 particularly in production environments.
 
-=head3 SSL Cipher Selection
+You may wish to use L<Mozilla::CA> to provide a value for the C<ca_file>
+parameter.
+
+=head3 SSL CIPHER SELECTION
 
 You can restrict the ciphers that you will use to connect to the server
 by passing a C<ciphers> parameter to the constructor. This is a colon-
@@ -169,9 +172,9 @@ for further details. As an example, the following cipher list is
 suggested for clients who wish to ensure high-security connections to
 servers:
 
-	HIGH:!ADH:!MEDIUM:!LOW:!SSLv2:!EXP
+ HIGH:!ADH:!MEDIUM:!LOW:!SSLv2:!EXP
 
-=head3 Client Certificates
+=head3 CLIENT CERTIFICATES
 
 If you are connecting to an EPP server which requires a client
 certificate, you can configure C<Net::EPP::Simple> to use one as
