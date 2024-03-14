@@ -2129,6 +2129,8 @@ sub authenticated {
     return defined($self->{'authenticated'});
 }
 
+1;
+
 =pod
 
 =head1 PACKAGE VARIABLES
