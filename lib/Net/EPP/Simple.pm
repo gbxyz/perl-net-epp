@@ -434,7 +434,7 @@ sub _prepare_login_frame {
         @extensions = @{$self->{'extensions'}};
 
     } else {
-        @extensions = @{$self->_get_option_uri_list('extURI')};
+        @extensions = @{$self->_get_uris_from_greeting('extURI')};
 
     }
 
