@@ -2,24 +2,25 @@ package Net::EPP::Simple;
 use Carp;
 use Config;
 use Digest::SHA qw(sha1_hex);
-use List::Util qw(any);
+use List::Util  qw(any);
 use Net::EPP;
 use Net::EPP::Frame;
 use Net::EPP::ResponseCodes;
 use Time::HiRes qw(time);
-use base qw(Net::EPP::Client);
+use base        qw(Net::EPP::Client);
 use constant {
-    EPP_XMLNS	=> 'urn:ietf:params:xml:ns:epp-1.0',
+    EPP_XMLNS      => 'urn:ietf:params:xml:ns:epp-1.0',
     LOGINSEC_XMLNS => 'urn:ietf:params:xml:ns:epp:loginSec-1.0',
+    TTL_XMLNS      => 'urn:ietf:params:xml:ns:epp:ttl-1.0',
 };
 use vars qw($Error $Code $Message @Log);
 use strict;
 use warnings;
 
-our $Error	= '';
-our $Code	= OK;
-our $Message	= '';
-our @Log	= ();
+our $Error   = '';
+our $Code    = OK;
+our $Message = '';
+our @Log     = ();
 
 =pod
 
