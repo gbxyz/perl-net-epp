@@ -9,11 +9,12 @@ WriteMakefile(
     'AUTHOR'        => ['Gavin Brown <gavin.brown@fastmail.uk>'],
     'LICENSE'       => 'perl',
     'PREREQ_PM'     => {
-        'Digest::SHA'     => 0,
-        'IO::Socket::SSL' => 0,
-        'List::Util'      => 0,
-        'Time::HiRes'     => 0,
-        'XML::LibXML'     => 0,
+        'Digest::SHA'       => 0,
+        'IO::Socket::SSL'   => 0,
+        'IO::Socket::IP'    => 0,
+        'List::Util'        => 0,
+        'Time::HiRes'       => 0,
+        'XML::LibXML'       => 0,
     },
     'META_MERGE' => {
         'meta-spec' => {'version' => 2},
