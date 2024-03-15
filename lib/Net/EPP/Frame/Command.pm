@@ -119,4 +119,24 @@ sub getCommandNode {
 sub command { $_[0]->getNode('command') }
 sub clTRID  { $_[0]->getNode('clTRID') }
 
+=pod
+
+    my $extension = $frame->extension;
+
+This method returns the L<XML::LibXML::Element> object corresponding to the
+C<E<lt>extensionE<gt>> element. If one does not exist, it will be created and
+inserted at the correct position.
+
+=cut
+
+sub extension {
+    my $self = shift;
+
+    my $extension = $self->getNode('extension');
+
+    $extension = $self->getCommandNode->parentNode->insertAfter($self->createElement('extension'), $self->getCommandNode) if (!$extension);
+
+    return $extension;
+}
+
 1;
