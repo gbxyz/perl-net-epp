@@ -2104,6 +2104,36 @@ sub debug {
 
 =pod
 
+    $bool = $epp->server_has_object($xmlns);
+    $bool = $epp->server_has_extension($xmlns);
+
+These methods both return a true value if the object/extension identified by
+C<$xmlns> was present in the server's greeting.
+
+=cut
+
+sub server_has_object {
+    my ($self, $xmlns) = @_;
+
+    foreach my $objURI ($self->greeting->getElementsByTagName('objURI')) {
+        return 1 if ($objURI->textContent eq $xmlns);
+    }
+
+    return undef;
+}
+
+sub server_has_extension {
+    my ($self, $xmlns) = @_;
+
+    foreach my $extURI ($self->greeting->getElementsByTagName('extURI')) {
+        return 1 if ($extURI->textContent eq $xmlns);
+    }
+
+    return undef;
+}
+
+=pod
+
     $connected = $epp->connected;
 
 Returns a boolean if C<Net::EPP::Simple> has a connection to the server. Note that this
