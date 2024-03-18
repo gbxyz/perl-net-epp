@@ -139,4 +139,35 @@ sub extension {
     return $extension;
 }
 
+=pod
+
+    my $element = $frame->createExtensionElementFor($xmlns);
+
+This methods creates a new element in the C<E<lt>extensionE<gt>> element for the
+EPP extension specified by C<$xmlns> which can be obtained from
+L<Net::EPP::Frame::ObjectSpec>. The element's tag name will correspond to the
+command name (C<create>, C<update> etc).
+
+    Example usage:
+
+    my $frame = Net::EPP::Frame::Command::Info::Domain->new;
+
+    my $element = $frame->createExtensionElementFor(
+        Net::EPP::Frame::ObjectSpec->xmlns('foobar')
+    );
+
+    // prints <info xmlns="namespace:for:foobar"/>
+    print $element->toString();
+
+=cut
+
+sub createExtensionElementFor {
+    my ($self, $xmlns) = @_;
+
+    return $self->extension->appendChild($self->createElementNS(
+        $xmlns,
+        $self->getCommandType
+    ));
+}
+
 1;
