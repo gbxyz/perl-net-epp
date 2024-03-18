@@ -1,4 +1,5 @@
 package Net::EPP::Frame::Command::Update::Host;
+use List::Util qw(any);
 use base qw(Net::EPP::Frame::Command::Update);
 use Net::EPP::Frame::ObjectSpec;
 use strict;
@@ -199,6 +200,36 @@ sub chgName {
     my $el = $self->createElement('host:name');
     $el->appendText($name);
     $self->chg->appendChild($el);
+}
+
+=pod
+
+=head2 TTL Extension
+
+    $frame->chgTTLs({
+        A => 3600,
+        AAAA => 900,
+    });
+
+Specify TTLs for glue records. The server must support the TTL extension.
+
+=cut
+
+sub chgTTLs {
+    my ($self, $ttls) = @_;
+
+    foreach my $type (keys(%{$ttls})) {
+        my $ttl = $self->createExtensionElementFor(Net::EPP::Frame::ObjectSpec->xmlns('ttl'))->appendChild($self->createElement('ttl'));
+        $ttl->appendText($ttls->{$type});
+        if (any { $type eq $_} qw(NS DS DNAME A AAAA)) {
+            $ttl->setAttribute('for', $type);
+
+        } else {
+            $ttl->setAttribute('for', 'custom');
+            $ttl->setAttribute('custom', $type);
+
+        }
+    }
 }
 
 1;

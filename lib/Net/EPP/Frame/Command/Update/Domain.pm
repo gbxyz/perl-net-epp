@@ -1,4 +1,5 @@
 package Net::EPP::Frame::Command::Update::Domain;
+use List::Util qw(any);
 use base qw(Net::EPP::Frame::Command::Update);
 use Net::EPP::Frame::ObjectSpec;
 use strict;
@@ -354,6 +355,37 @@ sub _get_dnsssec {
     $upd->addNewChild($DNSSEC_URN, 'secDNS:rem');
 
     return $self->_get_dnssec($tag);
+}
+
+=pod
+
+=head2 TTL Extension
+
+    $frame->chgTTLs({
+        NS => 3600,
+        DS => 900,
+    });
+
+Specify TTLs for DNS records above the zone cut. The server must support the
+TTL extension.
+
+=cut
+
+sub chgTTLs {
+    my ($self, $ttls) = @_;
+
+    foreach my $type (keys(%{$ttls})) {
+        my $ttl = $self->createExtensionElementFor(Net::EPP::Frame::ObjectSpec->xmlns('ttl'))->appendChild($self->createElement('ttl'));
+        $ttl->appendText($ttls->{$type});
+        if (any { $type eq $_} qw(NS DS DNAME A AAAA)) {
+            $ttl->setAttribute('for', $type);
+
+        } else {
+            $ttl->setAttribute('for', 'custom');
+            $ttl->setAttribute('custom', $type);
+
+        }
+    }
 }
 
 1;
