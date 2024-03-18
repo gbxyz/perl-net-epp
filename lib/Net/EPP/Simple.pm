@@ -1344,8 +1344,7 @@ The C<$info> argument should look like this:
         },
         add => {
 
-            # DNS info with "hostObj" or "hostAttr" model, see create_domain()
-            ns       => [ns1 . example . com ns2 . example . com],
+            ns       => [qw/ns1.example.com ns2.example.com/],
             contacts => {
                 tech    => 'contact-id',
                 billing => 'contact-id',
@@ -1817,7 +1816,10 @@ Returns the a L<Net::EPP::Frame::Greeting> object representing the greeting retu
 
 =cut
 
-sub greeting { $_[0]->{greeting} }
+sub greeting {
+    my $self = shift;
+    return $self->{'greeting'};
+}
 
 =pod
 
@@ -2113,6 +2115,11 @@ C<$xmlns> was present in the server's greeting.
 sub server_has_object {
     my ($self, $xmlns) = @_;
 
+    if (!$self->greeting) {
+        carp('not connected');
+        return undef;
+    }
+
     foreach my $objURI ($self->greeting->getElementsByTagName('objURI')) {
         return 1 if ($objURI->textContent eq $xmlns);
     }
@@ -2122,6 +2129,11 @@ sub server_has_object {
 
 sub server_has_extension {
     my ($self, $xmlns) = @_;
+
+    if (!$self->greeting) {
+        carp('not connected');
+        return undef;
+    }
 
     foreach my $extURI ($self->greeting->getElementsByTagName('extURI')) {
         return 1 if ($extURI->textContent eq $xmlns);
