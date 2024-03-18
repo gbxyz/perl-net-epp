@@ -8,11 +8,7 @@ use Net::EPP::Frame;
 use Net::EPP::ResponseCodes;
 use Time::HiRes qw(time);
 use base        qw(Net::EPP::Client);
-use constant {
-    EPP_XMLNS      => 'urn:ietf:params:xml:ns:epp-1.0',
-    LOGINSEC_XMLNS => 'urn:ietf:params:xml:ns:epp:loginSec-1.0',
-    TTL_XMLNS      => 'urn:ietf:params:xml:ns:epp:ttl-1.0',
-};
+use constant EPP_XMLNS => 'urn:ietf:params:xml:ns:epp-1.0';
 use vars qw($Error $Code $Message @Log);
 use strict;
 use warnings;
@@ -395,7 +391,7 @@ sub _prepare_login_frame {
 
     my @extensions;
     if ($self->{'stdext'}) {
-        push(@extensions, (Net::EPP::Frame::ObjectSpec->spec('secDNS'))[1]);
+        push(@extensions, Net::EPP::Frame::ObjectSpec->xmlns('secDNS'));
 
     } elsif ($self->{'extensions'}) {
         @extensions = @{$self->{'extensions'}};
@@ -407,12 +403,14 @@ sub _prepare_login_frame {
 
     $login->clID->appendText($self->{'user'});
 
-    if ($self->{'login_security'} || any { LOGINSEC_XMLNS eq $_ } @extensions) {
-        push(@extensions, LOGINSEC_XMLNS) unless (any { LOGINSEC_XMLNS eq $_ } @extensions);
+    my $loginSecXMLNS = Net::EPP::Frame::ObjectSpec->xmlns('loginSec');
+
+    if ($self->{'login_security'} || $self->server_has_extension($loginSecXMLNS)) {
+        push(@extensions, $loginSecXMLNS) unless (any { $loginSecXMLNS eq $_ } @extensions);
 
         $login->pw->appendText('[LOGIN-SECURITY]');
 
-        my $loginSec = $login->createElementNS(LOGINSEC_XMLNS, 'loginSec');
+        my $loginSec = $login->createElementNS($loginSecXMLNS, 'loginSec');
 
         my $userAgent = $login->createElement('userAgent');
         $loginSec->appendChild($userAgent);
@@ -443,10 +441,7 @@ sub _prepare_login_frame {
             $loginSec->appendChild($newPW);
         }
 
-        my $extension = $login->createElement('extension');
-        $extension->appendChild($loginSec);
-
-        $login->getCommandNode()->parentNode()->insertAfter($extension, $login->getCommandNode());
+        $login->extension->appendChild($loginSec);
 
     } else {
         $login->pw->appendText($self->{pass});
@@ -462,8 +457,8 @@ sub _prepare_login_frame {
     $login->lang->appendText($self->{lang});
 
     my $objects = $self->{objects};
-    $objects = [map { (Net::EPP::Frame::ObjectSpec->spec($_))[1] } qw(contact domain host)] if $self->{stdobj};
-    $objects = $self->_get_uris_from_greeting('objURI')                                     if not $objects;
+    $objects = [map { Net::EPP::Frame::ObjectSpec->xmlns($_) } qw(contact domain host)] if $self->{stdobj};
+    $objects = $self->_get_uris_from_greeting('objURI')                                 if not $objects;
     $login->svcs->appendTextChild('objURI', $_) for @$objects;
 
     if (scalar(@extensions) > 0) {
@@ -551,7 +546,7 @@ sub _check {
             return undef;
 
         } else {
-            my $xmlns = (Net::EPP::Frame::ObjectSpec->spec($type))[1];
+            my $xmlns = Net::EPP::Frame::ObjectSpec->xmlns($type);
             my $key;
             if ($type eq 'domain' || $type eq 'host') {
                 $key = 'name';
@@ -692,12 +687,12 @@ sub _info {
 
     if (defined($authInfo) && $authInfo ne '') {
         $self->debug('adding authInfo element to request frame');
-        my $el = $frame->createElement((Net::EPP::Frame::ObjectSpec->spec($type))[0] . ':authInfo');
-        my $pw = $frame->createElement((Net::EPP::Frame::ObjectSpec->spec($type))[0] . ':pw');
+        my $el = $frame->createElementNS(Net::EPP::Frame::ObjectSpec->xmlns($type), 'authInfo');
+        my $pw = $frame->createElementNS(Net::EPP::Frame::ObjectSpec->xmlns($type), 'pw');
         $pw->appendChild($frame->createTextNode($authInfo));
         $pw->setAttribute('roid', $opt) if ($type eq 'contact' && $opt);
         $el->appendChild($pw);
-        $frame->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'info')->appendChild($el);
+        $frame->getNode(Net::EPP::Frame::ObjectSpec->xmlns($type), 'info')->appendChild($el);
     }
 
     my $response = $self->_request($frame);
@@ -723,12 +718,12 @@ sub _info {
 sub parse_object_info {
     my ($self, $type, $response) = @_;
 
-    my $infData = $response->getNode((Net::EPP::Frame::ObjectSpec->spec($type))[1], 'infData');
+    my $infData = $response->getNode(Net::EPP::Frame::ObjectSpec->xmlns($type), 'infData');
 
     if ($type eq 'domain') {
 
         # secDNS extension only applies to domain objects
-        my $secinfo = $response->getNode((Net::EPP::Frame::ObjectSpec->spec('secDNS'))[1], 'infData');
+        my $secinfo = $response->getNode(Net::EPP::Frame::ObjectSpec->xmlns('secDNS'), 'infData');
         return $self->_domain_infData_to_hash($infData, $secinfo);
 
     } elsif ($type eq 'contact') {
@@ -1196,7 +1191,8 @@ not permitted to set.
 
 =head2 CREATING NEW DOMAINS
 
-When creating a new domain object, you may also specify a C<period> key, like so:
+When creating a new domain object, you may also specify a C<period> key, like
+so:
 
     $epp->create_domain({
         'name'       => 'example.tld',
@@ -1211,8 +1207,9 @@ When creating a new domain object, you may also specify a C<period> key, like so
         'ns'     => {'ns0.example.com', 'ns1.example.com',},
     });
 
-The C<period> key is assumed to be in years rather than months. C<Net::EPP::Simple>
-assumes the registry uses the host object model rather than the host attribute model.
+The C<period> key is assumed to be in years rather than months.
+C<Net::EPP::Simple> assumes the registry uses the host object model rather than
+the host attribute model.
 
 =cut
 
@@ -1226,6 +1223,7 @@ sub _prepare_create_domain_frame {
     my ($self, $domain) = @_;
 
     my $frame = Net::EPP::Frame::Command::Create::Domain->new;
+
     $frame->setDomain($domain->{'name'});
     $frame->setPeriod($domain->{'period'})         if (defined($domain->{period}) && $domain->{period} > 0);
     $frame->setNS(@{$domain->{'ns'}})              if $domain->{'ns'} and @{$domain->{'ns'}};
