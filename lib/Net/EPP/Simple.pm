@@ -1205,6 +1205,9 @@ so:
         },
         'status' => ['clientTransferProhibited',],
         'ns'     => {'ns0.example.com', 'ns1.example.com',},
+
+        # this will be ignored if the server does not support the TTL extension
+        'ttl'    => {'NS' => 3600, 'DS' => 60},
     });
 
 The C<period> key is assumed to be in years rather than months.
@@ -1230,6 +1233,11 @@ sub _prepare_create_domain_frame {
     $frame->setRegistrant($domain->{'registrant'}) if (defined($domain->{registrant}) && $domain->{registrant} ne '');
     $frame->setContacts($domain->{'contacts'});
     $frame->setAuthInfo($domain->{authInfo}) if (defined($domain->{authInfo}) && $domain->{authInfo} ne '');
+
+    if ($domain->{'ttl'} && $self->server_has_extension(Net::EPP::Frame::ObjectSpec->xmlns('ttl'))) {
+        $frame->setTTLs($domain->{'ttl'});
+    }
+
     return $frame;
 }
 
@@ -1241,6 +1249,12 @@ sub _prepare_create_domain_frame {
             {ip => '192.0.2.1', version => 'v4'},
             {ip => '192.0.2.2',  version => 'v4'},
         ],
+
+        # this will be ignored if the server does not support the TTL extension
+        'ttl' => {
+            'A'    => 3600,
+            'AAAA' => 900,
+        }
     });
 
 =cut
@@ -1257,6 +1271,11 @@ sub _prepare_create_host_frame {
     my $frame = Net::EPP::Frame::Command::Create::Host->new;
     $frame->setHost($host->{name});
     $frame->setAddr(@{$host->{addrs}});
+
+    if ($host->{'ttl'} && $self->server_has_extension(Net::EPP::Frame::ObjectSpec->xmlns('ttl'))) {
+        $frame->setTTLs($host->{'ttl'});
+    }
+
     return $frame;
 }
 
@@ -1341,6 +1360,9 @@ The C<$info> argument should look like this:
         chg  => {
             registrant => $new_registrant_id,
             authInfo   => $new_domain_password,
+
+            # this will be ignored if the server does not support the TTL extension
+            ttl        => {'NS' => 3600, 'DS' => 60},
         },
         add => {
 
@@ -1453,6 +1475,8 @@ The C<$info> argument should look like this:
         },
         chg => {
             name => 'ns2.example.com',
+            # this will be ignored if the server does not support the TTL extension
+            ttl    => {NS => 3600, DS => 60},
         },
     }
 
@@ -1559,6 +1583,11 @@ sub _generate_update_domain_frame {
         if (defined $chg->{authInfo}) {
             $frame->chgAuthInfo($chg->{authInfo});
         }
+
+        if (defined $chg->{ttl} && $self->server_has_extension(Net::EPP::Frame::ObjectSpec->xmlns('ttl'))) {
+            $frame->chgTTLs($chg->{ttl});
+        }
+
     }
 
     return $frame;
@@ -1676,6 +1705,16 @@ sub _generate_update_host_frame {
     if (exists $info->{chg} && ref $info->{chg} eq 'HASH') {
         if ($info->{chg}->{name}) {
             $frame->chgName($info->{chg}->{name});
+        }
+    }
+
+    if (exists $info->{chg} && ref $info->{chg} eq 'HASH') {
+        if ($info->{chg}->{name}) {
+            $frame->chgName($info->{chg}->{name});
+        }
+
+        if (defined $info->{chg}->{ttl} && $self->server_has_extension(Net::EPP::Frame::ObjectSpec->xmlns('ttl'))) {
+            $frame->chgTTLs($info->{chg}->{ttl});
         }
     }
 
