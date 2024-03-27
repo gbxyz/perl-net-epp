@@ -164,7 +164,7 @@ sub _connect_tcp {
 
     my $class = ($self->{'ssl'} == 1 ? 'IO::Socket::SSL' : 'IO::Socket::IP');
 
-    $self->connection = $class->new(
+    $self->{'connection'} = $class->new(
         'PeerAddr' => $self->{'host'},
         'PeerPort' => $self->{'port'},
         'Proto'    => 'tcp',
