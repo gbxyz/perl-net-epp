@@ -22,6 +22,11 @@ related functions:
 - a utility library to export EPP response codes
 ([Net::EPP::ResponseCodes](https://metacpan.org/pod/Net%3A%3AEPP%3A%3AResponseCodes)).
 
+# SEE ALSO
+
+- [Net::EPP::Server](https://metacpan.org/pod/Net%3A%3AEPP%3A%3AServer)
+- [App::pepper](https://metacpan.org/pod/App%3A%3Apepper)
+
 # AUTHORS
 
 This module is maintained by [Gavin Brown](https://metacpan.org/author/GBROWN),

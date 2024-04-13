@@ -47,6 +47,16 @@ related functions:
 
 =back
 
+=head1 SEE ALSO
+
+=over
+
+=item * L<Net::EPP::Server>
+
+=item * L<App::pepper>
+
+=back
+
 =head1 AUTHORS
 
 This module is maintained by L<Gavin Brown|https://metacpan.org/author/GBROWN>,
