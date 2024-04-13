@@ -69,7 +69,7 @@ provide an encrypted connection.
 
 =item * C<frames>
 
-OPTIONAL. If the value of this parameter is false, then the C<request()> and
+DEPRECATED. If the value of this parameter is false, then the C<request()> and
 C<get_frame()> methods (see below) will return strings instead of
 C<Net::EPP::Frame::Response> objects.
 
@@ -86,7 +86,7 @@ sub new {
     # this is an undocumented and unsupported feature that allows clients to
     # connect to a local Unix socket instead of a TCP service. IIRC the only
     # use case for this was the old Net::EPP::Proxy module which went away 𝑛
-    # decades ago.
+    # decades ago, and it will be removed in a future release.
     #
     if (defined($params{'sock'})) {
         $self = {
@@ -109,6 +109,9 @@ sub new {
         };
     }
 
+    #
+    # this option will also be removed in a future release.
+    #
     $self->{'frames'} = (exists($params{'frames'}) && !$params{'frames'} ? 0 : 1);
 
     return bless($self, $package);
@@ -355,7 +358,7 @@ connection might have dropped, use C<ping()> to test it.
 
 =cut
 
-sub connected  { defined(shift->connection) }
+sub connected { defined(shift->connection) }
 
 =pod
 

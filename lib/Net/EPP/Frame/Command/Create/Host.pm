@@ -1,6 +1,6 @@
 package Net::EPP::Frame::Command::Create::Host;
 use List::Util qw(any);
-use base qw(Net::EPP::Frame::Command::Create);
+use base       qw(Net::EPP::Frame::Command::Create);
 use Net::EPP::Frame::ObjectSpec;
 use strict;
 
@@ -125,11 +125,11 @@ sub setTTLs {
     foreach my $type (keys(%{$ttls})) {
         my $ttl = $self->createExtensionElementFor(Net::EPP::Frame::ObjectSpec->xmlns('ttl'))->appendChild($self->createElement('ttl'));
         $ttl->appendText($ttls->{$type});
-        if (any { $type eq $_} qw(NS DS DNAME A AAAA)) {
+        if (any { $type eq $_ } qw(NS DS DNAME A AAAA)) {
             $ttl->setAttribute('for', $type);
 
         } else {
-            $ttl->setAttribute('for', 'custom');
+            $ttl->setAttribute('for',    'custom');
             $ttl->setAttribute('custom', $type);
 
         }

@@ -164,10 +164,7 @@ command name (C<create>, C<update> etc).
 sub createExtensionElementFor {
     my ($self, $xmlns) = @_;
 
-    return $self->extension->appendChild($self->createElementNS(
-        $xmlns,
-        $self->getCommandType
-    ));
+    return $self->extension->appendChild($self->createElementNS($xmlns, $self->getCommandType));
 }
 
 1;
