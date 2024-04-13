@@ -172,7 +172,7 @@ sub _connect_tcp {
         %params
     );
 
-    if (!defined($self->connection) || ($@ && $@ ne '')) {
+    if (!defined($self->{'connection'}) || ($@ && $@ ne '')) {
         chomp($@);
         $@ =~ s/^$class:? ?//;
         croak("Connection to $self->{'host'}:$self->{'port'} failed: $@");
@@ -184,13 +184,13 @@ sub _connect_tcp {
 sub _connect_unix {
     my ($self, %params) = @_;
 
-    $self->connection = IO::Socket::UNIX->new(
+    $self->{'connection'} = IO::Socket::UNIX->new(
         'Peer' => $self->{'sock'},
         'Type' => SOCK_STREAM,
         %params
     );
 
-    if (!defined($self->connection) || ($@ && $@ ne '')) {
+    if (!defined($self->{'connection'}) || ($@ && $@ ne '')) {
         croak("Connection to $self->{'host'}:$self->{'port'} failed: $@");
     }
 
@@ -346,7 +346,25 @@ sub parser {
     return $self->{'parser'};
 }
 
+=pod
+
+    $connected = $epp->connected;
+
+Returns a boolean if C<Net::EPP::Simple> has a connection to the server. Note that this
+connection might have dropped, use C<ping()> to test it.
+
+=cut
+
 sub connected  { defined(shift->connection) }
+
+=pod
+
+    $socket = $epp->connection;
+
+Returns the underlying socket.
+
+=cut
+
 sub connection { shift->{'connection'} }
 
 1;

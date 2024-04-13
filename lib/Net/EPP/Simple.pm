@@ -213,7 +213,6 @@ sub new {
     $self->{debug}           = (defined($params{debug})                                ? int($params{debug})     : undef);
     $self->{timeout}         = (defined($params{timeout}) && int($params{timeout}) > 0 ? $params{timeout}        : 5);
     $self->{reconnect}       = (defined($params{reconnect})                            ? int($params{reconnect}) : 3);
-    $self->{'connected'}     = undef;
     $self->{'authenticated'} = undef;
     $self->{connect}         = (exists($params{connect}) ? $params{connect} : 1);
     $self->{login}           = (exists($params{login})   ? $params{login}   : 1);
@@ -317,8 +316,6 @@ sub _connect {
         return undef;
 
     } else {
-        $self->{'connected'} = 1;
-
         $self->debug('Connected OK, retrieving greeting frame');
         $self->{greeting} = $self->get_frame;
         if (ref($self->{greeting}) ne 'Net::EPP::Frame::Response') {
@@ -2124,7 +2121,6 @@ sub logout {
     }
     $self->debug('disconnecting from server');
     $self->disconnect;
-    undef($self->{'connected'});
     return 1;
 }
 
@@ -2179,20 +2175,6 @@ sub server_has_extension {
     }
 
     return undef;
-}
-
-=pod
-
-    $connected = $epp->connected;
-
-Returns a boolean if C<Net::EPP::Simple> has a connection to the server. Note that this
-connection might have dropped, use C<ping()> to test it.
-
-=cut
-
-sub connected {
-    my $self = shift;
-    return defined($self->{'connected'});
 }
 
 =pod
