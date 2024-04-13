@@ -51,9 +51,9 @@ related functions:
 
 =over
 
-=item * L<Net::EPP::Server>
+=item * L<Net::EPP::Server> - an EPP server implementation.
 
-=item * L<App::pepper>
+=item * L<App::pepper> - a command-line EPP client.
 
 =back
 

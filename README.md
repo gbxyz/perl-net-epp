@@ -24,8 +24,8 @@ related functions:
 
 # SEE ALSO
 
-- [Net::EPP::Server](https://metacpan.org/pod/Net%3A%3AEPP%3A%3AServer)
-- [App::pepper](https://metacpan.org/pod/App%3A%3Apepper)
+- [Net::EPP::Server](https://metacpan.org/pod/Net%3A%3AEPP%3A%3AServer) - an EPP server implementation.
+- [App::pepper](https://metacpan.org/pod/App%3A%3Apepper) - a command-line EPP client.
 
 # AUTHORS
 
