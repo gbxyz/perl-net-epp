@@ -85,6 +85,8 @@ limited to):
 
 =item * Christian Maile
 
+=item * Tony Finch
+
 =back
 
 =head1 COPYRIGHT

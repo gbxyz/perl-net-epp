@@ -43,6 +43,7 @@ limited to):
 - Patrick Mevzek
 - Alexander Biehl
 - Christian Maile
+- Tony Finch
 
 # COPYRIGHT
 
