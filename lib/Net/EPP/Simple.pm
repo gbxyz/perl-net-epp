@@ -1229,7 +1229,7 @@ sub _prepare_create_domain_frame {
     $frame->setNS(@{$domain->{'ns'}})              if $domain->{'ns'} and @{$domain->{'ns'}};
     $frame->setRegistrant($domain->{'registrant'}) if (defined($domain->{registrant}) && $domain->{registrant} ne '');
     $frame->setContacts($domain->{'contacts'});
-    $frame->setAuthInfo($domain->{authInfo}) if (defined($domain->{authInfo}) && $domain->{authInfo} ne '');
+    $frame->setAuthInfo($domain->{authInfo} || "");
 
     if ($domain->{'ttl'} && $self->server_has_extension(Net::EPP::Frame::ObjectSpec->xmlns('ttl'))) {
         $frame->setTTLs($domain->{'ttl'});
