@@ -297,26 +297,32 @@ This sends a request frame to the server. C<$frame> may be one of:
 sub send_frame {
     my ($self, $frame) = @_;
 
-    my $xml;
+    my $xml = $self->_get_xml($frame);
+
+    return Net::EPP::Protocol->send_frame($self->connection, $xml);
+}
+
+sub _get_xml {
+    my ($self, $frame) = @_;
+
     if ($frame->isa('XML::DOM::Document') || $frame->isa('XML::LibXML::Document')) {
-        $xml = $frame->toString;
+        return $frame->toString;
 
     } elsif ($frame !~ /</ && -e $frame) {
         if (!open(FRAME, $frame)) {
             croak("Couldn't open file '$frame' for reading: $!");
 
         } else {
-            $xml = join('', <FRAME>);
+            my $xml = join('', <FRAME>);
             close(FRAME);
 
+            return $xml;
         }
 
     } else {
-        $xml = $frame;
+        return $frame;
 
     }
-
-    return Net::EPP::Protocol->send_frame($self->connection, $xml);
 }
 
 =pod
